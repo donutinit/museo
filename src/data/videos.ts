@@ -27,6 +27,18 @@ export const videos: VideoEntry[] = [
     caption: 'Si yo vuelvo a nacer, yo le pediría a Dios que me diera el mismo padre.',
   },
   {
+    slug: 'entrevista-beto',
+    title: 'Beto — el mayor de los Garza Núñez',
+    kind: 'entrevista',
+    year: 2026,
+    durationLabel: '01:38',
+    src: '/media/videos/entrevista-beto.mp4',
+    poster: '/media/video-posters/entrevista-beto.jpg',
+    aspect: '16/9',
+    tape: 'EXP/02 · Beto',
+    caption: 'Somos seis hermanos, originalmente. Familia artística.',
+  },
+  {
     slug: 'entrevista-lalo',
     title: 'Lalo — Carlos era bien juguetón',
     kind: 'entrevista',
@@ -35,7 +47,7 @@ export const videos: VideoEntry[] = [
     src: '/media/videos/entrevista-lalo.mp4',
     poster: '/media/video-posters/entrevista-lalo.jpg',
     aspect: '16/9',
-    tape: 'EXP/02 · Lalo',
+    tape: 'EXP/03 · Lalo',
     caption: 'Yo la que quería mucho era Marisela.',
   },
   {
@@ -47,7 +59,7 @@ export const videos: VideoEntry[] = [
     src: '/media/videos/entrevista-maricela.mp4',
     poster: '/media/video-posters/entrevista-maricela.jpg',
     aspect: '16/9',
-    tape: 'EXP/03 · Maricela',
+    tape: 'EXP/04 · Maricela',
     caption: 'Concha empieza a gritar y gritar porque venía la yunta de güeyes.',
   },
   {
@@ -59,7 +71,7 @@ export const videos: VideoEntry[] = [
     src: '/media/videos/entrevista-missael-vhs.mp4',
     poster: '/media/video-posters/entrevista-missael-vhs.jpg',
     aspect: '4/3',
-    tape: 'EXP/04 · Missael',
+    tape: 'EXP/05 · Missael',
     caption: 'Ya los invité a mi fiesta el sábado 13 de junio.',
   },
   {
