@@ -1,0 +1,105 @@
+# ─── dependencies ──────────────────────────────────────
+node_modules/
+.pnpm-store/
+.yarn/
+jspm_packages/
+
+# ─── build output ──────────────────────────────────────
+dist/
+build/
+out/
+.astro/
+.cache/
+.vite/
+.output/
+
+# ─── environment ───────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── editor / os ───────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.history/
+
+# ─── logs ──────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.npm/
+
+# ─── media pesado (vive en truenas, no en git) ─────────
+public/media/
+public/reels/
+public/raw/
+public/originals/
+
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.mxf
+*.braw
+
+*.psd
+*.ai
+*.afphoto
+*.afdesign
+
+*.cr2
+*.cr3
+*.arw
+*.nef
+*.dng
+*.raf
+*.orf
+*.rw2
+
+# excepción: previews/thumbs livianos sí entran al repo
+!public/thumbnails/
+!public/posters/
+!public/previews/
+
+# ─── secretos / configuración local ────────────────────
+*.pem
+*.key
+*.cert
+*.crt
+.docker/config.json
+docker-compose.override.yml
+secrets/
+
+# ─── truenas / deploy ──────────────────────────────────
+*.tar
+*.tar.gz
+
+# ─── temporales ────────────────────────────────────────
+.tmp/
+.temp/
+tmp/
+temp/
+*.bak
+*.orig
+
+# ─── tooling extra ─────────────────────────────────────
+.eslintcache
+.stylelintcache
+.parcel-cache/
+coverage/
+*.lcov
+
+# ─── astro / vercel / netlify (por si en algún momento) ─
+.vercel
+.netlify
