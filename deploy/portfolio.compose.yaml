@@ -4,18 +4,18 @@
 # pegar este yaml en: truenas ui → apps → discover → custom app
 #
 # prerequisitos:
-#   1. dataset triceratops/portfolio creado (con apps:apps 755)
+#   1. dataset triceratops/portfolio creado (apps:apps 755)
 #   2. imagen ghcr.io/donutinit/portfolio:latest pública
-#      (https://github.com/donutinit/portfolio/pkgs/container/portfolio)
+#      → https://github.com/donutinit/portfolio/pkgs/container/portfolio
 #   3. cloudflare tunnel (cloudflared) ya corriendo en truenas
 #
 # después de crear la app:
-#   - en cloudflare dashboard → zero trust → networks → tunnels → tu tunnel
-#     → public hostnames → add:
-#         subdomain: (vacío para apex) o "portfolio" / "www"
-#         domain:    vondiego.com
-#         type:      http
-#         url:       (ver opción a o b abajo)
+#   en cloudflare dashboard → zero trust → networks → tunnels → tu tunnel
+#   → public hostnames → add:
+#       subdomain: (vacío para apex) o "portfolio" / "www"
+#       domain:    vondiego.com
+#       type:      http
+#       url:       http://<ip-del-truenas>:30303
 # ──────────────────────────────────────────────────────────────────────
 
 services:
@@ -25,15 +25,8 @@ services:
     restart: unless-stopped
     pull_policy: always
 
-    # opción A (recomendada): el cloudflared se une a esta red (ver abajo)
-    #   url en cloudflare: http://portfolio-web:80
-    networks:
-      - portfolio-net
-
-    # opción B (si no querés tocar la red de cloudflared): expone al LAN
-    #   url en cloudflare: http://<ip-del-truenas>:8080
     ports:
-      - "8080:80"
+      - "30303:80"
 
     volumes:
       - /mnt/triceratops/portfolio:/usr/share/nginx/html/media:ro
@@ -44,29 +37,3 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-
-networks:
-  portfolio-net:
-    name: portfolio-net
-    driver: bridge
-
-# ──────────────────────────────────────────────────────────────────────
-# si vas con la opción A (más limpia y privada):
-#
-# editá el custom app del cloudflared y agregá en su sección `networks:`:
-#
-#   networks:
-#     - portfolio-net
-#
-# y al final del archivo agregá:
-#
-#   networks:
-#     portfolio-net:
-#       external: true
-#
-# después: stop + start del cloudflared para que tome la nueva red.
-# desde ese momento puede resolver "portfolio-web" como hostname interno.
-# ──────────────────────────────────────────────────────────────────────
