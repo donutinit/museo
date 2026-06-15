@@ -1,0 +1,32 @@
+# vcs
+.git
+.gitignore
+.github
+
+# dependencies (will be installed inside container)
+node_modules
+
+# build output (will be generated inside container)
+dist
+.astro
+
+# editor / os
+.vscode
+.idea
+.DS_Store
+
+# env / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# media (volume mount in prod, symlink in dev)
+public/media
+public/reels
+
+# docs y misc (no necesarios para el build)
+docs
+*.md
+!CLAUDE.md
+*.log
