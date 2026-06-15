@@ -2,13 +2,23 @@
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-t rule mt-24">
-  <div class="px-6 md:px-10 py-8 grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs uppercase tracking-[0.15em] text-[var(--color-muted)]">
-    <p>© Donut Init / {year}</p>
-    <p class="md:text-center">Monterrey, MX</p>
+<footer class="border-t rule mt-16 md:mt-24">
+  <div class="px-4 md:px-6 py-6 md:py-8 grid grid-cols-2 md:grid-cols-4 gap-4 font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">
+    <p class="col-span-2 md:col-span-1">
+      <span class="text-[var(--color-accent)]">▮</span> Von Diego / {year}
+    </p>
+    <p class="md:text-center">Monterrey · MX</p>
+    <a
+      href="https://instagram.com/donutinit"
+      target="_blank"
+      rel="noopener"
+      class="md:text-center hover:text-[var(--color-accent)] transition-colors"
+    >
+      @donutinit ↗
+    </a>
     <a
       href="mailto:contacto@vondiego.com"
-      class="md:text-right hover:text-[var(--color-accent)] transition-colors"
+      class="text-right hover:text-[var(--color-accent)] transition-colors"
     >
       contacto@vondiego.com
     </a>

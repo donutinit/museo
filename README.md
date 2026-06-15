@@ -1,9 +1,10 @@
 # portfolio
 
-portafolio web personal del [donut](mailto:contacto@vondiego.com) — videógrafo y fotógrafo.
+portafolio web de [Von Diego](mailto:contacto@vondiego.com) — videógrafo y fotógrafo basado en Monterrey.
 
 - stack: astro + nginx (docker), hosteado en truenas, expuesto vía cloudflare tunnel
 - imagen: [`ghcr.io/donutinit/portfolio`](https://github.com/donutinit/portfolio/pkgs/container/portfolio)
+- deploy: [`deploy/portfolio.compose.yaml`](./deploy/portfolio.compose.yaml)
 - estado: en construcción
 
 ## docs
@@ -14,4 +15,4 @@ empezá por [`docs/00-arquitectura.md`](./docs/00-arquitectura.md) para el panor
 
 ## licencia
 
-[hlqsthuhalv 1.0](./LICENSE) — haz lo que se te hinche un huevo a la verga.
+[hlqsthuhalv 1.0](./LICENSE) — haz lo que se te hinche un huevo a la verga, **excepto uso comercial de los assets audiovisuales** (fotos, videos, reels) que requieren permiso escrito a [contacto@vondiego.com](mailto:contacto@vondiego.com).

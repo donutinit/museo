@@ -50,7 +50,7 @@ opciones evaluadas:
 **veredicto**: self-host con custom player. razones:
 
 1. el aesthetic brutalist requiere player propio (controles a medida, no de un tercero)
-2. el donut ya sabe que el archivo se sirve bien desde el nas (referencia: el flujo "vitransfer" que tiene corriendo)
+2. Von Diego ya sabe que el archivo se sirve bien desde el nas (referencia: el flujo "vitransfer" que tiene corriendo)
 3. cero dependencia externa
 4. con archivos web-optimizados (h.264 + faststart, ~50-150 mb por reel de 2-3 min) el ancho de banda no es problema
 
@@ -93,7 +93,7 @@ el repo es público, la imagen también. justificación: la imagen contiene solo
 descartado port-forwarding por:
 
 - requiere ip pública estática o ddns
-- expone el ip público del isp del donut
+- expone el ip público del isp de Von Diego
 - requiere lets-encrypt o cert manual + renovación
 - pierde la red de cloudflare (waf, cdn, anti-ddos)
 

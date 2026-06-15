@@ -10,7 +10,7 @@
 - [x] `CLAUDE.md` con instrucciones de estilo (commits one-liner, etc)
 - [x] git + ssh funcionando contra github
 
-## bloqueado, esperando al donut
+## bloqueado, esperando a Von Diego
 
 - [ ] **decidir sabor brutalista** (ver [05-direccion-visual.md](./05-direccion-visual.md)) — bloquea tipografía, paleta, layout
 - [ ] **decidir dominio/subdominio final** — bloquea config de cloudflare tunnel

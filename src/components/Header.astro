@@ -10,13 +10,14 @@ const navClass = (active: boolean) =>
     : 'text-[var(--color-ink)] hover:text-[var(--color-accent)] transition-colors';
 ---
 
-<header class="border-b rule">
-  <div class="px-6 md:px-10 py-5 flex items-center justify-between font-mono text-xs uppercase tracking-[0.2em]">
-    <a href="/" class="font-semibold hover:text-[var(--color-accent)] transition-colors">
-      <span class="hidden sm:inline">█ </span>Donut Init
+<header class="sticky top-0 z-50 backdrop-blur-xl bg-[var(--color-bg)]/75 border-b rule">
+  <div class="px-4 md:px-6 py-3 md:py-4 flex items-center justify-between font-mono text-[10px] md:text-xs uppercase tracking-[0.2em]">
+    <a href="/" class="font-semibold flex items-center gap-2 hover:text-[var(--color-accent)] transition-colors">
+      <span class="text-[var(--color-accent)] text-base leading-none">▮</span>
+      <span>Von<span class="text-[var(--color-accent)]">.</span>Diego</span>
     </a>
 
-    <nav class="flex items-center gap-6 md:gap-10">
+    <nav class="flex items-center gap-4 md:gap-7">
       <a href="/" class={navClass(isHome)}>Work</a>
       <a href="/about" class={navClass(isAbout)}>About</a>
       <a href="/contact" class={navClass(isContact)}>Contact</a>

@@ -1,6 +1,6 @@
 # dirección visual
 
-dirección elegida: **brutalismo / experimental**. el donut quiere algo que destaque, no un portafolio cookie-cutter de "[nombre] | photographer".
+dirección elegida: **brutalismo / experimental**. Von Diego quiere algo que destaque, no un portafolio cookie-cutter de "[nombre] | photographer".
 
 ## sabores brutalistas considerados
 
@@ -85,7 +85,7 @@ brutalismo + estética cine: aspect ratios marcados, letterboxing, type tipo cr�
 
 ## decisión pendiente
 
-esperando que el donut confirme cuál de los cuatro. cualquiera funciona pero implican:
+esperando que Von Diego confirme cuál de los cuatro. cualquiera funciona pero implican:
 
 - distinto sistema tipográfico
 - distinto tono de interacción

@@ -32,7 +32,7 @@ en lugar de trailers en commits, el donut prefiere agregar a claude como **contr
 
 ## proyecto
 
-portafolio del **donut** (videógrafo/fotógrafo).
+portafolio de **Von Diego** (videógrafo/fotógrafo).
 
 - **stack**: astro (probablemente con tailwind), nginx en docker, deploy a truenas community edition
 - **infra**: imagen en ghcr.io (pública), cloudflare tunnel para exposición, dominio en cloudflare
@@ -43,10 +43,11 @@ ver `docs/` para detalle completo.
 
 ## sobre los nombres
 
-- github user: `donutinit`
-- email: `contacto@vondiego.com`
-- email comercial: `contacto@vondiego.com`
-- nombre para licencia/créditos: `donut init`
+- **nombre profesional / display name**: `Von Diego` (úsalo siempre en sitio, copy, licencia, créditos)
+- github user / handle: `donutinit` (solo para urls técnicas: github, ghcr, instagram)
+- email personal: `contacto@vondiego.com`
+- email comercial / pública: `contacto@vondiego.com`
+- dominio: `vondiego.com`
 
 ## seguridad / supply chain de npm
 

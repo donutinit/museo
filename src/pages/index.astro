@@ -1,13 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Marquee from '../components/Marquee.astro';
 
 const allProjects = await getCollection('projects');
 const projects = allProjects.sort(
   (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
 );
-
-const featured = projects.find((p) => p.data.featured) ?? projects[0];
 
 const typeLabel: Record<string, string> = {
   retrato: 'Retrato',
@@ -24,68 +23,113 @@ const yearRange = (() => {
 ---
 
 <BaseLayout>
-  <!-- Featured hero -->
-  <section class="border-b rule">
-    <a href={`/work/${featured.slug}`} class="block group">
-      <div class="relative overflow-hidden">
-        <img
-          src={featured.data.poster}
-          alt={featured.data.title}
-          class="w-full h-[70vh] md:h-[85vh] object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-          fetchpriority="high"
-        />
-      </div>
-      <div class="px-6 md:px-10 py-6 md:py-10 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-        <div>
-          <p class="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-muted)] mb-3">
-            Featured · {typeLabel[featured.data.type]}
-          </p>
-          <h2 class="text-5xl md:text-7xl lg:text-8xl font-medium tracking-tighter leading-[0.95] group-hover:text-[var(--color-accent)] transition-colors">
-            {featured.data.title}
-          </h2>
-        </div>
-        <p class="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-muted)] group-hover:text-[var(--color-accent)] transition-colors">
-          → ver proyecto
-        </p>
-      </div>
-    </a>
+  <!-- meta strip -->
+  <section class="border-b rule px-4 md:px-6 py-3 md:py-4 font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] text-[var(--color-muted)] flex flex-wrap justify-between items-baseline gap-3">
+    <span><span class="text-[var(--color-ink)]">Von Diego</span> · portfolio · {yearRange}</span>
+    <span class="hidden sm:inline">Monterrey · MX</span>
+    <span>[{String(projects.length).padStart(2, '0')}] works</span>
   </section>
 
-  <!-- Project index table -->
-  <section class="px-6 md:px-10 py-16 md:py-24">
-    <div class="flex items-baseline justify-between mb-10 md:mb-14 font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-muted)]">
-      <h3>Index / {yearRange}</h3>
-      <p>[{projects.length.toString().padStart(2, '0')}] projects</p>
-    </div>
+  <!-- marquee -->
+  <Marquee>
+    <span class="text-[var(--color-accent)]">●</span>
+    <span>available for commissions</span>
+    <span class="text-[var(--color-muted)]">·</span>
+    <span>contacto@vondiego.com</span>
+    <span class="text-[var(--color-muted)]">·</span>
+    <span class="text-[var(--color-accent)]">●</span>
+    <span>video · foto · brand</span>
+    <span class="text-[var(--color-muted)]">·</span>
+    <span>based in monterrey, mx</span>
+    <span class="text-[var(--color-muted)]">·</span>
+    <span class="text-[var(--color-accent)]">●</span>
+    <span>actually shooting right now probably</span>
+    <span class="text-[var(--color-muted)]">·</span>
+  </Marquee>
 
-    <ol>
+  <!-- intro -->
+  <section class="px-4 md:px-6 py-10 md:py-16 border-b rule max-w-5xl">
+    <h1 class="text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-medium tracking-tighter leading-[0.85]">
+      <span class="block">Videógrafo</span>
+      <span class="block text-[var(--color-muted)]">&amp; fotógrafo</span>
+      <span class="block">en <span class="text-[var(--color-accent)]">MTY</span>.</span>
+    </h1>
+    <p class="mt-8 md:mt-12 max-w-2xl text-base md:text-lg leading-relaxed text-[var(--color-ink)]/85">
+      Trabajo con marcas, eventos deportivos, conciertos y proyectos personales.
+      Acá viven los <span class="text-[var(--color-accent)]">{projects.length}</span> que valen la pena enseñar.
+    </p>
+  </section>
+
+  <!-- masonry of projects -->
+  <section class="px-3 md:px-5 py-5 md:py-8">
+    <div class="columns-1 md:columns-2 lg:columns-3 gap-3 md:gap-4 lg:gap-5 space-y-3 md:space-y-4 lg:space-y-5 [&>a]:break-inside-avoid">
       {projects.map((p, i) => (
-        <li class="border-t rule last:border-b group">
-          <a
-            href={`/work/${p.slug}`}
-            class="grid grid-cols-12 gap-3 md:gap-6 items-baseline py-5 md:py-7 transition-colors"
-          >
-            <span class="col-span-2 md:col-span-1 font-mono text-xs text-[var(--color-muted)]">
-              {String(i + 1).padStart(2, '0')}
+        <a
+          href={`/work/${p.slug}`}
+          class="block group relative"
+          aria-label={`Ver proyecto: ${p.data.title}`}
+        >
+          <div class="relative overflow-hidden bg-[var(--color-rule)]">
+            <img
+              src={p.data.poster}
+              alt={p.data.title}
+              class="card-hover w-full h-auto"
+              loading={i < 3 ? 'eager' : 'lazy'}
+              decoding={i < 3 ? 'sync' : 'async'}
+              fetchpriority={i === 0 ? 'high' : 'auto'}
+            />
+
+            <!-- accent corner mark -->
+            <div class="absolute top-0 left-0 px-2 py-1 font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] bg-[var(--color-bg)]/80 backdrop-blur-sm">
+              <span class="text-[var(--color-accent)]">{String(i + 1).padStart(2, '0')}</span>
+            </div>
+
+            <!-- desktop hover overlay -->
+            <div class="hidden md:flex absolute inset-0 bg-[var(--color-bg)]/85 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center p-6">
+              <div class="text-center">
+                <p class="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] mb-3">
+                  {typeLabel[p.data.type]} · {p.data.year}
+                </p>
+                <h3 class="text-3xl lg:text-5xl font-medium tracking-tighter leading-tight">
+                  {p.data.title}
+                </h3>
+                {p.data.location && (
+                  <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-muted)] mt-4">
+                    {p.data.location}
+                  </p>
+                )}
+                <p class="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] mt-6 inline-flex items-center gap-1">
+                  ver proyecto <span>→</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- always-visible metadata (below image, all viewports) -->
+          <div class="pt-2 md:pt-3 pb-1 flex items-baseline justify-between gap-3 font-mono text-[10px] md:text-xs uppercase tracking-[0.2em]">
+            <span class="text-[var(--color-muted)]">
+              {typeLabel[p.data.type]} · {p.data.year}
             </span>
-            <span class="col-span-10 md:col-span-5 text-2xl md:text-4xl font-medium tracking-tight group-hover:text-[var(--color-accent)] transition-colors">
-              {p.data.title}
-            </span>
-            <span class="hidden md:inline col-span-2 font-mono text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">
-              {typeLabel[p.data.type]}
-            </span>
-            <span class="hidden md:inline col-span-2 font-mono text-xs text-[var(--color-muted)]">
-              {p.data.year}{p.data.location ? ` · ${p.data.location}` : ''}
-            </span>
-            <span class="hidden md:inline col-span-1 font-mono text-xs text-[var(--color-muted)] text-right">
-              [{p.data.photoCount}]
-            </span>
-            <span class="hidden md:inline col-span-1 font-mono text-xs text-[var(--color-muted)] text-right group-hover:text-[var(--color-accent)] transition-colors">
-              →
-            </span>
-          </a>
-        </li>
+            <span class="text-[var(--color-muted)]">[{String(p.data.photoCount).padStart(2, '0')}]</span>
+          </div>
+          <h3 class="text-lg md:text-xl lg:text-2xl font-medium tracking-tight leading-tight group-hover:text-[var(--color-accent)] transition-colors">
+            {p.data.title}
+          </h3>
+        </a>
       ))}
-    </ol>
+    </div>
   </section>
+
+  <!-- closing marquee -->
+  <Marquee variant="accent">
+    <span>↗</span>
+    <span>contacto@vondiego.com</span>
+    <span>·</span>
+    <span>↗</span>
+    <span>let's make something</span>
+    <span>·</span>
+    <span>↗</span>
+    <span>monterrey · méxico · world</span>
+    <span>·</span>
+  </Marquee>
 </BaseLayout>

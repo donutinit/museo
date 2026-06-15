@@ -10,10 +10,10 @@ interface Props {
 
 const {
   title,
-  description = 'Portafolio de Donut Init — videógrafo y fotógrafo basado en Monterrey.',
+  description = 'Portafolio de Von Diego — videógrafo y fotógrafo basado en Monterrey.',
 } = Astro.props;
 
-const fullTitle = title ? `${title} / Donut Init` : 'Donut Init / Portfolio';
+const fullTitle = title ? `${title} / Von Diego` : 'Von Diego / Portfolio';
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
@@ -21,7 +21,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="generator" content={Astro.generator} />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
@@ -33,6 +33,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="Von Diego" />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body class="flex flex-col min-h-screen">

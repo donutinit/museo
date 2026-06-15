@@ -1,0 +1,21 @@
+---
+interface Props {
+  variant?: 'default' | 'accent';
+}
+const { variant = 'default' } = Astro.props;
+
+const bgClass =
+  variant === 'accent'
+    ? 'bg-[var(--color-accent)] text-[var(--color-bg)]'
+    : 'bg-[var(--color-bg)] text-[var(--color-ink)]';
+---
+
+<div class={`border-b rule overflow-hidden ${bgClass}`}>
+  <div class="marquee-track flex font-mono text-[10px] md:text-xs uppercase tracking-[0.25em] py-2.5 md:py-3 whitespace-nowrap">
+    {[0, 1].map(() => (
+      <div class="flex shrink-0 items-center gap-5 md:gap-8 px-3 md:px-5">
+        <slot />
+      </div>
+    ))}
+  </div>
+</div>
