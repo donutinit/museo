@@ -6,21 +6,25 @@ const isContact = path.startsWith('/contact');
 
 const navClass = (active: boolean) =>
   active
-    ? 'text-[var(--color-accent)]'
-    : 'text-[var(--color-ink)] hover:text-[var(--color-accent)] transition-colors';
+    ? 'text-[var(--color-acid)]'
+    : 'text-[var(--color-ink)]/80 hover:text-[var(--color-acid)] transition-colors';
 ---
 
-<header class="sticky top-0 z-50 backdrop-blur-xl bg-[var(--color-bg)]/75 border-b rule">
-  <div class="px-4 md:px-6 py-3 md:py-4 flex items-center justify-between font-mono text-[10px] md:text-xs uppercase tracking-[0.2em]">
-    <a href="/" class="font-semibold flex items-center gap-2 hover:text-[var(--color-accent)] transition-colors">
-      <span class="text-[var(--color-accent)] text-base leading-none">▮</span>
-      <span>Von<span class="text-[var(--color-accent)]">.</span>Diego</span>
+<header class="sticky top-0 z-50 backdrop-blur-xl bg-[var(--color-bg)]/82 border-b rule">
+  <div class="px-3 md:px-6 py-3 md:py-4 flex items-center justify-between gap-3 font-mono text-[10px] md:text-xs uppercase tracking-[0.18em]">
+    <a href="/" class="font-semibold flex items-center gap-2 hover:text-[var(--color-acid)] transition-colors min-w-0">
+      <span class="text-[var(--color-accent)] text-base leading-none">▰</span>
+      <span class="truncate">Von<span class="text-[var(--color-acid)]">.</span>Diego</span>
     </a>
 
-    <nav class="flex items-center gap-4 md:gap-7">
-      <a href="/" class={navClass(isHome)}>Work</a>
-      <a href="/about" class={navClass(isAbout)}>About</a>
-      <a href="/contact" class={navClass(isContact)}>Contact</a>
+    <p class="hidden lg:block text-[var(--color-muted)]">
+      sistema visual / monterrey / producto final
+    </p>
+
+    <nav class="flex items-center gap-3 md:gap-6 shrink-0">
+      <a href="/" class={navClass(isHome)}>Archivo</a>
+      <a href="/about" class={navClass(isAbout)}>Manifiesto</a>
+      <a href="/contact" class={navClass(isContact)}>Contacto</a>
     </nav>
   </div>
 </header>

@@ -32,12 +32,12 @@ en lugar de trailers en commits, el donut prefiere agregar a claude como **contr
 
 ## proyecto
 
-portafolio de **Von Diego** (videógrafo/fotógrafo).
+archivo visual de **Von Diego** (artista visual).
 
 - **stack**: astro (probablemente con tailwind), nginx en docker, deploy a truenas community edition
 - **infra**: imagen en ghcr.io (pública), cloudflare tunnel para exposición, dominio en cloudflare
-- **dirección visual**: brutalismo/experimental — pendiente sabor exacto (ver `docs/05-direccion-visual.md`)
-- **contenido**: reels, fotografía editorial, eventos, behind-the-scenes
+- **dirección visual**: brutalismo/experimental, techy e irracional
+- **contenido**: productos visuales, archivo de obra, eventos, marca, arte y piezas personales
 
 ver `docs/` para detalle completo.
 

@@ -2,62 +2,65 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="About" description="Sobre Von Diego — videógrafo y fotógrafo basado en Monterrey.">
-  <!-- meta strip -->
-  <section class="border-b rule px-4 md:px-6 py-3 font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] flex items-baseline justify-between gap-3">
-    <a href="/" class="hover:text-[var(--color-accent)] transition-colors">← index</a>
-    <span class="text-[var(--color-muted)]">about <span class="text-[var(--color-accent)]">/</span> 01</span>
+<BaseLayout title="Manifiesto" description="Manifiesto de Von Diego — artista visual que convierte visiones en productos de calidad.">
+  <section class="author-meta-row">
+    <a href="/" class="hover:text-[var(--color-accent)] transition-colors">← archivo</a>
+    <span>manifiesto / autor</span>
+    <span>monterrey, mx</span>
   </section>
 
-  <section class="px-4 md:px-6 py-10 md:py-20 max-w-5xl">
-    <h1 class="text-6xl sm:text-7xl md:text-9xl lg:text-[12rem] font-medium tracking-tighter leading-[0.85] mb-10 md:mb-16">
-      Von <span class="text-[var(--color-accent)]">·</span> Diego.
-    </h1>
+  <section class="author-statement">
+    <div>
+      <p class="micro-label text-[var(--color-accent)]">manifiesto</p>
+      <h1 class="author-title">Producto visual con carácter.</h1>
+    </div>
+    <div class="author-statement-copy">
+      <p>
+        Soy un artista visual. Trabajo con ideas que necesitan una forma precisa,
+        una estética propia y una salida final que se sostenga sola.
+      </p>
+      <p>
+        No busco que todo se vea limpio. Busco que se vea verdadero para el proyecto:
+        fino cuando debe ser fino, agresivo cuando debe pegar, raro cuando lo pide.
+      </p>
+    </div>
+  </section>
 
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-12">
-      <div class="md:col-span-3 space-y-5 md:space-y-6 text-base md:text-lg leading-relaxed text-[var(--color-ink)]/90">
-        <p>
-          Videógrafo y fotógrafo basado en <span class="text-[var(--color-accent)]">Monterrey, México</span>.
-        </p>
-        <p>
-          Documento eventos deportivos, retratos editoriales, conciertos,
-          proyectos comerciales, y mi propia vida cuando algo vale la pena
-          recordar.
-        </p>
-        <p>
-          La fotografía empezó por accidente: en redes sociales de una tienda
-          de bicicletas. Lo que iba a ser un acomodo terminó siendo el camino.
-          Hoy ese mundo del ciclismo sigue siendo una pata grande del trabajo
-          — eventos, riders, marcas — y se cruza con todo lo demás que filmo
-          y fotografío.
-        </p>
+  <section class="author-process">
+    {[
+      ['01', 'visión', 'lo que traes aunque todavía no tenga forma'],
+      ['02', 'criterio', 'lo que se decide, se quita y se empuja'],
+      ['03', 'obra', 'lo que queda listo para salir al mundo'],
+    ].map(([num, title, copy]) => (
+      <div>
+        <span>{num}</span>
+        <h3>{title}</h3>
+        <p>{copy}</p>
       </div>
+    ))}
+  </section>
 
-      <aside class="md:col-span-2 grid grid-cols-2 md:grid-cols-1 gap-6 md:gap-8 font-mono text-xs uppercase tracking-[0.2em] content-start md:border-l border-[var(--color-rule)] md:pl-8">
-        <div>
-          <p class="text-[var(--color-muted)]/60 mb-2 md:mb-3">disponible para</p>
-          <ul class="space-y-1.5 normal-case text-[var(--color-ink)] tracking-normal text-sm">
-            <li>editoriales / retratos</li>
-            <li>comercial / marca</li>
-            <li>eventos deportivos</li>
-            <li>conciertos y vivos</li>
-            <li>documentales cortos</li>
-          </ul>
-        </div>
-        <div>
-          <p class="text-[var(--color-muted)]/60 mb-2 md:mb-3">base</p>
-          <p class="text-[var(--color-ink)]">Monterrey, MX</p>
-          <p class="text-[var(--color-muted)] mt-1">méxico + viajes</p>
+  <section class="author-work">
+    <div class="author-section-head">
+      <p class="micro-label text-[var(--color-accent)]">territorios</p>
+      <h2>Donde la imagen necesita autoridad.</h2>
+      <p>marca / evento / pieza personal / cultura / lanzamiento / archivo</p>
+    </div>
 
-          <p class="text-[var(--color-muted)]/60 mb-2 md:mb-3 mt-6 md:mt-8">cotizaciones</p>
-          <a
-            href="mailto:contacto@vondiego.com"
-            class="text-[var(--color-ink)] hover:text-[var(--color-accent)] transition-colors break-all"
-          >
-            contacto@vondiego.com →
-          </a>
+    <div class="author-territories">
+      {[
+        'campañas con dirección',
+        'eventos con identidad',
+        'producto y marca',
+        'archivo visual',
+        'retratos con carácter',
+        'cultura, música y deporte',
+      ].map((item, i) => (
+        <div>
+          <span>{String(i + 1).padStart(2, '0')}</span>
+          <p>{item}</p>
         </div>
-      </aside>
+      ))}
     </div>
   </section>
 </BaseLayout>

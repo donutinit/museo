@@ -2,61 +2,44 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="Contact" description="Contacto comercial y profesional para Von Diego.">
-  <!-- meta strip -->
-  <section class="border-b rule px-4 md:px-6 py-3 font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] flex items-baseline justify-between gap-3">
-    <a href="/" class="hover:text-[var(--color-accent)] transition-colors">← index</a>
-    <span class="text-[var(--color-muted)]">contact <span class="text-[var(--color-accent)]">/</span> 02</span>
+<BaseLayout title="Contacto" description="Contacto de Von Diego.">
+  <section class="author-meta-row">
+    <a href="/" class="hover:text-[var(--color-accent)] transition-colors">← archivo</a>
+    <span>contacto / ficha</span>
+    <span>respuesta en días hábiles</span>
   </section>
 
-  <section class="px-4 md:px-6 py-10 md:py-20 max-w-5xl">
-    <h1 class="text-6xl sm:text-7xl md:text-9xl lg:text-[12rem] font-medium tracking-tighter leading-[0.85] mb-10 md:mb-16">
-      Hable<span class="text-[var(--color-accent)]">·</span>mos.
-    </h1>
-
-    <div class="space-y-10 md:space-y-14">
-      <div>
-        <p class="font-mono text-[10px] md:text-xs uppercase tracking-[0.25em] text-[var(--color-muted)] mb-2 md:mb-3">
-          comercial / proyectos
-        </p>
-        <a
-          href="mailto:contacto@vondiego.com"
-          class="block text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-medium tracking-tighter hover:text-[var(--color-accent)] transition-colors break-all"
-        >
-          contacto@vondiego.com
-        </a>
-      </div>
-
-      <div class="pt-8 md:pt-10 border-t rule">
-        <p class="font-mono text-[10px] md:text-xs uppercase tracking-[0.25em] text-[var(--color-muted)] mb-2 md:mb-3">
-          instagram
-        </p>
-        <a
-          href="https://instagram.com/donutinit"
-          target="_blank"
-          rel="noopener"
-          class="block text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-medium tracking-tighter hover:text-[var(--color-accent)] transition-colors"
-        >
-          @donutinit ↗
-        </a>
-      </div>
-
-      <div class="pt-8 md:pt-10 border-t rule grid grid-cols-2 gap-6 md:gap-8 font-mono text-xs uppercase tracking-[0.2em]">
-        <div>
-          <p class="text-[var(--color-muted)]/60 mb-2 md:mb-3">tiempo de respuesta</p>
-          <p class="normal-case tracking-normal text-sm leading-relaxed">
-            ~24 horas en días hábiles.<br />
-            Si es urgente, mándamelo por DM.
-          </p>
-        </div>
-        <div>
-          <p class="text-[var(--color-muted)]/60 mb-2 md:mb-3">zona horaria</p>
-          <p class="normal-case tracking-normal text-sm">CST · Monterrey</p>
-
-          <p class="text-[var(--color-muted)]/60 mb-2 md:mb-3 mt-6">idiomas</p>
-          <p class="normal-case tracking-normal text-sm">Español · English</p>
-        </div>
-      </div>
+  <section class="author-statement">
+    <div>
+      <p class="micro-label text-[var(--color-accent)]">ficha de contacto</p>
+      <h1 class="author-title">La puerta no está escondida.</h1>
     </div>
+    <div class="author-statement-copy">
+      <p>
+        Una dirección basta. Lo demás se habla si hace falta.
+      </p>
+      <p>
+        No hay formulario. No hay embudo. No hay teatro.
+      </p>
+    </div>
+  </section>
+
+  <section class="author-contact-mail">
+    <p class="micro-label text-[var(--color-muted)]">correo</p>
+    <a href="mailto:contacto@vondiego.com">contacto@vondiego.com</a>
+  </section>
+
+  <section class="author-process">
+    {[
+      ['01', 'mensaje', 'lo suficiente para abrir la conversación'],
+      ['02', 'silencio', 'lo que no sirve se queda afuera'],
+      ['03', 'respuesta', 'si hay algo que decir, se dice'],
+    ].map(([num, title, copy]) => (
+      <div>
+        <span>{num}</span>
+        <h3>{title}</h3>
+        <p>{copy}</p>
+      </div>
+    ))}
   </section>
 </BaseLayout>

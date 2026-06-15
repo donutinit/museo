@@ -1,6 +1,6 @@
 # portfolio
 
-portafolio web de [Von Diego](mailto:contacto@vondiego.com) — videógrafo y fotógrafo basado en Monterrey.
+archivo visual de [Von Diego](mailto:contacto@vondiego.com) — artista basado en Monterrey que convierte visiones en productos visuales de calidad.
 
 - stack: astro + nginx (docker), hosteado en truenas, expuesto vía cloudflare tunnel
 - imagen: [`ghcr.io/donutinit/portfolio`](https://github.com/donutinit/portfolio/pkgs/container/portfolio)
