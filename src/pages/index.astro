@@ -16,6 +16,7 @@ const typeLabel: Record<string, string> = {
 };
 
 const totalPieces = projects.reduce((sum, p) => sum + p.data.photoCount, 0);
+const kineticText = 'we barely remember who or what came before this precious moment we are choosing to be here right now hold on, stay inside hold on, stay inside this holy reality this holy experience choosing to be here in this body, this body holding me be my reminder here that i am not alone in this body, this body holding me feeling eternal, all this pain is an illusion alive';
 ---
 
 <BaseLayout>
@@ -28,7 +29,26 @@ const totalPieces = projects.reduce((sum, p) => sum + p.data.photoCount, 0);
 
     <div class="concept-title-block">
       <p class="micro-label">archivo visual / monterrey / {String(projects.length).padStart(2, '0')} expedientes / {String(totalPieces).padStart(3, '0')} piezas</p>
-      <h1 class="glitch-head" data-text="Von Diego">Von Diego</h1>
+      <div class="concept-title-row">
+        <h1 class="glitch-head glitch-head--stacked" aria-label="Von Diego">
+          <span data-text="Von">Von</span>
+          <span data-text="Diego">Diego</span>
+        </h1>
+
+        <section class="kinetic-loop" aria-label={kineticText}>
+          <div class="kinetic-loop__field" aria-hidden="true">
+            <div class="kinetic-loop__track kinetic-loop__track--mass">
+              {[0, 1].map(() => <span>{kineticText}</span>)}
+            </div>
+            <div class="kinetic-loop__track kinetic-loop__track--cut">
+              {[0, 1].map(() => <span>{kineticText}</span>)}
+            </div>
+            <div class="kinetic-loop__track kinetic-loop__track--ghost">
+              {[0, 1].map(() => <span>{kineticText}</span>)}
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
 
     <div class="concept-bottom-mark" aria-hidden="true">

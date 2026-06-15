@@ -136,7 +136,7 @@
   }
 
   .mega-title {
-    font-size: 3.35rem;
+    font-size: 2.85rem;
     line-height: 0.86;
     font-weight: 520;
     letter-spacing: 0;
@@ -148,7 +148,7 @@
     color: var(--random-title-color, var(--color-ink));
     font-family: var(--active-display-font, var(--font-display));
     font-variation-settings: "SOFT" 35, "WONK" 1;
-    font-size: clamp(3.6rem, 13vw, 11rem);
+    font-size: clamp(3rem, 9.6vw, 8.2rem);
     font-weight: 560;
     letter-spacing: 0;
     line-height: 0.78;
@@ -233,6 +233,21 @@
     width: 100%;
   }
 
+  .concept-title-row {
+    align-items: center;
+    display: grid;
+    gap: 0.9rem;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  @media (min-width: 900px) {
+    .concept-title-row {
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 1.4rem;
+    }
+  }
+
   .concept-opening-grid,
   .concept-bottom-mark {
     color: var(--color-muted);
@@ -269,12 +284,50 @@
     color: var(--random-title-color, var(--color-ink));
     font-family: var(--active-display-font, var(--font-display));
     font-variation-settings: "SOFT" 35, "WONK" 1;
-    font-size: clamp(3.6rem, 12vw, 10.5rem);
+    font-size: clamp(3rem, 8.8vw, 7.6rem);
     font-weight: 560;
     letter-spacing: 0;
     line-height: 0.78;
     max-width: 8ch;
     text-transform: uppercase;
+  }
+
+  .concept-title-block h1.glitch-head--stacked {
+    display: grid;
+    line-height: 0.8;
+    max-width: 4.8ch;
+  }
+
+  .glitch-head--stacked::before,
+  .glitch-head--stacked::after {
+    content: none;
+  }
+
+  .glitch-head--stacked span {
+    display: block;
+    position: relative;
+  }
+
+  .glitch-head--stacked span::before,
+  .glitch-head--stacked span::after {
+    content: attr(data-text);
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  .glitch-head--stacked span::before {
+    color: var(--random-title-shadow-a, var(--color-acid));
+    opacity: 0.55;
+    transform: translate(-0.035em, 0.02em);
+    clip-path: polygon(0 0, 100% 0, 100% 33%, 0 46%);
+  }
+
+  .glitch-head--stacked span::after {
+    color: var(--random-title-shadow-b, var(--color-signal));
+    opacity: 0.45;
+    transform: translate(0.03em, -0.018em);
+    clip-path: polygon(0 58%, 100% 45%, 100% 100%, 0 100%);
   }
 
   .glitch-head,
@@ -336,7 +389,7 @@
     color: var(--random-title-color, var(--color-ink));
     font-family: var(--active-display-font, var(--font-display));
     font-variation-settings: "SOFT" 35, "WONK" 1;
-    font-size: clamp(1.1rem, 2.9vw, 2.9rem);
+    font-size: clamp(1rem, 2.2vw, 2.1rem);
     font-weight: 560;
     line-height: 0.86;
     max-width: 11ch;
@@ -350,6 +403,134 @@
     font-size: 0.72rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
+  }
+
+  .kinetic-loop {
+    align-self: stretch;
+    border-bottom: 0;
+    display: grid;
+    min-height: clamp(5.6rem, 12vw, 11rem);
+    overflow: hidden;
+    padding: 0.25rem 0;
+    position: relative;
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .kinetic-loop {
+      padding: 0.35rem 0;
+    }
+  }
+
+  .kinetic-loop::before {
+    background:
+      linear-gradient(90deg, var(--color-bg), transparent 17%, transparent 83%, var(--color-bg)),
+      linear-gradient(180deg, transparent, color-mix(in srgb, var(--random-title-color, var(--color-accent)) 13%, transparent), transparent);
+    content: "";
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 2;
+  }
+
+  .kinetic-loop__field {
+    align-self: center;
+    display: grid;
+    gap: 0.04rem;
+    min-width: 0;
+    padding: 0;
+    transform: rotate(-1.25deg);
+  }
+
+  .kinetic-loop__track {
+    align-items: center;
+    display: flex;
+    gap: 0.72em;
+    white-space: nowrap;
+    width: max-content;
+    will-change: transform;
+  }
+
+  .kinetic-loop__track span {
+    display: block;
+    text-transform: uppercase;
+  }
+
+  .kinetic-loop__track--mass {
+    animation: kinetic-drift-left 300s linear infinite;
+    color: var(--random-title-color, var(--color-ink));
+    font-family: var(--active-glitch-font, var(--font-glitch));
+    font-size: clamp(1.6rem, 3.4vw, 3.8rem);
+    font-weight: 520;
+    letter-spacing: 0;
+    line-height: 0.78;
+    opacity: 0.98;
+    text-shadow:
+      0.03em 0 var(--random-title-shadow-a, var(--color-accent)),
+      -0.025em 0 var(--random-title-shadow-b, var(--color-signal));
+  }
+
+  .kinetic-loop__track--cut {
+    animation: kinetic-drift-right 390s linear infinite;
+    color: var(--color-acid);
+    font-family: var(--font-mono);
+    font-size: clamp(0.72rem, 1.6vw, 1.15rem);
+    letter-spacing: 0.24em;
+    line-height: 1;
+    opacity: 0.72;
+    transform: translateX(-33%);
+  }
+
+  .kinetic-loop__track--ghost {
+    animation: kinetic-drift-left 480s linear infinite;
+    color: transparent;
+    font-family: var(--active-display-font, var(--font-display));
+    font-size: clamp(1.15rem, 2.5vw, 2.85rem);
+    font-weight: 650;
+    letter-spacing: 0;
+    line-height: 0.82;
+    opacity: 0.46;
+    transform: translateX(-12%);
+    -webkit-text-stroke: 1px color-mix(in srgb, var(--color-ink) 60%, transparent);
+    text-stroke: 1px color-mix(in srgb, var(--color-ink) 60%, transparent);
+  }
+
+  @keyframes kinetic-drift-left {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes kinetic-drift-right {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @media (max-width: 520px) {
+    .kinetic-loop {
+      padding: 1rem 0;
+    }
+
+    .kinetic-loop__field {
+      gap: 0.05rem;
+    }
+
+    .kinetic-loop__track {
+      gap: 0.46em;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kinetic-loop__track {
+      animation: none;
+    }
   }
 
   .concept-ledger {
@@ -386,7 +567,7 @@
     color: var(--random-title-color, var(--color-ink));
     font-family: var(--active-glitch-font, var(--font-glitch));
     font-weight: 400;
-    font-size: clamp(3.2rem, 8.5vw, 8.5rem);
+    font-size: clamp(2.45rem, 5.8vw, 5.8rem);
     font-weight: 560;
     line-height: 0.78;
     text-transform: uppercase;
@@ -507,7 +688,7 @@
   }
 
   .author-feature-caption h2 {
-    font-size: clamp(2rem, 4vw, 4rem);
+    font-size: clamp(1.6rem, 3vw, 3rem);
     font-weight: 560;
     line-height: 0.88;
     text-transform: uppercase;
@@ -539,7 +720,7 @@
     color: var(--random-title-color, var(--color-ink));
     font-family: var(--active-display-font, var(--font-display));
     font-variation-settings: "SOFT" 35, "WONK" 1;
-    font-size: clamp(2.3rem, 5.8vw, 5.8rem);
+    font-size: clamp(1.9rem, 4.4vw, 4.4rem);
     font-weight: 560;
     line-height: 0.86;
     margin-top: 0.9rem;
@@ -596,7 +777,7 @@
   .author-process h3 {
     color: var(--random-title-color, var(--color-ink));
     font-family: var(--active-wide-font, var(--font-wide));
-    font-size: clamp(1.9rem, 4vw, 4rem);
+    font-size: clamp(1.55rem, 3vw, 3rem);
     font-weight: 560;
     line-height: 0.82;
     margin-top: 2.5rem;
@@ -647,7 +828,7 @@
     color: var(--random-title-color, var(--color-ink));
     font-family: var(--active-display-font, var(--font-display));
     font-variation-settings: "SOFT" 35, "WONK" 1;
-    font-size: clamp(2.5rem, 6.5vw, 6.5rem);
+    font-size: clamp(2rem, 4.8vw, 4.8rem);
     font-weight: 560;
     line-height: 0.82;
     text-transform: uppercase;
@@ -703,7 +884,7 @@
   .author-territories p {
     color: var(--random-title-color, var(--color-ink));
     font-family: var(--active-wide-font, var(--font-wide));
-    font-size: clamp(1.55rem, 3.2vw, 2.9rem);
+    font-size: clamp(1.3rem, 2.4vw, 2.2rem);
     font-weight: 560;
     line-height: 0.9;
     margin-top: 2.4rem;
@@ -727,7 +908,7 @@
     display: block;
     font-family: var(--active-display-font, var(--font-display));
     font-variation-settings: "SOFT" 35, "WONK" 1;
-    font-size: clamp(2.25rem, 7vw, 7rem);
+    font-size: clamp(1.8rem, 5vw, 5rem);
     font-weight: 560;
     line-height: 0.82;
     margin-top: 1rem;
@@ -979,7 +1160,7 @@
   .work-title {
     color: var(--random-title-color, var(--color-ink));
     font-family: var(--active-wide-font, var(--font-wide));
-    font-size: clamp(1.65rem, 3vw, 3.4rem);
+    font-size: clamp(1.35rem, 2.4vw, 2.55rem);
     font-weight: 560;
     line-height: 0.86;
     max-width: 100%;
@@ -1135,7 +1316,7 @@
   @media (min-width: 900px) {
     .project-author-hero {
       align-items: end;
-      grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.55fr);
+      grid-template-columns: minmax(0, 1fr) minmax(19rem, 24rem);
       min-height: min(72svh, 46rem);
       padding: 4rem 1.5rem 2rem;
       width: 80%;
@@ -1157,28 +1338,33 @@
   .project-title {
     font-family: var(--active-display-font, var(--font-display));
     font-variation-settings: "SOFT" 35, "WONK" 1;
-    font-size: clamp(3rem, 8.6vw, 8.8rem);
-    line-height: 0.82;
-    max-width: 100%;
+    font-size: clamp(2.35rem, 5vw, 5.2rem);
+    line-height: 0.94;
+    max-width: min(100%, 9.4ch);
     overflow-wrap: normal;
+    padding-block: 0.08em 0.03em;
     text-wrap: balance;
     word-break: normal;
   }
 
   @media (max-width: 520px) {
     .project-title {
-      font-size: clamp(2.15rem, 10.5vw, 2.95rem);
-      line-height: 0.9;
+      font-size: clamp(1.9rem, 9.2vw, 2.55rem);
+      line-height: 0.98;
+      max-width: 100%;
     }
   }
 
   .project-register {
     align-self: end;
+    background: transparent;
     border-top: 1px solid var(--color-rule);
     display: grid;
     gap: 1rem;
     min-width: 0;
     padding-top: 1rem;
+    position: relative;
+    z-index: 3;
   }
 
   .project-facts {
@@ -1247,7 +1433,7 @@
     color: var(--random-title-color, var(--color-ink));
     font-family: var(--active-display-font, var(--font-display));
     font-variation-settings: "SOFT" 35, "WONK" 1;
-    font-size: clamp(2.05rem, 4.8vw, 4.8rem);
+    font-size: clamp(1.65rem, 3.6vw, 3.6rem);
     font-weight: 560;
     line-height: 0.86;
     margin-top: 0.8rem;
@@ -1468,7 +1654,7 @@
   .project-nav p:last-child {
     color: var(--random-title-color, var(--color-ink));
     font-family: var(--active-wide-font, var(--font-wide));
-    font-size: clamp(1.7rem, 3.2vw, 3.5rem);
+    font-size: clamp(1.35rem, 2.5vw, 2.65rem);
     font-weight: 560;
     line-height: 0.86;
     text-transform: uppercase;
