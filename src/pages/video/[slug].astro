@@ -16,29 +16,24 @@ export async function getStaticPaths() {
 }
 
 const { video, index, total, prev, next } = Astro.props;
+const plate = String(index + 1).padStart(2, '0');
+const totalLabel = String(total).padStart(2, '0');
 ---
 
 <BaseLayout
   title={video.title}
   description={video.caption ?? `${video.title} — pieza de video del archivo de Von Diego.`}
 >
-  <section class="author-meta-row">
-    <a href="/video" class="hover:text-[var(--color-acid)] transition-colors">← archivo de video</a>
-    <span>
-      expediente <span class="text-[var(--color-acid)]">{String(index + 1).padStart(2, '0')}</span>
-      / {String(total).padStart(2, '0')}
+  <section class="theater-rail" aria-hidden="true">
+    <a href="/video" class="theater-rail-back">← archivo de video</a>
+    <span class="theater-rail-mark">
+      <span class="text-[var(--color-acid)]">{plate}</span> / {totalLabel} · {video.tape ?? kindLabel[video.kind]}
     </span>
-    <span>{kindLabel[video.kind]}</span>
+    <span class="theater-rail-mark">{kindLabel[video.kind]} · {video.year} · {video.durationLabel}</span>
   </section>
 
-  <section class="vid-player-shell">
-    <div class="vid-player-meta">
-      <p class="micro-label text-[var(--color-accent)]">{video.tape ?? 'expediente · cinta'}</p>
-      <h1 class="vid-player-title">{video.title}</h1>
-      {video.caption && <p class="vid-player-caption">{video.caption}</p>}
-    </div>
-
-    <div class={`vid-player vid-player--${video.aspect.replace('/', '-')}`}>
+  <section class={`theater theater--${video.aspect.replace('/', '-')}`}>
+    <div class="theater-frame">
       <video
         controls
         playsinline
@@ -49,35 +44,39 @@ const { video, index, total, prev, next } = Astro.props;
         Tu navegador no puede reproducir esto.
       </video>
     </div>
+  </section>
 
-    <aside class="vid-player-register">
+  <section class="theater-meta">
+    <div class="theater-meta-main">
+      <p class="micro-label text-[var(--color-accent)]">{video.tape ?? 'pieza · archivo'}</p>
+      <h1 class="theater-title">{video.title}</h1>
+      {video.caption && <p class="theater-caption">«{video.caption}»</p>}
+    </div>
+
+    <aside class="theater-register">
       <p class="micro-label text-[var(--color-muted)]">registro</p>
-      <dl class="project-facts">
+      <dl class="theater-facts">
         <div><dt>tipo</dt><dd>{kindLabel[video.kind]}</dd></div>
         <div><dt>año</dt><dd>{video.year}</dd></div>
-        <div><dt>duración</dt><dd>{video.durationLabel}</dd></div>
-        <div><dt>formato</dt><dd>mp4 / h264 / aac</dd></div>
-        <div><dt>aspecto</dt><dd>{video.aspect}</dd></div>
+        <div><dt>corre</dt><dd>{video.durationLabel}</dd></div>
+        <div><dt>cuadro</dt><dd>{video.aspect}</dd></div>
+        <div><dt>formato</dt><dd>mp4 · h264 · aac</dd></div>
       </dl>
     </aside>
   </section>
 
-  <nav class="project-nav">
+  <nav class="theater-nav">
     {prev ? (
-      <a href={`/video/${prev.slug}`} class="group">
-        <p class="micro-label text-[var(--color-muted)] mb-3 group-hover:text-[var(--color-accent)] transition-colors">
-          ← anterior
-        </p>
-        <p class="group-hover:text-[var(--color-accent)] transition-colors">{prev.title}</p>
+      <a href={`/video/${prev.slug}`} class="theater-nav-link group">
+        <span class="micro-label">← anterior</span>
+        <span class="theater-nav-title">{prev.title}</span>
       </a>
     ) : <div />}
 
     {next ? (
-      <a href={`/video/${next.slug}`} class="group md:text-right">
-        <p class="micro-label text-[var(--color-muted)] mb-3 group-hover:text-[var(--color-accent)] transition-colors">
-          siguiente →
-        </p>
-        <p class="group-hover:text-[var(--color-accent)] transition-colors">{next.title}</p>
+      <a href={`/video/${next.slug}`} class="theater-nav-link theater-nav-link--next group">
+        <span class="micro-label">siguiente →</span>
+        <span class="theater-nav-title">{next.title}</span>
       </a>
     ) : <div />}
   </nav>

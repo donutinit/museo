@@ -1678,6 +1678,541 @@
 }
 
 @layer components {
+  /* ── proyección — cinta hero ───────────────────────────── */
+  .cinta-hero {
+    border-bottom: 1px solid var(--color-rule);
+    display: grid;
+    gap: 1.6rem;
+    margin-inline: auto;
+    padding: 2rem 1rem 3rem;
+    width: min(100%, 112rem);
+  }
+
+  @media (min-width: 768px) {
+    .cinta-hero {
+      padding: 4rem 1.5rem 5rem;
+      width: 80%;
+    }
+  }
+
+  .cinta-hero-mark {
+    color: var(--color-muted);
+    display: grid;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    gap: 0.55rem;
+    grid-template-columns: 1fr;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 768px) {
+    .cinta-hero-mark {
+      font-size: 0.72rem;
+      grid-template-columns: auto 1fr auto;
+    }
+  }
+
+  .cinta-hero-title {
+    color: var(--random-title-color, var(--color-ink));
+    display: grid;
+    font-family: var(--active-glitch-font, var(--font-glitch));
+    font-size: clamp(4rem, 16vw, 14rem);
+    font-weight: 400;
+    line-height: 0.78;
+    text-transform: uppercase;
+  }
+
+  .cinta-hero-title span {
+    display: block;
+  }
+
+  .cinta-hero-title span:nth-child(2) {
+    color: var(--color-accent);
+    padding-left: 2ch;
+  }
+
+  .cinta-hero-title span:nth-child(3) {
+    padding-left: 0.6ch;
+  }
+
+  .cinta-hero-lede {
+    color: color-mix(in srgb, var(--color-ink) 78%, transparent);
+    font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+    line-height: 1.32;
+    max-width: 46ch;
+  }
+
+  .cinta-hero-bottom {
+    align-items: end;
+    color: var(--color-muted);
+    display: grid;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    gap: 0.6rem;
+    grid-template-columns: auto 1fr;
+    letter-spacing: 0.2em;
+    overflow: hidden;
+    text-transform: uppercase;
+  }
+
+  .cinta-hero-ticker {
+    border-top: 1px solid var(--color-rule);
+    overflow: hidden;
+    padding-top: 0.6rem;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  /* ── plates (single column, editorial spread) ──────────── */
+  .cinta-plates {
+    display: grid;
+    gap: 0;
+    margin-inline: auto;
+    width: min(100%, 112rem);
+  }
+
+  @media (min-width: 768px) {
+    .cinta-plates { width: 80%; }
+  }
+
+  .plate {
+    border-bottom: 1px solid var(--color-rule);
+    display: grid;
+    gap: 1.4rem;
+    grid-template-columns: 1fr;
+    padding: 1.8rem 1rem 2.4rem;
+  }
+
+  @media (min-width: 900px) {
+    .plate {
+      gap: 2.4rem;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      padding: 3.6rem 1.5rem 4.4rem;
+    }
+    .plate--right .plate-media { grid-column: 2; grid-row: 1; }
+    .plate--right .plate-copy { grid-column: 1; grid-row: 1; }
+  }
+
+  .plate-media {
+    display: block;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  .plate-media img {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    transition: filter 0.45s ease, transform 0.45s ease;
+    width: 100%;
+  }
+
+  .plate--16-9 .plate-media { aspect-ratio: 16 / 9; }
+  .plate--9-16 .plate-media { aspect-ratio: 9 / 16; max-height: 78svh; margin-inline: auto; max-width: 32rem; }
+  .plate--4-3 .plate-media { aspect-ratio: 4 / 3; }
+
+  .plate-media:hover img {
+    filter: contrast(1.06) saturate(1.1);
+    transform: scale(1.012);
+  }
+
+  .plate-copy {
+    align-self: end;
+    display: grid;
+    gap: 0.95rem;
+  }
+
+  .plate-index {
+    color: var(--color-muted);
+    display: flex;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    gap: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  .plate-index span:first-child { color: var(--color-accent); }
+
+  .plate-title {
+    color: var(--random-title-color, var(--color-ink));
+    font-family: var(--active-display-font, var(--font-display));
+    font-variation-settings: "SOFT" 35, "WONK" 1;
+    font-size: clamp(2rem, 5vw, 4.6rem);
+    font-weight: 560;
+    letter-spacing: -0.005em;
+    line-height: 0.86;
+    text-transform: uppercase;
+  }
+
+  .plate-title a {
+    color: inherit;
+    transition: color 0.25s ease;
+  }
+
+  .plate-title a:hover { color: var(--color-accent); }
+
+  .plate-caption {
+    color: color-mix(in srgb, var(--color-ink) 82%, transparent);
+    font-family: var(--active-display-font, var(--font-display));
+    font-size: clamp(1.05rem, 1.5vw, 1.5rem);
+    font-style: italic;
+    line-height: 1.3;
+    max-width: 38ch;
+  }
+
+  .plate-facts {
+    border-top: 1px solid var(--color-rule);
+    display: grid;
+    gap: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 0.4rem;
+    padding-top: 0.9rem;
+  }
+
+  @media (min-width: 600px) {
+    .plate-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+
+  .plate-facts div { padding: 0.4rem 0.4rem 0.4rem 0; }
+  .plate-facts dt {
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    margin-bottom: 0.32rem;
+    text-transform: uppercase;
+  }
+  .plate-facts dd {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .plate-cta {
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    justify-self: start;
+    letter-spacing: 0.22em;
+    margin-top: 0.6rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--color-accent);
+    text-transform: uppercase;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .plate-cta:hover {
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+
+  /* ── muestra del canal (closing block) ─────────────────── */
+  .cinta-channel {
+    border-top: 1px solid var(--color-rule);
+    display: grid;
+    gap: 2rem;
+    margin-inline: auto;
+    padding: 2.5rem 1rem 4rem;
+    width: min(100%, 112rem);
+  }
+
+  @media (min-width: 1000px) {
+    .cinta-channel {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      padding: 5rem 1.5rem 6rem;
+      width: 80%;
+    }
+  }
+
+  .cinta-channel-meta { align-self: end; display: grid; gap: 1.1rem; }
+
+  .cinta-channel-title {
+    color: var(--random-title-color, var(--color-ink));
+    font-family: var(--active-glitch-font, var(--font-glitch));
+    font-size: clamp(2.2rem, 5.4vw, 5rem);
+    font-weight: 400;
+    line-height: 0.84;
+    text-transform: uppercase;
+  }
+
+  .cinta-channel-meta p:last-of-type {
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    line-height: 1.5;
+    max-width: 36ch;
+    text-transform: uppercase;
+  }
+
+  .cinta-channel-cta {
+    color: var(--color-acid);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    justify-self: start;
+    letter-spacing: 0.22em;
+    margin-top: 0.4rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--color-acid);
+    text-transform: uppercase;
+  }
+
+  .cinta-channel-cta:hover {
+    background: var(--color-acid);
+    color: var(--color-bg);
+  }
+
+  .cinta-channel-frame {
+    align-self: end;
+    display: grid;
+    gap: 0.8rem;
+    position: relative;
+  }
+
+  .cinta-channel-tape {
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  .cinta-channel-screen {
+    aspect-ratio: 16/9;
+    background: #000;
+    border: 1px solid var(--color-rule-strong);
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  .cinta-channel-screen iframe {
+    border: 0;
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+
+  .cinta-channel-footer {
+    color: var(--color-muted);
+    display: flex;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    gap: 0.8rem;
+    justify-content: space-between;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  .cinta-channel-footer span:first-child { color: var(--color-accent); }
+
+  /* ── theater mode — slug page ───────────────────────────── */
+  .theater-rail {
+    align-items: center;
+    border-bottom: 1px solid var(--color-rule);
+    color: var(--color-muted);
+    display: flex;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    gap: 0.6rem 1.4rem;
+    justify-content: space-between;
+    letter-spacing: 0.22em;
+    padding: 0.85rem 1rem;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 768px) {
+    .theater-rail {
+      font-size: 0.72rem;
+      padding-inline: 1.5rem;
+    }
+  }
+
+  .theater-rail-back { color: var(--color-ink); }
+  .theater-rail-back:hover { color: var(--color-acid); }
+
+  .theater {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255, 75, 18, 0.07), transparent 60%),
+      linear-gradient(180deg, #000 0%, #050505 100%);
+    border-bottom: 1px solid var(--color-rule);
+    display: grid;
+    padding: 1.2rem 1rem 2rem;
+    place-items: center;
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .theater { padding: 2.4rem 1.5rem 3rem; }
+  }
+
+  .theater-frame {
+    background: #000;
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 30px 80px -20px rgba(0, 0, 0, 0.7),
+      0 0 120px -30px rgba(255, 75, 18, 0.18);
+    display: block;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  .theater-frame video {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+
+  /* horizontal pieces: fill big band */
+  .theater--16-9 .theater-frame {
+    aspect-ratio: 16 / 9;
+    max-width: min(100%, 96rem);
+  }
+
+  /* 4:3 a bit narrower */
+  .theater--4-3 .theater-frame {
+    aspect-ratio: 4 / 3;
+    max-height: 82svh;
+    max-width: min(100%, 78rem);
+  }
+
+  /* vertical pieces: tall column centered */
+  .theater--9-16 .theater-frame {
+    aspect-ratio: 9 / 16;
+    max-height: 82svh;
+    max-width: min(100%, 28rem);
+  }
+
+  @media (min-width: 768px) {
+    .theater--9-16 .theater-frame {
+      max-width: min(100%, 32rem);
+    }
+  }
+
+  /* ── theater meta below the player ─────────────────────── */
+  .theater-meta {
+    display: grid;
+    gap: 2rem;
+    margin-inline: auto;
+    padding: 2.4rem 1rem 2.4rem;
+    width: min(100%, 112rem);
+  }
+
+  @media (min-width: 900px) {
+    .theater-meta {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr);
+      padding: 3.5rem 1.5rem 3.5rem;
+      width: 80%;
+    }
+  }
+
+  .theater-meta-main { display: grid; gap: 1.1rem; }
+
+  .theater-title {
+    color: var(--random-title-color, var(--color-ink));
+    font-family: var(--active-display-font, var(--font-display));
+    font-variation-settings: "SOFT" 35, "WONK" 1;
+    font-size: clamp(2.4rem, 6vw, 6rem);
+    font-weight: 560;
+    letter-spacing: -0.005em;
+    line-height: 0.86;
+    margin-top: 0.4rem;
+    text-transform: uppercase;
+  }
+
+  .theater-caption {
+    color: color-mix(in srgb, var(--color-ink) 82%, transparent);
+    font-family: var(--active-display-font, var(--font-display));
+    font-size: clamp(1.1rem, 1.7vw, 1.6rem);
+    font-style: italic;
+    line-height: 1.32;
+    max-width: 44ch;
+  }
+
+  .theater-register { align-self: end; display: grid; gap: 0.8rem; }
+
+  .theater-facts {
+    border-top: 1px solid var(--color-rule);
+    display: grid;
+    gap: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-top: 0.8rem;
+  }
+
+  .theater-facts div {
+    border-bottom: 1px solid var(--color-rule);
+    padding: 0.6rem 0.4rem 0.6rem 0;
+  }
+
+  .theater-facts dt {
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    margin-bottom: 0.32rem;
+    text-transform: uppercase;
+  }
+
+  .theater-facts dd {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── theater prev/next ──────────────────────────────────── */
+  .theater-nav {
+    border-top: 1px solid var(--color-rule);
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 768px) {
+    .theater-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  .theater-nav-link {
+    border-bottom: 1px solid var(--color-rule);
+    display: grid;
+    gap: 0.7rem;
+    padding: 1.2rem 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .theater-nav-link {
+      border-bottom: 0;
+      border-right: 1px solid var(--color-rule);
+      min-height: 11rem;
+      padding: 1.6rem 1.5rem;
+    }
+    .theater-nav-link--next {
+      border-right: 0;
+      text-align: right;
+    }
+  }
+
+  .theater-nav-link .micro-label { color: var(--color-muted); }
+  .theater-nav-link:hover .micro-label { color: var(--color-accent); }
+
+  .theater-nav-title {
+    color: var(--random-title-color, var(--color-ink));
+    font-family: var(--active-wide-font, var(--font-wide));
+    font-size: clamp(1.4rem, 2.6vw, 2.6rem);
+    font-weight: 560;
+    line-height: 0.92;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+  }
+
+  .theater-nav-link:hover .theater-nav-title { color: var(--color-accent); }
+
   /* ── video archive — banksy treatment ───────────────────── */
   .vid-hero {
     border-bottom: 1px solid var(--color-rule);

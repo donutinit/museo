@@ -1,40 +1,97 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { videos, interviews, nonInterviews, youtubeFeature, kindLabel } from '../../data/videos';
+import { videos, youtubeFeature, kindLabel } from '../../data/videos';
 
-const totalVideos = videos.length + 1; // + youtube
+const totalPlates = videos.length;
+const lede =
+  'Doce piezas que no caben en una foto. Entrevistas que se hicieron en la sala de los míos, comerciales que tuvieron que firmarse a mano y un par de cosas que se quedaron por dentro. Cada plate se imprime con su propio aire.';
 ---
 
 <BaseLayout
-  title="Archivo en movimiento"
-  description="Archivo de video de Von Diego — entrevistas familiares, comerciales corporativos y piezas personales."
+  title="Proyección"
+  description="Catálogo en movimiento — entrevistas, comerciales y obra personal de Von Diego."
 >
   <section class="author-meta-row">
     <a href="/" class="hover:text-[var(--color-accent)] transition-colors">← archivo</a>
-    <span>video / banco de cintas</span>
-    <span>{String(totalVideos).padStart(2, '0')} piezas</span>
+    <span>proyección / sala oscura</span>
+    <span>{String(totalPlates).padStart(2, '0')} plates · 01 muestra</span>
   </section>
 
-  <section class="vid-hero">
-    <div class="vid-hero-meta">
-      <p class="micro-label text-[var(--color-accent)]">expediente abierto</p>
-      <h1 class="vid-hero-title glitch-cut" data-text="Cinta.">Cinta.</h1>
-      <p class="vid-hero-lede">
-        El archivo no se cuelga en la pared. Aquí se proyecta. Entrevistas a la familia,
-        comerciales que se firmaron a mano y piezas personales que se quedaron por dentro.
-      </p>
+  <section class="cinta-hero">
+    <div class="cinta-hero-mark" aria-hidden="true">
+      <span>n.º 01</span>
+      <span>volumen único</span>
+      <span>monterrey · {new Date().getFullYear()}</span>
     </div>
+    <h1 class="cinta-hero-title" aria-label="Proyección">
+      <span class="glitch-cut" data-text="Pro">Pro</span>
+      <span class="glitch-cut" data-text="yec">yec</span>
+      <span class="glitch-cut" data-text="ción.">ción.</span>
+    </h1>
+    <p class="cinta-hero-lede">{lede}</p>
+    <div class="cinta-hero-bottom" aria-hidden="true">
+      <span>↓ pliego 01</span>
+      <span class="cinta-hero-ticker">— rebobina lento — rebobina lento — rebobina lento — rebobina lento —</span>
+    </div>
+  </section>
 
+  <section class="cinta-plates">
+    {videos.map((v, i) => {
+      const orientation = i % 2 === 0 ? 'left' : 'right';
+      const plate = String(i + 1).padStart(2, '0');
+      return (
+        <article class={`plate plate--${orientation} plate--${v.aspect.replace('/', '-')}`}>
+          <a class="plate-media" href={`/video/${v.slug}`} aria-label={`Abrir ${v.title}`}>
+            <img
+              src={v.poster}
+              alt={v.title}
+              loading={i < 2 ? 'eager' : 'lazy'}
+              decoding={i < 2 ? 'sync' : 'async'}
+            />
+          </a>
+          <div class="plate-copy">
+            <p class="plate-index">
+              <span>plate {plate}</span>
+              <span>/ {String(totalPlates).padStart(2, '0')}</span>
+            </p>
+            <h2 class="plate-title">
+              <a href={`/video/${v.slug}`}>{v.title}</a>
+            </h2>
+            {v.caption && <p class="plate-caption">«{v.caption}»</p>}
+            <dl class="plate-facts">
+              <div><dt>cinta</dt><dd>{kindLabel[v.kind]}</dd></div>
+              <div><dt>año</dt><dd>{v.year}</dd></div>
+              <div><dt>corre</dt><dd>{v.durationLabel}</dd></div>
+              <div><dt>cuadro</dt><dd>{v.aspect}</dd></div>
+            </dl>
+            <a href={`/video/${v.slug}`} class="plate-cta">abrir pliego ↗</a>
+          </div>
+        </article>
+      );
+    })}
+  </section>
+
+  <section class="cinta-channel" aria-labelledby="cinta-channel-title">
+    <div class="cinta-channel-meta">
+      <p class="micro-label text-[var(--color-accent)]">muestra del canal</p>
+      <h2 id="cinta-channel-title" class="cinta-channel-title">
+        <span class="glitch-cut" data-text="Salido del">Salido del</span><br />
+        <span class="glitch-cut" data-text="archivo público.">archivo público.</span>
+      </h2>
+      <p>{youtubeFeature.caption}</p>
+      <a href={youtubeFeature.url} target="_blank" rel="noopener" class="cinta-channel-cta">
+        ver en youtube ↗
+      </a>
+    </div>
     <a
-      class="vid-featured"
+      class="cinta-channel-frame"
       href={youtubeFeature.url}
       target="_blank"
       rel="noopener"
-      aria-label="Abrir pieza destacada en YouTube"
+      aria-label="Abrir muestra en YouTube"
     >
-      <span class="vid-featured-tape">YT-001 · Evidencia A</span>
-      <span class="vid-featured-stamp">REPRODUCIR / FIRMA AL REVERSO</span>
-      <div class="vid-featured-frame">
+      <span class="cinta-channel-tape">YT/001 · canal · von diego</span>
+      <div class="cinta-channel-screen">
         <iframe
           src={`https://www.youtube.com/embed/${youtubeFeature.id}?rel=0&modestbranding=1`}
           title={youtubeFeature.title}
@@ -42,72 +99,12 @@ const totalVideos = videos.length + 1; // + youtube
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen
         ></iframe>
-        <span class="vid-featured-spray" aria-hidden="true">Von Diego</span>
-        <span class="vid-featured-tag-a" aria-hidden="true">SR/2026</span>
-        <span class="vid-featured-tag-b" aria-hidden="true">★ canal · von diego</span>
-        <span class="vid-featured-cctv" aria-hidden="true">REC ● 00:00:24</span>
       </div>
-      <span class="vid-featured-caption">{youtubeFeature.caption}</span>
+      <span class="cinta-channel-footer">
+        <span>REC ●</span>
+        <span>von diego — canal abierto</span>
+        <span>↗</span>
+      </span>
     </a>
-  </section>
-
-  <section class="vid-section">
-    <div class="vid-section-head">
-      <p class="micro-label text-[var(--color-accent)]">expediente entrevistas</p>
-      <h2 class="vid-section-title glitch-cut" data-text="Familia, sin retoque.">
-        Familia, sin retoque.
-      </h2>
-      <p>
-        Cuatro entrevistas a los míos. La cuarta es una cinta VHS rescatada, se respeta el ruido.
-      </p>
-    </div>
-
-    <div class="vid-grid vid-grid--ent">
-      {interviews.map((v, i) => (
-        <a href={`/video/${v.slug}`} class="vid-card vid-card--ent">
-          <span class="vid-card-tape">{v.tape}</span>
-          <div class={`vid-thumb vid-thumb--${v.aspect.replace('/', '-')}`}>
-            <img src={v.poster} alt={v.title} loading={i < 2 ? 'eager' : 'lazy'} />
-            <span class="vid-thumb-cut" aria-hidden="true"></span>
-            <span class="vid-thumb-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-          </div>
-          <div class="vid-card-meta">
-            <p class="micro-label vid-card-kind">{kindLabel[v.kind]} · {v.year}</p>
-            <h3 class="vid-card-title">{v.title}</h3>
-            {v.caption && <p class="vid-card-caption">{v.caption}</p>}
-            <p class="vid-card-foot">▶ {v.durationLabel}</p>
-          </div>
-        </a>
-      ))}
-    </div>
-  </section>
-
-  <section class="vid-section">
-    <div class="vid-section-head">
-      <p class="micro-label text-[var(--color-accent)]">expediente comercial / personal</p>
-      <h2 class="vid-section-title glitch-cut" data-text="Cintas firmadas.">
-        Cintas firmadas.
-      </h2>
-      <p>Piezas hechas para clientes, marcas y para lo que no se vende.</p>
-    </div>
-
-    <div class="vid-grid vid-grid--main">
-      {nonInterviews.map((v, i) => (
-        <a href={`/video/${v.slug}`} class="vid-card">
-          <span class="vid-card-tape">{v.tape}</span>
-          <div class={`vid-thumb vid-thumb--${v.aspect.replace('/', '-')}`}>
-            <img src={v.poster} alt={v.title} loading={i < 3 ? 'eager' : 'lazy'} />
-            <span class="vid-thumb-cut" aria-hidden="true"></span>
-            <span class="vid-thumb-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-          </div>
-          <div class="vid-card-meta">
-            <p class="micro-label vid-card-kind">{kindLabel[v.kind]} · {v.year}</p>
-            <h3 class="vid-card-title">{v.title}</h3>
-            {v.caption && <p class="vid-card-caption">{v.caption}</p>}
-            <p class="vid-card-foot">▶ {v.durationLabel}</p>
-          </div>
-        </a>
-      ))}
-    </div>
   </section>
 </BaseLayout>
