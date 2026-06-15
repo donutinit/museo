@@ -40,6 +40,9 @@ lerna-debug.log*
 .npm/
 
 # ─── media pesado (vive en truenas, no en git) ─────────
+# en dev: symlink a ~/src/portfolio-media-dev
+# en prod: volume mount al dataset triceratops/portfolio
+public/media
 public/media/
 public/reels/
 public/raw/
