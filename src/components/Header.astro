@@ -3,6 +3,7 @@ const path = Astro.url.pathname;
 const isHome = path === '/';
 const isAbout = path.startsWith('/about');
 const isContact = path.startsWith('/contact');
+const isVideo = path.startsWith('/video');
 
 const navClass = (active: boolean) =>
   active
@@ -23,6 +24,7 @@ const navClass = (active: boolean) =>
 
     <nav class="flex items-center gap-3 md:gap-6 shrink-0">
       <a href="/" class={navClass(isHome)}>Archivo</a>
+      <a href="/video" class={navClass(isVideo)}>Cinta</a>
       <a href="/about" class={navClass(isAbout)}>Manifiesto</a>
       <a href="/contact" class={navClass(isContact)}>Contacto</a>
     </nav>

@@ -40,27 +40,4 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     ))}
   </section>
 
-  <section class="author-work">
-    <div class="author-section-head">
-      <p class="micro-label text-[var(--color-accent)]">territorios</p>
-      <h2>Donde la imagen necesita autoridad.</h2>
-      <p>marca / evento / pieza personal / cultura / lanzamiento / archivo</p>
-    </div>
-
-    <div class="author-territories">
-      {[
-        'campañas con dirección',
-        'eventos con identidad',
-        'producto y marca',
-        'archivo visual',
-        'retratos con carácter',
-        'cultura, música y deporte',
-      ].map((item, i) => (
-        <div>
-          <span>{String(i + 1).padStart(2, '0')}</span>
-          <p>{item}</p>
-        </div>
-      ))}
-    </div>
-  </section>
 </BaseLayout>

@@ -1,0 +1,108 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { videos, kindLabel } from '../../data/videos';
+
+export async function getStaticPaths() {
+  return videos.map((v, i) => ({
+    params: { slug: v.slug },
+    props: {
+      video: v,
+      index: i,
+      total: videos.length,
+      prev: videos[i - 1] ?? null,
+      next: videos[i + 1] ?? null,
+    },
+  }));
+}
+
+const { video, index, total, prev, next } = Astro.props;
+const transcriptLines = video.transcript
+  ? video.transcript.split('\n').map((l) => l.trim()).filter(Boolean)
+  : [];
+---
+
+<BaseLayout
+  title={video.title}
+  description={video.caption ?? `${video.title} — pieza de video del archivo de Von Diego.`}
+>
+  <section class="author-meta-row">
+    <a href="/video" class="hover:text-[var(--color-acid)] transition-colors">← archivo de video</a>
+    <span>
+      expediente <span class="text-[var(--color-acid)]">{String(index + 1).padStart(2, '0')}</span>
+      / {String(total).padStart(2, '0')}
+    </span>
+    <span>{kindLabel[video.kind]}</span>
+  </section>
+
+  <section class={`vid-player-shell ${video.vhs ? 'vid-player-shell--vhs' : ''}`}>
+    <div class="vid-player-meta">
+      <p class="micro-label text-[var(--color-accent)]">{video.tape ?? 'expediente · cinta'}</p>
+      <h1 class="vid-player-title">{video.title}</h1>
+      {video.caption && <p class="vid-player-caption">{video.caption}</p>}
+    </div>
+
+    <div class={`vid-player vid-player--${video.aspect.replace('/', '-')} ${video.vhs ? 'vid-player--vhs' : ''}`}>
+      <video
+        controls
+        playsinline
+        preload="metadata"
+        poster={video.poster}
+      >
+        <source src={video.src} type="video/mp4" />
+        Tu navegador no puede reproducir esto.
+      </video>
+      {video.vhs && (
+        <>
+          <span class="vhs-scan vhs-scan--big" aria-hidden="true"></span>
+          <span class="vhs-stamp vhs-stamp--big" aria-hidden="true">▶ PLAY · SP · 03:14:88</span>
+          <span class="vhs-track vhs-track--big" aria-hidden="true">TRACKING ▮▮▮▯ · CH 03</span>
+        </>
+      )}
+      <span class="vid-player-tape" aria-hidden="true">EVIDENCIA · {String(index + 1).padStart(2, '0')}</span>
+      <span class="vid-player-spray" aria-hidden="true">Von Diego</span>
+    </div>
+
+    <aside class="vid-player-register">
+      <p class="micro-label text-[var(--color-muted)]">registro</p>
+      <dl class="project-facts">
+        <div><dt>tipo</dt><dd>{kindLabel[video.kind]}</dd></div>
+        <div><dt>año</dt><dd>{video.year}</dd></div>
+        <div><dt>duración</dt><dd>{video.durationLabel}</dd></div>
+        <div><dt>formato</dt><dd>mp4 / h264 / aac</dd></div>
+        <div><dt>aspecto</dt><dd>{video.aspect}</dd></div>
+      </dl>
+    </aside>
+  </section>
+
+  {transcriptLines.length > 0 && (
+    <section class="vid-transcript">
+      <div>
+        <p class="micro-label text-[var(--color-accent)]">transcripción</p>
+        <h2>Lo que se dice queda.</h2>
+      </div>
+      <div class="vid-transcript-body prose-content">
+        {transcriptLines.map((line) => <p>{line}</p>)}
+      </div>
+    </section>
+  )}
+
+  <nav class="project-nav">
+    {prev ? (
+      <a href={`/video/${prev.slug}`} class="group">
+        <p class="micro-label text-[var(--color-muted)] mb-3 group-hover:text-[var(--color-accent)] transition-colors">
+          ← anterior
+        </p>
+        <p class="group-hover:text-[var(--color-accent)] transition-colors">{prev.title}</p>
+      </a>
+    ) : <div />}
+
+    {next ? (
+      <a href={`/video/${next.slug}`} class="group md:text-right">
+        <p class="micro-label text-[var(--color-muted)] mb-3 group-hover:text-[var(--color-accent)] transition-colors">
+          siguiente →
+        </p>
+        <p class="group-hover:text-[var(--color-accent)] transition-colors">{next.title}</p>
+      </a>
+    ) : <div />}
+  </nav>
+</BaseLayout>

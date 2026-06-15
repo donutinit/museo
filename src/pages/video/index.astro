@@ -1,0 +1,120 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { videos, interviews, nonInterviews, youtubeFeature, kindLabel } from '../../data/videos';
+
+const totalVideos = videos.length + 1; // + youtube
+---
+
+<BaseLayout
+  title="Archivo en movimiento"
+  description="Archivo de video de Von Diego — entrevistas familiares, comerciales corporativos y piezas personales."
+>
+  <section class="author-meta-row">
+    <a href="/" class="hover:text-[var(--color-accent)] transition-colors">← archivo</a>
+    <span>video / banco de cintas</span>
+    <span>{String(totalVideos).padStart(2, '0')} piezas</span>
+  </section>
+
+  <section class="vid-hero">
+    <div class="vid-hero-meta">
+      <p class="micro-label text-[var(--color-accent)]">expediente abierto</p>
+      <h1 class="vid-hero-title glitch-cut" data-text="Cinta.">Cinta.</h1>
+      <p class="vid-hero-lede">
+        El archivo no se cuelga en la pared. Aquí se proyecta. Entrevistas a la familia,
+        comerciales que se firmaron a mano y piezas personales que se quedaron por dentro.
+      </p>
+    </div>
+
+    <a
+      class="vid-featured"
+      href={youtubeFeature.url}
+      target="_blank"
+      rel="noopener"
+      aria-label="Abrir pieza destacada en YouTube"
+    >
+      <span class="vid-featured-tape">YT-001 · Evidencia A</span>
+      <span class="vid-featured-stamp">REPRODUCIR / FIRMA AL REVERSO</span>
+      <div class="vid-featured-frame">
+        <iframe
+          src={`https://www.youtube.com/embed/${youtubeFeature.id}?rel=0&modestbranding=1`}
+          title={youtubeFeature.title}
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+        <span class="vid-featured-spray" aria-hidden="true">Von Diego</span>
+        <span class="vid-featured-tag-a" aria-hidden="true">SR/2026</span>
+        <span class="vid-featured-tag-b" aria-hidden="true">★ canal · donutinit</span>
+        <span class="vid-featured-cctv" aria-hidden="true">REC ● 00:00:24</span>
+      </div>
+      <span class="vid-featured-caption">{youtubeFeature.caption}</span>
+    </a>
+  </section>
+
+  <section class="vid-section">
+    <div class="vid-section-head">
+      <p class="micro-label text-[var(--color-accent)]">expediente entrevistas</p>
+      <h2 class="vid-section-title glitch-cut" data-text="Familia, sin retoque.">
+        Familia, sin retoque.
+      </h2>
+      <p>
+        Cuatro entrevistas a los míos. La cuarta es una cinta VHS rescatada, se respeta el ruido.
+      </p>
+    </div>
+
+    <div class="vid-grid vid-grid--ent">
+      {interviews.map((v, i) => (
+        <a href={`/video/${v.slug}`} class={`vid-card vid-card--ent ${v.vhs ? 'vid-card--vhs' : ''}`}>
+          <span class="vid-card-tape">{v.tape}</span>
+          <div class={`vid-thumb vid-thumb--${v.aspect.replace('/', '-')}`}>
+            <img src={v.poster} alt={v.title} loading={i < 2 ? 'eager' : 'lazy'} />
+            {v.vhs && (
+              <>
+                <span class="vhs-scan" aria-hidden="true"></span>
+                <span class="vhs-stamp" aria-hidden="true">▶ PLAY · SP · 03:14:88</span>
+                <span class="vhs-track" aria-hidden="true">TRACKING ▮▮▮▯</span>
+              </>
+            )}
+            <span class="vid-thumb-cut" aria-hidden="true"></span>
+            <span class="vid-thumb-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          </div>
+          <div class="vid-card-meta">
+            <p class="micro-label vid-card-kind">{kindLabel[v.kind]} · {v.year}</p>
+            <h3 class="vid-card-title">{v.title}</h3>
+            {v.caption && <p class="vid-card-caption">{v.caption}</p>}
+            <p class="vid-card-foot">▶ {v.durationLabel}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="vid-section">
+    <div class="vid-section-head">
+      <p class="micro-label text-[var(--color-accent)]">expediente comercial / personal</p>
+      <h2 class="vid-section-title glitch-cut" data-text="Cintas firmadas.">
+        Cintas firmadas.
+      </h2>
+      <p>Piezas hechas para clientes, marcas y para lo que no se vende.</p>
+    </div>
+
+    <div class="vid-grid vid-grid--main">
+      {nonInterviews.map((v, i) => (
+        <a href={`/video/${v.slug}`} class="vid-card">
+          <span class="vid-card-tape">{v.tape}</span>
+          <div class={`vid-thumb vid-thumb--${v.aspect.replace('/', '-')}`}>
+            <img src={v.poster} alt={v.title} loading={i < 3 ? 'eager' : 'lazy'} />
+            <span class="vid-thumb-cut" aria-hidden="true"></span>
+            <span class="vid-thumb-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          </div>
+          <div class="vid-card-meta">
+            <p class="micro-label vid-card-kind">{kindLabel[v.kind]} · {v.year}</p>
+            <h3 class="vid-card-title">{v.title}</h3>
+            {v.caption && <p class="vid-card-caption">{v.caption}</p>}
+            <p class="vid-card-foot">▶ {v.durationLabel}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
