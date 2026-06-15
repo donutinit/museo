@@ -1,0 +1,91 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const allProjects = await getCollection('projects');
+const projects = allProjects.sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
+);
+
+const featured = projects.find((p) => p.data.featured) ?? projects[0];
+
+const typeLabel: Record<string, string> = {
+  retrato: 'Retrato',
+  evento: 'Evento',
+  comercial: 'Comercial',
+  personal: 'Personal',
+  concierto: 'Concierto',
+};
+
+const yearRange = (() => {
+  const years = projects.map((p) => p.data.year);
+  return `${Math.min(...years)} — ${Math.max(...years)}`;
+})();
+---
+
+<BaseLayout>
+  <!-- Featured hero -->
+  <section class="border-b rule">
+    <a href={`/work/${featured.slug}`} class="block group">
+      <div class="relative overflow-hidden">
+        <img
+          src={featured.data.poster}
+          alt={featured.data.title}
+          class="w-full h-[70vh] md:h-[85vh] object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+          fetchpriority="high"
+        />
+      </div>
+      <div class="px-6 md:px-10 py-6 md:py-10 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <p class="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-muted)] mb-3">
+            Featured · {typeLabel[featured.data.type]}
+          </p>
+          <h2 class="text-5xl md:text-7xl lg:text-8xl font-medium tracking-tighter leading-[0.95] group-hover:text-[var(--color-accent)] transition-colors">
+            {featured.data.title}
+          </h2>
+        </div>
+        <p class="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-muted)] group-hover:text-[var(--color-accent)] transition-colors">
+          → ver proyecto
+        </p>
+      </div>
+    </a>
+  </section>
+
+  <!-- Project index table -->
+  <section class="px-6 md:px-10 py-16 md:py-24">
+    <div class="flex items-baseline justify-between mb-10 md:mb-14 font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-muted)]">
+      <h3>Index / {yearRange}</h3>
+      <p>[{projects.length.toString().padStart(2, '0')}] projects</p>
+    </div>
+
+    <ol>
+      {projects.map((p, i) => (
+        <li class="border-t rule last:border-b group">
+          <a
+            href={`/work/${p.slug}`}
+            class="grid grid-cols-12 gap-3 md:gap-6 items-baseline py-5 md:py-7 transition-colors"
+          >
+            <span class="col-span-2 md:col-span-1 font-mono text-xs text-[var(--color-muted)]">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span class="col-span-10 md:col-span-5 text-2xl md:text-4xl font-medium tracking-tight group-hover:text-[var(--color-accent)] transition-colors">
+              {p.data.title}
+            </span>
+            <span class="hidden md:inline col-span-2 font-mono text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">
+              {typeLabel[p.data.type]}
+            </span>
+            <span class="hidden md:inline col-span-2 font-mono text-xs text-[var(--color-muted)]">
+              {p.data.year}{p.data.location ? ` · ${p.data.location}` : ''}
+            </span>
+            <span class="hidden md:inline col-span-1 font-mono text-xs text-[var(--color-muted)] text-right">
+              [{p.data.photoCount}]
+            </span>
+            <span class="hidden md:inline col-span-1 font-mono text-xs text-[var(--color-muted)] text-right group-hover:text-[var(--color-accent)] transition-colors">
+              →
+            </span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+</BaseLayout>

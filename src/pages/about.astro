@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="About" description="Sobre Donut Init — videógrafo y fotógrafo basado en Monterrey.">
+  <section class="px-6 md:px-10 py-16 md:py-24 max-w-4xl">
+    <p class="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-muted)] mb-6">
+      About / 01
+    </p>
+    <h1 class="text-6xl md:text-8xl font-medium tracking-tighter leading-[0.9] mb-12 md:mb-16">
+      Donut Init.
+    </h1>
+
+    <div class="space-y-6 text-lg md:text-xl leading-relaxed text-[var(--color-ink)]/90 max-w-3xl">
+      <p>
+        Videógrafo y fotógrafo basado en <span class="text-[var(--color-accent)]">Monterrey, México</span>.
+      </p>
+      <p>
+        Documento eventos deportivos, retratos editoriales, conciertos, proyectos comerciales,
+        y mi propia vida cuando algo vale la pena recordar.
+      </p>
+      <p>
+        Mi pasión por la fotografía empezó por accidente trabajando en redes sociales de una tienda
+        de bicicletas. Lo que iba a ser un acomodo terminó siendo el camino.
+        Hoy ese mundo del ciclismo sigue siendo una pata grande de mi trabajo — eventos,
+        riders, marcas — y se cruza con todo lo demás que filmo y fotografío.
+      </p>
+    </div>
+
+    <div class="mt-16 md:mt-24 pt-10 border-t rule grid grid-cols-1 md:grid-cols-2 gap-10 font-mono text-xs">
+      <div>
+        <p class="uppercase tracking-[0.25em] text-[var(--color-muted)] mb-4">Disponible para</p>
+        <ul class="space-y-2 text-sm">
+          <li>· Editoriales / retratos</li>
+          <li>· Comercial / marca</li>
+          <li>· Eventos deportivos</li>
+          <li>· Conciertos y vivos</li>
+          <li>· Documentales cortos</li>
+        </ul>
+      </div>
+      <div>
+        <p class="uppercase tracking-[0.25em] text-[var(--color-muted)] mb-4">Base / alcance</p>
+        <p class="text-sm">Monterrey, MX</p>
+        <p class="text-sm mt-2 text-[var(--color-muted)]">México + viajes</p>
+
+        <p class="uppercase tracking-[0.25em] text-[var(--color-muted)] mb-4 mt-8">Cotizaciones</p>
+        <a
+          href="mailto:contacto@vondiego.com"
+          class="text-sm hover:text-[var(--color-accent)] transition-colors"
+        >
+          contacto@vondiego.com →
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

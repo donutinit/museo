@@ -45,4 +45,18 @@ ver `docs/` para detalle completo.
 
 - github user: `donutinit`
 - email: `contacto@vondiego.com`
+- email comercial: `contacto@vondiego.com`
 - nombre para licencia/créditos: `donut init`
+
+## seguridad / supply chain de npm
+
+el donut tiene preocupación legítima por ataques de supply chain en npm. reglas estrictas:
+
+1. **versiones pineadas exactas** en `package.json` (sin `^` ni `~`) — para que `npm ci` produzca builds reproducibles
+2. **siempre `npm ci`** (con lockfile), nunca `npm install` para builds
+3. **solo deps de orgs reconocidos**: astro org, tailwind labs, vercel, microsoft, fontsource, lovell fuller (sharp). cualquier dep nueva: justificar maintainer + razón
+4. **antes de agregar una dep nueva**: pedir confirmación al donut
+5. **postinstall scripts**: verificar quién corre. esperados aquí: solo `sharp` (binarios nativos) y `esbuild` (binario nativo). cualquier otro = stop + revisar
+6. **producción cero-node**: el build de astro genera html estático; nginx lo sirve. NO hay node corriendo en truenas
+7. **builds en gha**, no en su máquina cuando sea posible — aísla el riesgo
+8. **`npm audit`** después de cualquier cambio de deps, reportar resultados
