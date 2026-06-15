@@ -8,6 +8,10 @@ versión actual de truenas community edition (ex scale) usa docker compose como 
 - al menos un dataset disponible para media (`/mnt/tank/portfolio-media/` o equivalente)
 - dominio en cloudflare con tunnel ya configurado (ver [04-cloudflare-tunnel.md](./04-cloudflare-tunnel.md))
 
+## archivo listo para pegar
+
+el yaml exacto vive en [`deploy/portfolio.compose.yaml`](../deploy/portfolio.compose.yaml). copialo y pegalo en truenas ui → apps → discover → custom app.
+
 ## pasos (cuando lleguemos acá)
 
 ### 1. crear datasets
