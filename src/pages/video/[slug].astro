@@ -16,9 +16,6 @@ export async function getStaticPaths() {
 }
 
 const { video, index, total, prev, next } = Astro.props;
-const transcriptLines = video.transcript
-  ? video.transcript.split('\n').map((l) => l.trim()).filter(Boolean)
-  : [];
 ---
 
 <BaseLayout
@@ -34,14 +31,14 @@ const transcriptLines = video.transcript
     <span>{kindLabel[video.kind]}</span>
   </section>
 
-  <section class={`vid-player-shell ${video.vhs ? 'vid-player-shell--vhs' : ''}`}>
+  <section class="vid-player-shell">
     <div class="vid-player-meta">
       <p class="micro-label text-[var(--color-accent)]">{video.tape ?? 'expediente · cinta'}</p>
       <h1 class="vid-player-title">{video.title}</h1>
       {video.caption && <p class="vid-player-caption">{video.caption}</p>}
     </div>
 
-    <div class={`vid-player vid-player--${video.aspect.replace('/', '-')} ${video.vhs ? 'vid-player--vhs' : ''}`}>
+    <div class={`vid-player vid-player--${video.aspect.replace('/', '-')}`}>
       <video
         controls
         playsinline
@@ -51,15 +48,6 @@ const transcriptLines = video.transcript
         <source src={video.src} type="video/mp4" />
         Tu navegador no puede reproducir esto.
       </video>
-      {video.vhs && (
-        <>
-          <span class="vhs-scan vhs-scan--big" aria-hidden="true"></span>
-          <span class="vhs-stamp vhs-stamp--big" aria-hidden="true">▶ PLAY · SP · 03:14:88</span>
-          <span class="vhs-track vhs-track--big" aria-hidden="true">TRACKING ▮▮▮▯ · CH 03</span>
-        </>
-      )}
-      <span class="vid-player-tape" aria-hidden="true">EVIDENCIA · {String(index + 1).padStart(2, '0')}</span>
-      <span class="vid-player-spray" aria-hidden="true">Von Diego</span>
     </div>
 
     <aside class="vid-player-register">
@@ -73,18 +61,6 @@ const transcriptLines = video.transcript
       </dl>
     </aside>
   </section>
-
-  {transcriptLines.length > 0 && (
-    <section class="vid-transcript">
-      <div>
-        <p class="micro-label text-[var(--color-accent)]">transcripción</p>
-        <h2>Lo que se dice queda.</h2>
-      </div>
-      <div class="vid-transcript-body prose-content">
-        {transcriptLines.map((line) => <p>{line}</p>)}
-      </div>
-    </section>
-  )}
 
   <nav class="project-nav">
     {prev ? (

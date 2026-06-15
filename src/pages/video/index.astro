@@ -44,7 +44,7 @@ const totalVideos = videos.length + 1; // + youtube
         ></iframe>
         <span class="vid-featured-spray" aria-hidden="true">Von Diego</span>
         <span class="vid-featured-tag-a" aria-hidden="true">SR/2026</span>
-        <span class="vid-featured-tag-b" aria-hidden="true">★ canal · donutinit</span>
+        <span class="vid-featured-tag-b" aria-hidden="true">★ canal · von diego</span>
         <span class="vid-featured-cctv" aria-hidden="true">REC ● 00:00:24</span>
       </div>
       <span class="vid-featured-caption">{youtubeFeature.caption}</span>
@@ -64,17 +64,10 @@ const totalVideos = videos.length + 1; // + youtube
 
     <div class="vid-grid vid-grid--ent">
       {interviews.map((v, i) => (
-        <a href={`/video/${v.slug}`} class={`vid-card vid-card--ent ${v.vhs ? 'vid-card--vhs' : ''}`}>
+        <a href={`/video/${v.slug}`} class="vid-card vid-card--ent">
           <span class="vid-card-tape">{v.tape}</span>
           <div class={`vid-thumb vid-thumb--${v.aspect.replace('/', '-')}`}>
             <img src={v.poster} alt={v.title} loading={i < 2 ? 'eager' : 'lazy'} />
-            {v.vhs && (
-              <>
-                <span class="vhs-scan" aria-hidden="true"></span>
-                <span class="vhs-stamp" aria-hidden="true">▶ PLAY · SP · 03:14:88</span>
-                <span class="vhs-track" aria-hidden="true">TRACKING ▮▮▮▯</span>
-              </>
-            )}
             <span class="vid-thumb-cut" aria-hidden="true"></span>
             <span class="vid-thumb-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
           </div>
