@@ -1,20 +1,22 @@
 ---
 import '../styles/global.css';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
 
 interface Props {
   title?: string;
   description?: string;
+  bare?: boolean;
 }
 
 const {
   title,
-  description = 'Archivo visual de Von Diego — artista basado en Monterrey que convierte visiones en productos visuales de calidad.',
+  description = 'Archivo en movimiento — Von Diego, Monterrey.',
+  bare = false,
 } = Astro.props;
 
-const fullTitle = title ? `${title} / Von Diego` : 'Von Diego / Archivo visual';
+const fullTitle = title ? `${title} — vd` : 'vd · archivo';
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const path = Astro.url.pathname;
+const isOpening = path === '/' || path === '';
 ---
 
 <!doctype html>
@@ -27,99 +29,29 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#050506" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Serif+Display:ital@0;1&family=Fraunces:opsz,wght,SOFT,WONK@9..144,500..900,0..100,0..1&family=Libre+Baskerville:wght@400;700&family=Rubik+Glitch&family=Syne:wght@400;700;800&family=Unbounded:wght@400;600;800&display=swap"
-      rel="stylesheet"
-    />
+    <meta name="theme-color" content="#07060a" />
 
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
-    <meta property="og:site_name" content="Von Diego" />
+    <meta property="og:site_name" content="vd" />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
-  <body class="flex flex-col min-h-screen">
-    <Header />
-    <main class="flex-1">
-      <slot />
-    </main>
-    <Footer />
-    <script>
-      const titlePalette = [
-        '#f4efe5',
-        '#ff4b12',
-        '#d8ff31',
-        '#19d8ff',
-        '#ff5ec4',
-        '#b9a7ff',
-        '#ffe15a',
-        '#7dffca',
-      ];
+  <body>
+    {!bare && (
+      <a href="/" class="mark" aria-label="Inicio">
+        <span>vd</span>
+        <span>archivo</span>
+      </a>
+    )}
 
-      const typeMixes = [
-        {
-          display: '"Archivo Black", "Space Grotesk Variable", system-ui, sans-serif',
-          wide: '"Unbounded", "Space Grotesk Variable", system-ui, sans-serif',
-          glitch: '"Rubik Glitch", "Unbounded", system-ui, sans-serif',
-        },
-        {
-          display: '"Fraunces", "Libre Baskerville", serif',
-          wide: '"Syne", "Space Grotesk Variable", system-ui, sans-serif',
-          glitch: '"Rubik Glitch", "Unbounded", system-ui, sans-serif',
-        },
-        {
-          display: '"Unbounded", "Space Grotesk Variable", system-ui, sans-serif',
-          wide: '"DM Serif Display", "Libre Baskerville", serif',
-          glitch: '"JetBrains Mono Variable", ui-monospace, monospace',
-        },
-        {
-          display: '"DM Serif Display", "Fraunces", serif',
-          wide: '"Unbounded", "Space Grotesk Variable", system-ui, sans-serif',
-          glitch: '"Unbounded", "Space Grotesk Variable", system-ui, sans-serif',
-        },
-      ];
+    <slot />
 
-      const typeMix = typeMixes[Math.floor(Math.random() * typeMixes.length)];
-      document.documentElement.style.setProperty('--active-display-font', typeMix.display);
-      document.documentElement.style.setProperty('--active-wide-font', typeMix.wide);
-      document.documentElement.style.setProperty('--active-glitch-font', typeMix.glitch);
-
-      const titleSelectors = [
-        '.author-title',
-        '.concept-title-block h1',
-        '.concept-statement p:first-child',
-        '.concept-ledger-head h2',
-        '.author-statement h2',
-        '.author-process h3',
-        '.author-section-head h2',
-        '.author-territories p',
-        '.author-contact-mail a',
-        '.work-title',
-        '.project-essay h2',
-        '.project-nav p:last-child',
-      ].join(',');
-
-      const pick = (except = '') => {
-        let color = titlePalette[Math.floor(Math.random() * titlePalette.length)];
-        if (titlePalette.length > 1) {
-          while (color === except) {
-            color = titlePalette[Math.floor(Math.random() * titlePalette.length)];
-          }
-        }
-        return color;
-      };
-
-      document.querySelectorAll(titleSelectors).forEach((title) => {
-        if (!(title instanceof HTMLElement)) return;
-        const color = pick();
-        title.style.setProperty('--random-title-color', color);
-        title.style.setProperty('--random-title-shadow-a', pick(color));
-        title.style.setProperty('--random-title-shadow-b', pick(color));
-      });
-    </script>
+    {!bare && !isOpening && (
+      <p class="credits">
+        <a href="/nota">nota →</a>
+      </p>
+    )}
   </body>
 </html>

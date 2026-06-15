@@ -1,110 +1,51 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const allProjects = await getCollection('projects');
-const projects = allProjects.sort(
-  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
-);
-
-const typeLabel: Record<string, string> = {
-  retrato: 'Retrato',
-  evento: 'Evento',
-  comercial: 'Comercial',
-  personal: 'Obra personal',
-  concierto: 'En vivo',
+const opening = {
+  src: '/media/videos/entrevista-yolanda.mp4',
+  poster: '/media/video-posters/entrevista-yolanda.jpg',
+  kicker: 'monterrey · 26 · primer acto',
+  line: 'el archivo se abre como un',
+  lineEm: 'párpado',
+  coords: '25.668 · −100.318',
+  signature: 'vd / 26',
 };
-
-const totalPieces = projects.reduce((sum, p) => sum + p.data.photoCount, 0);
-const kineticText = 'we barely remember who or what came before this precious moment we are choosing to be here right now hold on, stay inside hold on, stay inside this holy reality this holy experience choosing to be here in this body, this body holding me be my reminder here that i am not alone in this body, this body holding me feeling eternal, all this pain is an illusion alive';
 ---
 
-<BaseLayout>
-  <section class="concept-hero concept-hero-direct">
-    <div class="concept-opening-grid" aria-hidden="true">
-      <span>000</span>
-      <span>sin statement</span>
-      <span>{String(totalPieces).padStart(3, '0')} piezas en fuga</span>
+<BaseLayout title="" description="Von Diego — archivo en movimiento. Monterrey.">
+  <section class="opening" aria-label="Apertura">
+    <div class="opening-stage" aria-hidden="true">
+      <video
+        class="opening-still"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        poster={opening.poster}
+      >
+        <source src={opening.src} type="video/mp4" />
+      </video>
     </div>
 
-    <div class="concept-title-block">
-      <p class="micro-label">archivo visual / monterrey / {String(projects.length).padStart(2, '0')} expedientes / {String(totalPieces).padStart(3, '0')} piezas</p>
-      <div class="concept-title-row">
-        <h1 class="glitch-head glitch-head--stacked" aria-label="Von Diego">
-          <span data-text="Von">Von</span>
-          <span data-text="Diego">Diego</span>
-        </h1>
+    <div class="opening-letterbox opening-letterbox--top"></div>
+    <div class="opening-letterbox opening-letterbox--bottom"></div>
 
-        <section class="kinetic-loop" aria-label={kineticText}>
-          <div class="kinetic-loop__field" aria-hidden="true">
-            <div class="kinetic-loop__track kinetic-loop__track--mass">
-              {[0, 1].map(() => <span>{kineticText}</span>)}
-            </div>
-            <div class="kinetic-loop__track kinetic-loop__track--cut">
-              {[0, 1].map(() => <span>{kineticText}</span>)}
-            </div>
-            <div class="kinetic-loop__track kinetic-loop__track--ghost">
-              {[0, 1].map(() => <span>{kineticText}</span>)}
-            </div>
-          </div>
-        </section>
+    <div class="opening-copy">
+      <p class="opening-kicker opening-fadein">{opening.kicker}</p>
+      <h1 class="opening-line opening-fadein--slow">
+        {opening.line} <em>{opening.lineEm}</em>.
+      </h1>
+    </div>
+
+    <div class="opening-foot opening-fadein--slow">
+      <div>
+        <span class="opening-foot-rule" aria-hidden="true"></span>
+        <span>{opening.coords}</span>
       </div>
+      <div>{opening.signature}</div>
     </div>
 
-    <div class="concept-bottom-mark" aria-hidden="true">
-      <span>archivo abajo</span>
-      <span>↓</span>
-    </div>
-  </section>
-
-  <section class="concept-statement">
-    <p>
-      Vive<br />
-      Canta<br />
-      Sueña
-    </p>
-    <p>
-      Usando para ello el corazón
-    </p>
-  </section>
-
-  <section class="concept-ledger">
-    <div class="concept-ledger-head">
-      <p class="micro-label text-[var(--color-muted)]">archivo</p>
-      <h2 class="glitch-cut" data-text="Obra.">Obra.</h2>
-      <p>{String(totalPieces).padStart(3, '0')} piezas registradas</p>
-    </div>
-
-    <div class="work-grid home-work-grid">
-      {projects.map((p, i) => (
-        <a
-          href={`/work/${p.slug}`}
-          class="work-card group"
-          aria-label={`Abrir expediente: ${p.data.title}`}
-        >
-          <div class="work-media">
-            <img
-              src={p.data.poster}
-              alt={p.data.title}
-              class="card-hover"
-              loading={i < 3 ? 'eager' : 'lazy'}
-              decoding={i < 3 ? 'sync' : 'async'}
-              fetchpriority={i === 0 ? 'high' : 'auto'}
-            />
-          </div>
-
-          <div class="work-meta">
-            <div class="work-index-line">
-              <span>{String(i + 1).padStart(2, '0')}</span>
-              <span>{typeLabel[p.data.type]}</span>
-              <span>{p.data.year}</span>
-              <span>{String(p.data.photoCount).padStart(2, '0')} piezas</span>
-            </div>
-            <h3 class="work-title">{p.data.title}</h3>
-            {p.data.location && <p class="work-place">{p.data.location}</p>}
-          </div>
-        </a>
-      ))}
-    </div>
+    <a href="/obra" class="entry opening-fadein--slow">índice</a>
   </section>
 </BaseLayout>
