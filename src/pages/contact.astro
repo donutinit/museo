@@ -2,44 +2,52 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="Contacto" description="Contacto de Von Diego.">
-  <section class="author-meta-row">
-    <a href="/" class="hover:text-[var(--color-accent)] transition-colors">← archivo</a>
-    <span>contacto / ficha</span>
-    <span>respuesta en días hábiles</span>
-  </section>
+<BaseLayout title="contacto" description="Contacto de Von Diego.">
+  <a href="/obra" class="opening-skip">
+    <span>volver al índice</span>
+    <span aria-hidden="true">↗</span>
+  </a>
 
-  <section class="author-statement">
-    <div>
-      <p class="micro-label text-[var(--color-accent)]">ficha de contacto</p>
-      <h1 class="author-title">La puerta no está escondida.</h1>
-    </div>
-    <div class="author-statement-copy">
-      <p>
-        Una dirección basta. Lo demás se habla si hace falta.
-      </p>
-      <p>
-        No hay formulario. No hay embudo. No hay teatro.
-      </p>
-    </div>
-  </section>
+  <main class="nota nota--contacto">
+    <section class="nota-hero" aria-labelledby="contacto-title">
+      <p class="nota-kicker">vd / contacto · monterrey</p>
+      <h1 id="contacto-title" class="nota-title">
+        una dirección <em>basta</em>.
+      </h1>
+    </section>
 
-  <section class="author-contact-mail">
-    <p class="micro-label text-[var(--color-muted)]">correo</p>
-    <a href="mailto:contacto@vondiego.com">contacto@vondiego.com</a>
-  </section>
+    <section class="nota-contact">
+      <p class="nota-kicker">correo</p>
+      <a href="mailto:contacto@vondiego.com">contacto@vondiego.com</a>
+    </section>
 
-  <section class="author-process">
-    {[
-      ['01', 'mensaje', 'lo suficiente para abrir la conversación'],
-      ['02', 'silencio', 'lo que no sirve se queda afuera'],
-      ['03', 'respuesta', 'si hay algo que decir, se dice'],
-    ].map(([num, title, copy]) => (
-      <div>
-        <span>{num}</span>
-        <h3>{title}</h3>
-        <p>{copy}</p>
+    <section class="nota-body">
+      <div class="nota-copy">
+        <p>
+          Para obra, documentación, video, retrato o una conversación concreta.
+          Si hay algo que decir, escríbelo directo.
+        </p>
+        <p>
+          No hay formulario. No hay embudo. No hay teatro.
+        </p>
       </div>
-    ))}
-  </section>
+
+      <dl class="nota-facts">
+        <div><dt>base</dt><dd>monterrey, mx</dd></div>
+        <div><dt>respuesta</dt><dd>días hábiles</dd></div>
+        <div><dt>salida</dt><dd>foto / video / archivo</dd></div>
+      </dl>
+    </section>
+
+    <nav class="nota-exit" aria-label="Salida">
+      <a href="/about">
+        <span>manifiesto</span>
+        <span>lo que sostiene la obra</span>
+      </a>
+      <a href="/obra">
+        <span>índice</span>
+        <span>obra / cintas</span>
+      </a>
+    </nav>
+  </main>
 </BaseLayout>

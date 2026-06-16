@@ -2,42 +2,62 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="Manifiesto" description="Manifiesto de Von Diego — artista visual que convierte visiones en productos de calidad.">
-  <section class="author-meta-row">
-    <a href="/" class="hover:text-[var(--color-accent)] transition-colors">← archivo</a>
-    <span>manifiesto / autor</span>
-    <span>monterrey, mx</span>
-  </section>
+<BaseLayout title="manifiesto" description="Manifiesto de Von Diego — archivo visual desde Monterrey.">
+  <a href="/obra" class="opening-skip">
+    <span>volver al índice</span>
+    <span aria-hidden="true">↗</span>
+  </a>
 
-  <section class="author-statement">
-    <div>
-      <p class="micro-label text-[var(--color-accent)]">manifiesto</p>
-      <h1 class="author-title">Producto visual con carácter.</h1>
-    </div>
-    <div class="author-statement-copy">
-      <p>
-        Soy un artista visual. Trabajo con ideas que necesitan una forma precisa,
-        una estética propia y una salida final que se sostenga sola.
-      </p>
-      <p>
-        No busco que todo se vea limpio. Busco que se vea verdadero para el proyecto:
-        fino cuando debe ser fino, agresivo cuando debe pegar, raro cuando lo pide.
-      </p>
-    </div>
-  </section>
+  <main class="nota">
+    <section class="nota-hero" aria-labelledby="manifiesto-title">
+      <p class="nota-kicker">vd / manifiesto · monterrey</p>
+      <h1 id="manifiesto-title" class="nota-title">
+        una imagen que sabe <em>cuándo callarse</em>.
+      </h1>
+    </section>
 
-  <section class="author-process">
-    {[
-      ['01', 'visión', 'lo que traes aunque todavía no tenga forma'],
-      ['02', 'criterio', 'lo que se decide, se quita y se empuja'],
-      ['03', 'obra', 'lo que queda listo para salir al mundo'],
-    ].map(([num, title, copy]) => (
-      <div>
-        <span>{num}</span>
-        <h3>{title}</h3>
-        <p>{copy}</p>
+    <section class="nota-body">
+      <div class="nota-copy">
+        <p>
+          Trabajo con imagen fija y en movimiento. No me interesa que todo explique
+          demasiado; me interesa que cada pieza encuentre su temperatura.
+        </p>
+        <p>
+          La cámara no está para decorar. Está para decidir qué se queda, qué se
+          corta y qué tarda en aparecer.
+        </p>
       </div>
-    ))}
-  </section>
 
+      <dl class="nota-facts">
+        <div><dt>oficio</dt><dd>foto / video / montaje</dd></div>
+        <div><dt>base</dt><dd>monterrey, mx</dd></div>
+        <div><dt>archivo</dt><dd>obra / cintas / encargos</dd></div>
+      </dl>
+    </section>
+
+    <section class="nota-acts" aria-label="Forma de trabajo">
+      {[
+        ['01', 'mirar', 'estar suficiente tiempo frente a la cosa.'],
+        ['02', 'cortar', 'dejar fuera lo que solo hace ruido.'],
+        ['03', 'entregar', 'que la pieza pueda sostenerse sola.'],
+      ].map(([num, title, copy]) => (
+        <article>
+          <span>{num}</span>
+          <h2>{title}</h2>
+          <p>{copy}</p>
+        </article>
+      ))}
+    </section>
+
+    <nav class="nota-exit" aria-label="Salida">
+      <a href="/contact">
+        <span>contacto</span>
+        <span>contacto@vondiego.com</span>
+      </a>
+      <a href="/obra">
+        <span>índice</span>
+        <span>obra / cintas</span>
+      </a>
+    </nav>
+  </main>
 </BaseLayout>

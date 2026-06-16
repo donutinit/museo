@@ -17,6 +17,7 @@ const fullTitle = title ? `${title} — vd` : 'vd · archivo';
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const path = Astro.url.pathname;
 const isOpening = path === '/' || path === '';
+const isManifest = path === '/about' || path === '/about/';
 ---
 
 <!doctype html>
@@ -48,9 +49,9 @@ const isOpening = path === '/' || path === '';
 
     <slot />
 
-    {!bare && !isOpening && (
+    {!bare && !isOpening && !isManifest && (
       <p class="credits">
-        <a href="/nota">nota →</a>
+        <a href="/about">manifiesto →</a>
       </p>
     )}
   </body>

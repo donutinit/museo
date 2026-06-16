@@ -1,51 +1,430 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const opening = {
-  src: '/media/videos/entrevista-yolanda.mp4',
-  poster: '/media/video-posters/entrevista-yolanda.jpg',
-  kicker: 'monterrey · 26 · primer acto',
-  line: 'el archivo se abre como un',
-  lineEm: 'párpado',
-  coords: '25.668 · −100.318',
-  signature: 'vd / 26',
+type VideoItem = {
+  kind: 'video';
+  code: string;
+  where: string;
+  year: string;
+  src: string;
+  poster: string;
+  aspect: '16/9' | '4/3' | '9/16';
+  line: string;
+  lineEm: string;
+  anchor: string;
 };
+
+type GridItem = {
+  kind: 'grid';
+  code: string;
+  title: string;
+  titleEm: string;
+  caption: string;
+  photos: Photo[];
+};
+
+type Photo = {
+  src: string;
+  alt: string;
+  href: string;
+  width: number;
+  height: number;
+};
+
+type FinalItem = { kind: 'final'; code: string; line: string; lineEm: string };
+
+type Item = VideoItem | GridItem | FinalItem;
+
+const photo = (src: string, alt: string, href: string, width: number, height: number): Photo => ({
+  src,
+  alt,
+  href,
+  width,
+  height,
+});
+
+const photoClass = (p: Photo) => {
+  const r = p.width / p.height;
+  if (r > 1.15) return 'grid-cell--wide';
+  if (r >= 0.9) return 'grid-cell--square';
+  if (r >= 0.74) return 'grid-cell--portrait';
+  return 'grid-cell--tall';
+};
+
+const items: Item[] = [
+  {
+    kind: 'video',
+    code: 'i / 09',
+    where: 'yolanda · monterrey',
+    year: '26',
+    src: '/media/videos/entrevista-yolanda.mp4',
+    poster: '/media/video-posters/entrevista-yolanda.jpg',
+    aspect: '16/9',
+    line: 'el archivo se abre como un',
+    lineEm: 'párpado',
+    anchor: '/video/entrevista-yolanda',
+  },
+  {
+    kind: 'grid',
+    code: 'ii / 09',
+    title: 'los',
+    titleEm: 'míos',
+    caption: 'obra · primer corte',
+    photos: [
+      photo('/media/posters/apice.webp', 'depredador ápice', '/obra/apice', 1200, 1800),
+      photo('/media/posters/zara.webp', 'zara', '/obra/zara', 1440, 1800),
+      photo('/media/posters/karen.webp', 'káren', '/obra/karen', 1440, 1800),
+      photo('/media/posters/cerrandociclos.webp', 'cerrando ciclos', '/obra/cerrandociclos', 1200, 1800),
+      photo('/media/posters/marchas.webp', 'marchas eternas', '/obra/marchas', 1200, 1800),
+      photo('/media/posters/poasadas.webp', 'posadas', '/obra/poasadas', 1200, 1800),
+      photo('/media/projects/apice/apice-03.jpg', 'apice · pieza 03', '/obra/apice', 1200, 1800),
+      photo('/media/projects/karen/karen-02.jpg', 'káren · pieza 02', '/obra/karen', 1440, 1800),
+    ],
+  },
+  {
+    kind: 'video',
+    code: 'iii / 09',
+    where: 'autódromo · nave',
+    year: '26',
+    src: '/media/videos/presentacion-nave.mp4',
+    poster: '/media/video-posters/presentacion-nave.jpg',
+    aspect: '9/16',
+    line: 'el espacio se mide en',
+    lineEm: 'andenes',
+    anchor: '/video/presentacion-nave',
+  },
+  {
+    kind: 'grid',
+    code: 'iv / 09',
+    title: 'rodando.',
+    titleEm: 'bicis',
+    caption: 'oficio · ruta y polvo',
+    photos: [
+      photo('/media/posters/ebikecamp.webp', 'e-bike camp', '/obra/ebikecamp', 1920, 2880),
+      photo('/media/projects/bikefest/bikefest-04.jpg', 'bikefest · pieza 04', '/obra/bikefest', 1440, 1800),
+      photo('/media/projects/raulalcala/raulalcala-06.jpg', 'raúl alcalá · pieza 06', '/obra/raulalcala', 1013, 1800),
+      photo('/media/posters/bikeparkesfera.webp', 'bike park esfera', '/obra/bikeparkesfera', 1440, 1800),
+      photo('/media/projects/ebikecamp/ebikecamp-17.jpg', 'e-bike camp · pieza 17', '/obra/ebikecamp', 1920, 2880),
+      photo('/media/projects/bikefest/bikefest-11.jpg', 'bikefest · pieza 11', '/obra/bikefest', 1440, 1800),
+      photo('/media/posters/raulalcala.webp', 'raúl alcalá challenge', '/obra/raulalcala', 1440, 1800),
+      photo('/media/projects/bikeparkesfera/bikeparkesfera-02.jpg', 'bike park esfera · pieza 02', '/obra/bikeparkesfera', 1800, 1012),
+      photo('/media/projects/ebikecamp/ebikecamp-18.jpg', 'e-bike camp · pieza 18', '/obra/ebikecamp', 3840, 2560),
+      photo('/media/posters/bikefest.webp', 'bikefest', '/obra/bikefest', 1440, 1800),
+      photo('/media/projects/raulalcala/raulalcala-17.jpg', 'raúl alcalá · pieza 17', '/obra/raulalcala', 1800, 1800),
+      photo('/media/projects/bikeparkesfera/bikeparkesfera-15.jpg', 'bike park esfera · pieza 15', '/obra/bikeparkesfera', 1440, 1800),
+    ],
+  },
+  {
+    kind: 'video',
+    code: 'v / 09',
+    where: 'missael · familia',
+    year: '26',
+    src: '/media/videos/entrevista-missael-vhs.mp4',
+    poster: '/media/video-posters/entrevista-missael-vhs.jpg',
+    aspect: '4/3',
+    line: 'la cinta no',
+    lineEm: 'olvida',
+    anchor: '/video/entrevista-missael-vhs',
+  },
+  {
+    kind: 'grid',
+    code: 'vi / 09',
+    title: 'monterrey,',
+    titleEm: 'piezas',
+    caption: 'frames sueltos del archivo',
+    photos: [
+      photo('/media/projects/poasadas/poasadas-04.jpg', 'posadas · pieza 04', '/obra/poasadas', 1440, 1800),
+      photo('/media/projects/cerrandociclos/cerrandociclos-02.jpg', 'cerrando ciclos · pieza 02', '/obra/cerrandociclos', 1200, 1800),
+      photo('/media/projects/poasadas/poasadas-10.jpg', 'posadas · pieza 10', '/obra/poasadas', 1200, 1800),
+      photo('/media/projects/poasadas/poasadas-15.jpg', 'posadas · pieza 15', '/obra/poasadas', 1200, 1800),
+      photo('/media/projects/cerrandociclos/cerrandociclos-06.jpg', 'cerrando ciclos · pieza 06', '/obra/cerrandociclos', 1200, 2133),
+      photo('/media/projects/cerrandociclos/cerrandociclos-08.jpg', 'cerrando ciclos · pieza 08', '/obra/cerrandociclos', 1200, 2133),
+      photo('/media/projects/donaestereso/donaestereso-22.jpg', 'doña estéreo · pieza 22', '/obra/donaestereso', 1800, 1200),
+      photo('/media/projects/karen/karen-03.jpg', 'káren · pieza 03', '/obra/karen', 1200, 1800),
+      photo('/media/projects/zara/zara-02.jpg', 'zara · pieza 02', '/obra/zara', 1440, 1800),
+      photo('/media/projects/apice/apice-05.jpg', 'apice · pieza 05', '/obra/apice', 1800, 1200),
+    ],
+  },
+  {
+    kind: 'video',
+    code: 'vii / 09',
+    where: 'parto · personal',
+    year: '26',
+    src: '/media/videos/parto.mp4',
+    poster: '/media/video-posters/parto.jpg',
+    aspect: '4/3',
+    line: 'el principio se ve',
+    lineEm: 'corto',
+    anchor: '/video/parto',
+  },
+  {
+    kind: 'video',
+    code: 'viii / 09',
+    where: 'beto · familia',
+    year: '26',
+    src: '/media/videos/entrevista-beto.mp4',
+    poster: '/media/video-posters/entrevista-beto.jpg',
+    aspect: '16/9',
+    line: 'todo lo que se quedó',
+    lineEm: 'adentro',
+    anchor: '/video/entrevista-beto',
+  },
+  {
+    kind: 'grid',
+    code: 'ix / 09',
+    title: 'doña',
+    titleEm: 'estéreo',
+    caption: 'soda stereo · en vivo',
+    photos: [
+      photo('/media/projects/donaestereso/donaestereso-03.jpg', 'doña estéreo · pieza 03', '/obra/donaestereso', 1200, 1800),
+      photo('/media/projects/donaestereso/donaestereso-07.jpg', 'doña estéreo · pieza 07', '/obra/donaestereso', 1200, 1800),
+      photo('/media/projects/donaestereso/donaestereso-12.jpg', 'doña estéreo · pieza 12', '/obra/donaestereso', 1200, 1800),
+      photo('/media/projects/donaestereso/donaestereso-17.jpg', 'doña estéreo · pieza 17', '/obra/donaestereso', 1200, 1800),
+      photo('/media/projects/donaestereso/donaestereso-22.jpg', 'doña estéreo · pieza 22', '/obra/donaestereso', 1800, 1200),
+      photo('/media/projects/donaestereso/donaestereso-26.jpg', 'doña estéreo · pieza 26', '/obra/donaestereso', 1800, 1200),
+    ],
+  },
+  { kind: 'final', code: 'x / 10', line: 'fin', lineEm: 'del primer acto' },
+];
 ---
 
 <BaseLayout title="" description="Von Diego — archivo en movimiento. Monterrey.">
-  <section class="opening" aria-label="Apertura">
-    <div class="opening-stage" aria-hidden="true">
-      <video
-        class="opening-still"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="auto"
-        poster={opening.poster}
-      >
-        <source src={opening.src} type="video/mp4" />
-      </video>
-    </div>
+  <a href="/obra" class="opening-skip">
+    <span>saltar al índice</span>
+    <span aria-hidden="true">→</span>
+  </a>
 
-    <div class="opening-letterbox opening-letterbox--top"></div>
-    <div class="opening-letterbox opening-letterbox--bottom"></div>
+  <button
+    type="button"
+    class="sonido"
+    data-sonido
+    data-on="true"
+    aria-pressed="true"
+    aria-label="Silenciar"
+  >
+    <span class="sonido-dot" aria-hidden="true"></span>
+    <span data-sonido-label>sonido on</span>
+  </button>
 
-    <div class="opening-copy">
-      <p class="opening-kicker opening-fadein">{opening.kicker}</p>
-      <h1 class="opening-line opening-fadein--slow">
-        {opening.line} <em>{opening.lineEm}</em>.
-      </h1>
-    </div>
+  <main class="reel" data-reel>
+    {items.map((item, i) => {
+      if (item.kind === 'final') {
+        return (
+          <section class="plate plate--final" data-plate={i}>
+            <div class="plate-final-copy plate-fadein">
+              <p class="plate-kicker">{item.code}</p>
+              <h2 class="plate-final-title">
+                <em>{item.line}</em> {item.lineEm}.
+              </h2>
+              <a href="/obra" class="plate-final-link">
+                <span class="plate-final-link-rule" aria-hidden="true"></span>
+                ver el índice
+              </a>
+            </div>
+          </section>
+        );
+      }
 
-    <div class="opening-foot opening-fadein--slow">
-      <div>
-        <span class="opening-foot-rule" aria-hidden="true"></span>
-        <span>{opening.coords}</span>
-      </div>
-      <div>{opening.signature}</div>
-    </div>
+      if (item.kind === 'grid') {
+        const gridClass =
+          item.photos.length >= 10 ? 'grid--dense' : item.photos.length === 8 ? 'grid--feature' : 'grid--six';
+        const gridBase =
+          item.title === 'monterrey,' ? 22.2
+          : item.title === 'los' ? 22.6
+          : item.photos.length >= 10 ? 19.8
+          : item.photos.length === 8 ? 21.8
+          : 22.8;
 
-    <a href="/obra" class="entry opening-fadein--slow">índice</a>
-  </section>
+        return (
+          <section class="plate plate--grid" data-plate={i}>
+            <header class="grid-head">
+              <p class="plate-code grid-code">
+                <span>{item.code}</span>
+                <span aria-hidden="true">·</span>
+                <span>{item.caption}</span>
+              </p>
+              <h2 class="grid-title">
+                {item.title} <em>{item.titleEm}</em>.
+              </h2>
+            </header>
+            <div class={`grid ${gridClass}`}>
+              {item.photos.map((p, j) => (
+                <a
+                  href={p.href}
+                  class={`grid-cell ${photoClass(p)}`}
+                  aria-label={p.alt}
+                  style={`--ratio: ${(p.width / p.height).toFixed(6)}; --basis: ${((p.width / p.height) * gridBase).toFixed(3)}rem;`}
+                >
+                  <img
+                    src={p.src}
+                    alt={p.alt}
+                    width={p.width}
+                    height={p.height}
+                    loading={i <= 1 && j < 3 ? 'eager' : 'lazy'}
+                    decoding={i <= 1 && j < 3 ? 'sync' : 'async'}
+                  />
+                </a>
+              ))}
+            </div>
+          </section>
+        );
+      }
+
+      const compactClass =
+        item.anchor.includes('entrevista-missael-vhs')
+        || item.anchor.includes('parto')
+        || item.anchor.includes('entrevista-beto')
+          ? ' plate--compact'
+          : '';
+
+      return (
+        <section class={`plate plate--video plate--aspect-${item.aspect.replace('/', '-')}${compactClass}`} data-plate={i}>
+          <a class="plate-bed" href={item.anchor} aria-label={item.where}>
+            <video
+              data-plate-video
+              autoplay
+              loop
+              playsinline
+              preload={i === 0 ? 'auto' : 'metadata'}
+              poster={item.poster}
+              style={`aspect-ratio: ${item.aspect};`}
+            >
+              <source src={item.src} type="video/mp4" />
+            </video>
+          </a>
+
+          <p class="plate-code">
+            <span>{item.code}</span>
+            <span aria-hidden="true">·</span>
+            <span>{item.where}</span>
+            <span aria-hidden="true">·</span>
+            <span>vd / {item.year}</span>
+            <span aria-hidden="true">·</span>
+            <span>cinta · {item.aspect}</span>
+          </p>
+
+          <div class="plate-copy">
+            <h2 class="plate-line">
+              {item.line} <em>{item.lineEm}</em>.
+            </h2>
+          </div>
+
+          {i === 0 && (
+            <span class="plate-hint" aria-hidden="true">
+              <span>desliza</span>
+              <span class="plate-hint-arrow">↓</span>
+            </span>
+          )}
+        </section>
+      );
+    })}
+  </main>
+
+  <script>
+    const button = document.querySelector<HTMLButtonElement>('[data-sonido]');
+    const label = document.querySelector<HTMLSpanElement>('[data-sonido-label]');
+    const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('[data-plate-video]'));
+
+    if (button && label) {
+      const state = { wantSound: true };
+
+      const applyButton = () => {
+        button.setAttribute('aria-pressed', String(state.wantSound));
+        button.setAttribute('aria-label', state.wantSound ? 'Silenciar' : 'Activar sonido');
+        button.dataset.on = String(state.wantSound);
+        label.textContent = state.wantSound ? 'sonido on' : 'sonido off';
+      };
+
+      const isCurrentVideo = (v: HTMLVideoElement) => {
+        const rect = v.getBoundingClientRect();
+        const viewport = window.innerHeight || document.documentElement.clientHeight;
+        const visible = Math.min(rect.bottom, viewport) - Math.max(rect.top, 0);
+        return visible > Math.min(rect.height, viewport) * 0.35;
+      };
+
+      const playVideo = async (v: HTMLVideoElement) => {
+        v.muted = !state.wantSound;
+        if (state.wantSound) v.volume = 1;
+        try {
+          await v.play();
+        } catch {}
+      };
+
+      const playbackObserver = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            const v = entry.target as HTMLVideoElement;
+            if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+              playVideo(v);
+            } else {
+              v.pause();
+            }
+          }
+        },
+        { threshold: [0, 0.5, 0.8] }
+      );
+
+      videos.forEach((v) => playbackObserver.observe(v));
+
+      button.addEventListener('click', () => {
+        state.wantSound = !state.wantSound;
+        applyButton();
+        videos.forEach((v) => {
+          if (!v.paused) {
+            v.muted = !state.wantSound;
+            if (state.wantSound) v.play().catch(() => {});
+          }
+        });
+      });
+
+      const retrySound = () => {
+        if (!state.wantSound) return;
+        videos.forEach((v) => {
+          v.muted = false;
+          v.volume = 1;
+          if (isCurrentVideo(v)) {
+            v.play().catch(() => {});
+          }
+        });
+      };
+      window.addEventListener('pointerdown', retrySound, { once: true });
+      window.addEventListener('keydown', retrySound, { once: true });
+      window.addEventListener('scroll', retrySound, { once: true, passive: true });
+
+      applyButton();
+    }
+
+    // fade-in copy on enter; auto-quiet after 10s of visible playback
+    const plateNodes = document.querySelectorAll<HTMLElement>('[data-plate]');
+    const quietTimers = new WeakMap<Element, number>();
+    const QUIET_AFTER_MS = 10_000;
+
+    const copyObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const el = entry.target as HTMLElement;
+          if (entry.isIntersecting && entry.intersectionRatio > 0.35) {
+            el.classList.add('plate--visible');
+            // quiet timer only on video plates
+            if (el.classList.contains('plate--video') && !quietTimers.has(el)) {
+              const t = window.setTimeout(() => {
+                el.classList.add('plate--quiet');
+                quietTimers.delete(el);
+              }, QUIET_AFTER_MS);
+              quietTimers.set(el, t);
+            }
+          } else {
+            el.classList.remove('plate--visible', 'plate--quiet');
+            const t = quietTimers.get(el);
+            if (t !== undefined) {
+              window.clearTimeout(t);
+              quietTimers.delete(el);
+            }
+          }
+        });
+      },
+      { threshold: [0.35] }
+    );
+    plateNodes.forEach((p) => copyObserver.observe(p));
+  </script>
 </BaseLayout>

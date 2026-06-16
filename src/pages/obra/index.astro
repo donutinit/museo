@@ -1,0 +1,238 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { videos, type VideoEntry } from '../../data/videos';
+
+type MediaItem = {
+  slug: string;
+  href: string;
+  title: string;
+  code: string;
+  meta: string;
+  src: string;
+  width: number;
+  height: number;
+  orientation: 'wide' | 'tall' | 'square';
+  publishedAt: Date;
+};
+
+const projects = await getCollection('projects');
+
+const posterSize: Record<string, { width: number; height: number }> = {
+  apice: { width: 1200, height: 1800 },
+  aria: { width: 1600, height: 1067 },
+  bikefest: { width: 1440, height: 1800 },
+  bikeparkesfera: { width: 1440, height: 1800 },
+  cerrandociclos: { width: 1200, height: 1800 },
+  donaestereso: { width: 1200, height: 1800 },
+  ebikecamp: { width: 1920, height: 2880 },
+  karen: { width: 1440, height: 1800 },
+  marchas: { width: 1200, height: 1800 },
+  poasadas: { width: 1200, height: 1800 },
+  raulalcala: { width: 1440, height: 1800 },
+  zara: { width: 1440, height: 1800 },
+};
+
+const videoDate: Record<string, Date> = {
+  'entrevista-beto': new Date('2026-05-24'),
+  'entrevista-yolanda': new Date('2026-05-19'),
+  'entrevista-maricela': new Date('2026-05-15'),
+  'entrevista-lalo': new Date('2026-05-11'),
+  'entrevista-missael-vhs': new Date('2026-04-23'),
+  parto: new Date('2026-04-23'),
+  'presentacion-nave': new Date('2026-06-03'),
+  'recepcion-250-toneladas': new Date('2026-01-27'),
+  'cuvisa-joselin': new Date('2026-02-24'),
+  'aria-lk': new Date('2025-10-29'),
+  'aria-wavtech': new Date('2025-07-16'),
+  'drummond-infinniguard': new Date('2025-03-15'),
+};
+
+const projectKind: Record<CollectionEntry<'projects'>['data']['type'], string> = {
+  retrato: 'retrato',
+  evento: 'evento',
+  comercial: 'oficio',
+  personal: 'obra',
+  concierto: 'vivo',
+};
+
+const videoSize = (aspect: VideoEntry['aspect']) =>
+  aspect === '16/9'
+    ? { width: 1920, height: 1080 }
+    : aspect === '4/3'
+      ? { width: 1080, height: 810 }
+      : { width: 1080, height: 1920 };
+
+const videoTitle = (title: string) => {
+  const lower = title.toLowerCase();
+  return lower.includes('—') ? lower.split('—')[0].trim() : lower;
+};
+
+const orientation = (width: number, height: number): MediaItem['orientation'] => {
+  const r = width / height;
+  return r > 1.45 ? 'wide' : r < 0.85 ? 'tall' : 'square';
+};
+
+const obras: MediaItem[] = projects
+  .map((project) => {
+    const size = posterSize[project.slug] ?? { width: 1200, height: 1800 };
+
+    return {
+      href: `/obra/${project.slug}`,
+      slug: project.slug,
+      title: project.data.title.toLowerCase(),
+      code: `vd/${String(project.data.year).slice(2)} · ${projectKind[project.data.type]}`,
+      meta: `${String(project.data.photoCount).padStart(2, '0')} piezas`,
+      src: project.data.poster,
+      width: size.width,
+      height: size.height,
+      orientation: orientation(size.width, size.height),
+      publishedAt: project.data.publishedAt,
+    };
+  })
+  .sort((a, b) => b.publishedAt.valueOf() - a.publishedAt.valueOf());
+
+const cintasBase: MediaItem[] = videos
+  .map((video) => {
+    const size = videoSize(video.aspect);
+
+    return {
+      slug: video.slug,
+      href: `/video/${video.slug}`,
+      title: videoTitle(video.title),
+      code: `vd/${String(video.year).slice(2)} · cinta`,
+      meta: `${video.durationLabel} · ${video.aspect}`,
+      src: video.poster,
+      width: size.width,
+      height: size.height,
+      orientation: orientation(size.width, size.height),
+      publishedAt: videoDate[video.slug] ?? new Date(video.year, 0, 1),
+    };
+  })
+  .sort((a, b) => b.publishedAt.valueOf() - a.publishedAt.valueOf());
+
+const cintaCluster = ['entrevista-beto', 'aria-wavtech', 'drummond-infinniguard'];
+const cintas: MediaItem[] = [
+  ...cintaCluster.flatMap((slug) => cintasBase.filter((item) => item.slug === slug)),
+  ...cintasBase.filter((item) => !cintaCluster.includes(item.slug)),
+];
+
+const total = obras.length + cintas.length;
+---
+
+<BaseLayout title="índice" description="Índice visual — Von Diego, archivo en movimiento.">
+  <a href="/" class="opening-skip">
+    <span>volver al inicio</span>
+    <span aria-hidden="true">↗</span>
+  </a>
+
+  <main class="indice">
+    <section class="indice-plate indice-plate--intro" aria-labelledby="indice-title">
+      <div class="indice-intro-copy">
+        <p class="indice-kicker">archivo · monterrey · {String(total).padStart(2, '0')} entradas</p>
+        <h1 id="indice-title" class="indice-title">
+          <em>el</em> índice.
+        </h1>
+      </div>
+
+      <nav class="indice-map" aria-label="Secciones del índice">
+        <a href="#obras">
+          <span>obras</span>
+          <span>{String(obras.length).padStart(2, '0')}</span>
+        </a>
+        <a href="#cintas">
+          <span>cintas</span>
+          <span>{String(cintas.length).padStart(2, '0')}</span>
+        </a>
+        <a href="#salida">
+          <span>contacto / manifiesto</span>
+          <span>02</span>
+        </a>
+      </nav>
+    </section>
+
+    <section id="obras" class="indice-plate indice-plate--media" aria-labelledby="obras-title">
+      <header class="indice-section-head">
+        <p class="indice-kicker">i / obras · fotos</p>
+        <h2 id="obras-title" class="indice-section-title">
+          lo que se queda <em>quieto</em>.
+        </h2>
+      </header>
+
+      <div class="indice-board indice-board--obras">
+        {obras.map((item) => (
+          <a
+            href={item.href}
+            class={`indice-card indice-card--${item.orientation}`}
+          >
+            <img
+              src={item.src}
+              alt={item.title}
+              width={item.width}
+              height={item.height}
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="indice-card-caption">
+              <span>{item.code}</span>
+              <strong>{item.title}</strong>
+              <span>{item.meta}</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section id="cintas" class="indice-plate indice-plate--media" aria-labelledby="cintas-title">
+      <header class="indice-section-head">
+        <p class="indice-kicker">ii / cintas · video</p>
+        <h2 id="cintas-title" class="indice-section-title">
+          lo que todavía <em>corre</em>.
+        </h2>
+      </header>
+
+      <div class="indice-board indice-board--cintas">
+        {cintas.map((item) => (
+          <a
+            href={item.href}
+            class={`indice-card indice-card--cinta indice-card--${item.orientation}`}
+          >
+            <img
+              src={item.src}
+              alt={item.title}
+              width={item.width}
+              height={item.height}
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="indice-card-caption">
+              <span>{item.code}</span>
+              <strong>{item.title}</strong>
+              <span>{item.meta}</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section id="salida" class="indice-plate indice-plate--final" aria-labelledby="salida-title">
+      <div class="indice-final-copy">
+        <p class="indice-kicker">iii / salida</p>
+        <h2 id="salida-title" class="indice-title">
+          <em>contacto</em> / manifiesto.
+        </h2>
+      </div>
+
+      <div class="indice-final-links">
+        <a href="/contact">
+          <span>contacto</span>
+          <span>contacto@vondiego.com</span>
+        </a>
+        <a href="/about">
+          <span>manifiesto</span>
+          <span>monterrey, mx</span>
+        </a>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

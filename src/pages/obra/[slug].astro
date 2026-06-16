@@ -1,0 +1,199 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = (await getCollection('projects')).sort(
+    (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
+  );
+
+  return projects.map((project, i) => ({
+    params: { slug: project.slug },
+    props: {
+      project,
+      index: i,
+      total: projects.length,
+      prev: projects[i + 1] ?? null,
+      next: projects[i - 1] ?? null,
+    },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  index: number;
+  total: number;
+  prev: CollectionEntry<'projects'> | null;
+  next: CollectionEntry<'projects'> | null;
+}
+
+const { project, index, total, prev, next } = Astro.props;
+const { Content } = await project.render();
+
+const photos = Array.from({ length: project.data.photoCount }, (_, i) => ({
+  src: `${project.data.photosDir}${project.data.photosPrefix}-${String(i + 1).padStart(2, '0')}.jpg`,
+  name: `${project.data.photosPrefix}-${String(i + 1).padStart(2, '0')}`,
+  index: i + 1,
+}));
+
+const typeLabel: Record<string, string> = {
+  retrato: 'Retrato',
+  evento: 'Evento',
+  comercial: 'Comercial',
+  personal: 'Obra personal',
+  concierto: 'En vivo',
+};
+
+const plate = String(index + 1).padStart(2, '0');
+const totalLabel = String(total).padStart(2, '0');
+---
+
+<BaseLayout
+  title={project.data.title}
+  description={`${project.data.title} — pieza del archivo de Von Diego, ${typeLabel[project.data.type]}, ${project.data.year}.`}
+>
+  <a href="/obra" class="opening-skip">
+    <span>volver al índice</span>
+    <span aria-hidden="true">↗</span>
+  </a>
+
+  <main class="placa">
+    <header class="cine-rail">
+      <p>
+        <span class="text-mid">{plate}</span>
+        <span aria-hidden="true"> / </span>
+        <span>{totalLabel}</span>
+      </p>
+      <p>vd / {String(project.data.year).slice(2)} · {typeLabel[project.data.type].toLowerCase()}</p>
+      <p>{project.data.location ?? 'monterrey'} · {project.data.photoCount} piezas</p>
+    </header>
+
+    <section class="cine-meta">
+      <div class="cine-meta-main">
+        <p class="cine-kicker">vd / {String(project.data.year).slice(2)} · placa</p>
+        <h1 class="cine-title">
+          <em>{project.data.title.toLowerCase()}</em>.
+        </h1>
+        <div class="placa-text prose-content">
+          <Content />
+        </div>
+      </div>
+
+      <aside class="cine-register">
+        <p class="cine-kicker">registro</p>
+        <dl class="cine-facts">
+          <div><dt>tipo</dt><dd>{typeLabel[project.data.type].toLowerCase()}</dd></div>
+          <div><dt>año</dt><dd>{project.data.year}</dd></div>
+          {project.data.location && <div><dt>lugar</dt><dd>{project.data.location.toLowerCase()}</dd></div>}
+          {project.data.client && <div><dt>cliente</dt><dd>{project.data.client.toLowerCase()}</dd></div>}
+          <div><dt>piezas</dt><dd>{String(project.data.photoCount).padStart(2, '0')}</dd></div>
+          <div><dt>código</dt><dd>{project.data.photosPrefix}</dd></div>
+        </dl>
+      </aside>
+    </section>
+
+    <section class="placa-grid">
+      <p class="cine-kicker placa-grid-head">
+        contact sheet · {String(photos.length).padStart(2, '0')} piezas
+      </p>
+      <div class="placa-grid-frames">
+        {photos.map((photo) => (
+          <figure class="placa-frame">
+            <button
+              type="button"
+              class="placa-frame-btn"
+              data-lightbox-src={photo.src}
+              data-lightbox-alt={`${project.data.title} — pieza ${photo.index}`}
+              aria-label={`Abrir ${project.data.title}, pieza ${photo.index}, pantalla completa`}
+            >
+              <img
+                src={photo.src}
+                alt={`${project.data.title} — pieza ${photo.index}`}
+                loading={photo.index < 4 ? 'eager' : 'lazy'}
+                decoding={photo.index < 4 ? 'sync' : 'async'}
+              />
+            </button>
+            <figcaption>
+              <span>{String(photo.index).padStart(2, '0')}</span>
+              <span>/</span>
+              <span>{String(photos.length).padStart(2, '0')}</span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <nav class="cine-nav">
+      {prev ? (
+        <a href={`/obra/${prev.slug}`} class="cine-nav-link group">
+          <span class="cine-kicker">← anterior</span>
+          <span class="cine-nav-title">{prev.data.title.toLowerCase()}</span>
+        </a>
+      ) : <div />}
+
+      {next ? (
+        <a href={`/obra/${next.slug}`} class="cine-nav-link cine-nav-link--next group">
+          <span class="cine-kicker">siguiente →</span>
+          <span class="cine-nav-title">{next.data.title.toLowerCase()}</span>
+        </a>
+      ) : <div />}
+    </nav>
+  </main>
+
+  <div class="lightbox" data-lightbox aria-hidden="true">
+    <button type="button" class="lightbox-close" data-lightbox-close aria-label="Cerrar">×</button>
+    <button type="button" class="lightbox-nav lightbox-nav--prev" data-lightbox-prev aria-label="Anterior">←</button>
+    <img class="lightbox-img" data-lightbox-img alt="" />
+    <button type="button" class="lightbox-nav lightbox-nav--next" data-lightbox-next aria-label="Siguiente">→</button>
+  </div>
+
+  <script>
+    const overlay = document.querySelector<HTMLElement>('[data-lightbox]');
+    const img = document.querySelector<HTMLImageElement>('[data-lightbox-img]');
+    const closeBtn = document.querySelector<HTMLButtonElement>('[data-lightbox-close]');
+    const prevBtn = document.querySelector<HTMLButtonElement>('[data-lightbox-prev]');
+    const nextBtn = document.querySelector<HTMLButtonElement>('[data-lightbox-next]');
+    const triggers = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-lightbox-src]'));
+    let active = -1;
+
+    const show = (i: number) => {
+      if (!overlay || !img) return;
+      const t = triggers[i];
+      if (!t) return;
+      const src = t.dataset.lightboxSrc;
+      if (!src) return;
+      active = i;
+      img.src = src;
+      img.alt = t.dataset.lightboxAlt ?? '';
+      overlay.classList.add('lightbox--open');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.documentElement.style.overflow = 'hidden';
+    };
+
+    const move = (dir: number) => {
+      if (active < 0 || triggers.length === 0) return;
+      show((active + dir + triggers.length) % triggers.length);
+    };
+
+    const close = () => {
+      if (!overlay || !img) return;
+      overlay.classList.remove('lightbox--open');
+      overlay.setAttribute('aria-hidden', 'true');
+      img.removeAttribute('src');
+      img.alt = '';
+      active = -1;
+      document.documentElement.style.overflow = '';
+    };
+
+    triggers.forEach((t, i) => t.addEventListener('click', () => show(i)));
+    overlay?.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    closeBtn?.addEventListener('click', close);
+    prevBtn?.addEventListener('click', () => move(-1));
+    nextBtn?.addEventListener('click', () => move(1));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft') move(-1);
+      if (e.key === 'ArrowRight') move(1);
+    });
+  </script>
+</BaseLayout>
