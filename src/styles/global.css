@@ -297,6 +297,24 @@ html {
   width: min(100vw, calc(82svh * 16 / 9));
 }
 
+@media (max-width: 760px) and (orientation: portrait) {
+  .plate--aspect-16-9 .plate-bed {
+    height: min(calc(100vw * 16 / 9), 100svh);
+    overflow: hidden;
+    place-items: center;
+    width: min(100vw, calc(100svh * 9 / 16));
+  }
+
+  .plate--aspect-16-9 .plate-bed > video {
+    height: auto;
+    max-height: none;
+    max-width: none;
+    transform: rotate(90deg);
+    transform-origin: center;
+    width: min(calc(100vw * 16 / 9), 100svh);
+  }
+}
+
 /* 4:3 — height-bound, narrower than viewport on landscape screens */
 .plate--aspect-4-3 .plate-bed > video {
   height: 100svh;
