@@ -327,6 +327,7 @@ const items: Item[] = [
 
     if (button && label) {
       const state = { wantSound: true };
+      let activeVideo: HTMLVideoElement | null = null;
 
       const applyButton = () => {
         button.setAttribute('aria-pressed', String(state.wantSound));
@@ -355,6 +356,7 @@ const items: Item[] = [
           for (const entry of entries) {
             const v = entry.target as HTMLVideoElement;
             if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+              activeVideo = v;
               playVideo(v);
             } else {
               v.pause();
@@ -379,17 +381,23 @@ const items: Item[] = [
 
       const retrySound = () => {
         if (!state.wantSound) return;
-        videos.forEach((v) => {
+        const currentVideos = videos.filter(isCurrentVideo);
+        const targets = currentVideos.length > 0
+          ? currentVideos
+          : activeVideo
+            ? [activeVideo]
+            : [];
+
+        targets.forEach((v) => {
           v.muted = false;
           v.volume = 1;
-          if (isCurrentVideo(v)) {
-            v.play().catch(() => {});
-          }
+          v.play().catch(() => {});
         });
       };
-      window.addEventListener('pointerdown', retrySound, { once: true });
-      window.addEventListener('keydown', retrySound, { once: true });
-      window.addEventListener('scroll', retrySound, { once: true, passive: true });
+      window.addEventListener('pointerdown', retrySound);
+      window.addEventListener('touchend', retrySound, { passive: true });
+      window.addEventListener('keydown', retrySound);
+      window.addEventListener('scroll', retrySound, { passive: true });
 
       applyButton();
     }
