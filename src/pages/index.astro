@@ -282,7 +282,6 @@ const items: Item[] = [
           <a class="plate-bed" href={item.anchor} aria-label={item.where}>
             <video
               data-plate-video
-              autoplay
               loop
               playsinline
               preload={i === 0 ? 'auto' : 'metadata'}
@@ -323,83 +322,148 @@ const items: Item[] = [
   <script>
     const button = document.querySelector<HTMLButtonElement>('[data-sonido]');
     const label = document.querySelector<HTMLSpanElement>('[data-sonido-label]');
-    const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('[data-plate-video]'));
+    const videoPlates = Array.from(document.querySelectorAll<HTMLElement>('.plate--video'));
+    const videos = videoPlates
+      .map((plate) => plate.querySelector<HTMLVideoElement>('[data-plate-video]'))
+      .filter((video): video is HTMLVideoElement => Boolean(video));
 
     if (button && label) {
-      const state = { wantSound: true };
-      let activeVideo: HTMLVideoElement | null = null;
+      const state = { wantSound: true, needsGesture: false };
+      let playbackFrame = 0;
 
       const applyButton = () => {
         button.setAttribute('aria-pressed', String(state.wantSound));
         button.setAttribute('aria-label', state.wantSound ? 'Silenciar' : 'Activar sonido');
         button.dataset.on = String(state.wantSound);
-        label.textContent = state.wantSound ? 'sonido on' : 'sonido off';
+        label.textContent = state.wantSound
+          ? state.needsGesture
+            ? 'toca sonido'
+            : 'sonido on'
+          : 'sonido off';
       };
 
-      const isCurrentVideo = (v: HTMLVideoElement) => {
-        const rect = v.getBoundingClientRect();
-        const viewport = window.innerHeight || document.documentElement.clientHeight;
-        const visible = Math.min(rect.bottom, viewport) - Math.max(rect.top, 0);
-        return visible > Math.min(rect.height, viewport) * 0.35;
+      const visibleRatio = (el: HTMLElement) => {
+        const rect = el.getBoundingClientRect();
+        const viewportH = window.innerHeight || document.documentElement.clientHeight;
+        const viewportW = window.innerWidth || document.documentElement.clientWidth;
+        const visibleH = Math.min(rect.bottom, viewportH) - Math.max(rect.top, 0);
+        const visibleW = Math.min(rect.right, viewportW) - Math.max(rect.left, 0);
+        if (visibleH <= 0 || visibleW <= 0 || rect.height <= 0 || rect.width <= 0) return 0;
+        return (visibleH * visibleW) / (rect.height * rect.width);
       };
 
-      const playVideo = async (v: HTMLVideoElement) => {
+      const currentVideo = () => {
+        const viewportCenter = (window.innerHeight || document.documentElement.clientHeight) / 2;
+        let selectedDistance = Number.POSITIVE_INFINITY;
+        let selectedRatio = 0;
+        let selectedVideo: HTMLVideoElement | null = null;
+
+        videoPlates.forEach((plate) => {
+          const video = plate.querySelector<HTMLVideoElement>('[data-plate-video]');
+          if (!video) return;
+
+          const ratio = visibleRatio(plate);
+          if (ratio < 0.2) return;
+
+          const rect = plate.getBoundingClientRect();
+          const distance = Math.abs((rect.top + rect.bottom) / 2 - viewportCenter);
+          if (!selectedVideo || ratio > selectedRatio + 0.12 || distance < selectedDistance) {
+            selectedDistance = distance;
+            selectedRatio = ratio;
+            selectedVideo = video;
+          }
+        });
+
+        return selectedVideo;
+      };
+
+      const playVideo = async (v: HTMLVideoElement, fromGesture = false) => {
+        videos.forEach((video) => {
+          if (video !== v) {
+            video.pause();
+            video.muted = true;
+          }
+        });
         v.muted = !state.wantSound;
         if (state.wantSound) v.volume = 1;
         try {
           await v.play();
-        } catch {}
+          if (state.wantSound && !v.muted) {
+            state.needsGesture = false;
+            applyButton();
+          }
+        } catch {
+          if (!state.wantSound || fromGesture) return;
+          state.needsGesture = true;
+          applyButton();
+          v.muted = true;
+          try { await v.play(); } catch {}
+        }
       };
 
-      const playbackObserver = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            const v = entry.target as HTMLVideoElement;
-            if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-              activeVideo = v;
-              playVideo(v);
-            } else {
-              v.pause();
-            }
-          }
-        },
-        { threshold: [0, 0.5, 0.8] }
-      );
+      const syncPlayback = (fromGesture = false) => {
+        const nextVideo = currentVideo();
 
-      videos.forEach((v) => playbackObserver.observe(v));
+        videos.forEach((video) => {
+          if (video !== nextVideo) {
+            video.pause();
+            video.muted = true;
+          }
+        });
+
+        if (nextVideo) playVideo(nextVideo, fromGesture);
+      };
+
+      const scheduleSync = () => {
+        if (playbackFrame) return;
+        playbackFrame = window.requestAnimationFrame(() => {
+          playbackFrame = 0;
+          syncPlayback();
+        });
+      };
+
+      const playbackObserver = new IntersectionObserver(scheduleSync, {
+        threshold: [0, 0.2, 0.45, 0.7, 1],
+      });
+
+      videoPlates.forEach((plate) => playbackObserver.observe(plate));
+      videos.forEach((video) => {
+        video.addEventListener('play', () => {
+          videos.forEach((other) => {
+            if (other !== video) {
+              other.pause();
+              other.muted = true;
+            }
+          });
+        });
+      });
 
       button.addEventListener('click', () => {
         state.wantSound = !state.wantSound;
+        if (!state.wantSound) state.needsGesture = false;
         applyButton();
-        videos.forEach((v) => {
-          if (!v.paused) {
-            v.muted = !state.wantSound;
-            if (state.wantSound) v.play().catch(() => {});
-          }
-        });
+        syncPlayback(true);
       });
 
       const retrySound = () => {
         if (!state.wantSound) return;
-        const currentVideos = videos.filter(isCurrentVideo);
-        const targets = currentVideos.length > 0
-          ? currentVideos
-          : activeVideo
-            ? [activeVideo]
-            : [];
-
-        targets.forEach((v) => {
-          v.muted = false;
-          v.volume = 1;
-          v.play().catch(() => {});
-        });
+        syncPlayback(true);
       };
       window.addEventListener('pointerdown', retrySound);
       window.addEventListener('touchend', retrySound, { passive: true });
       window.addEventListener('keydown', retrySound);
-      window.addEventListener('scroll', retrySound, { passive: true });
+      window.addEventListener('scroll', scheduleSync, { passive: true });
+      window.addEventListener('resize', scheduleSync, { passive: true });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          videos.forEach((video) => video.pause());
+        } else {
+          scheduleSync();
+        }
+      });
 
       applyButton();
+      scheduleSync();
     }
 
     // fade-in copy on enter; auto-quiet after 10s of visible playback
