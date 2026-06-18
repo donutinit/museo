@@ -128,7 +128,7 @@ export const videos: VideoEntry[] = [
     kind: 'corporativo',
     year: 2026,
     durationLabel: '01:02',
-    src: '/media/videos/presentacion-nave.mp4',
+    src: '/media/videos/presentacion-nave.mp4?v=20260617-2034',
     poster: '/media/video-posters/presentacion-nave.jpg',
     aspect: '9/16',
     tape: 'CASO 09 · Autódromo IP',
