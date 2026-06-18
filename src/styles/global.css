@@ -182,11 +182,13 @@ button {
 
 .ready-gate-button {
   color: var(--hueso);
+  display: grid;
   font-family: var(--f-serif);
-  font-size: clamp(3.5rem, 12vw, 10rem);
   font-style: italic;
   font-variation-settings: "opsz" 36;
   font-weight: 320;
+  gap: clamp(1.1rem, 2.4vh, 1.8rem);
+  justify-items: center;
   letter-spacing: -0.02em;
   line-height: 0.9;
   padding: 0.2em 0;
@@ -194,10 +196,47 @@ button {
   transition: color 0.45s ease, transform 0.45s ease;
 }
 
+.ready-gate-question {
+  font-size: clamp(3.5rem, 12vw, 10rem);
+}
+
+.ready-gate-action {
+  border: 1px solid color-mix(in srgb, var(--hueso) 48%, transparent);
+  color: var(--hueso);
+  font-family: var(--f-mono);
+  font-size: 0.68rem;
+  font-style: normal;
+  letter-spacing: var(--tracking-mono);
+  line-height: 1;
+  padding: 0.85rem 1rem;
+  text-transform: lowercase;
+  transition: border-color 0.45s ease, color 0.45s ease;
+}
+
+.ready-gate-action-desktop {
+  display: none;
+}
+
 .ready-gate-button:hover,
 .ready-gate-button:focus-visible {
   color: var(--oxido);
   transform: translateY(-0.04em);
+}
+
+.ready-gate-button:hover .ready-gate-action,
+.ready-gate-button:focus-visible .ready-gate-action {
+  border-color: var(--oxido);
+  color: var(--oxido);
+}
+
+@media (min-width: 760px) {
+  .ready-gate-action-mobile {
+    display: none;
+  }
+
+  .ready-gate-action-desktop {
+    display: inline;
+  }
 }
 
 .entry {
