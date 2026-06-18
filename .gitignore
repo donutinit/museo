@@ -39,6 +39,10 @@ pnpm-debug.log*
 lerna-debug.log*
 .npm/
 
+# ─── planes locales / notas de trabajo ─────────────────
+PLAN.md
+plan.md
+
 # ─── media pesado (vive en truenas, no en git) ─────────
 # en dev: symlink a ~/src/portfolio-media-dev
 # en prod: volume mount al dataset triceratops/portfolio

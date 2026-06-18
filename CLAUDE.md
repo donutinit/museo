@@ -1,63 +1,94 @@
-# instrucciones para claude code
+# CLAUDE.md
 
-## estilo de commits
+Instrucciones específicas para Claude Code en este repo.
 
-- **siempre one-liners**, ~72 chars máximo
-- **todo en minúsculas**
-- **prohibido**: `co-authored-by:` y cualquier otro trailer al final del mensaje
-- ejemplos ok:
-  - `agregar workflow de github actions para build de astro`
-  - `mover diagrama de arquitectura a docs/00-arquitectura.md`
-  - `fix: range requests en nginx.conf para video seeking`
-- ejemplos no:
-  - `Agregar workflow` (mayúscula inicial)
-  - `agregar workflow\n\nblah blah` (multi-línea)
-  - cualquier cosa con `Co-Authored-By` o `Signed-off-by` al final
+Primero lee [`AGENTS.md`](./AGENTS.md). Ese archivo es la fuente principal para cualquier agente. Este archivo solo agrega preferencias específicas de colaboración con Claude.
 
-razón: al donut no le gusta cómo se lee el trailer; prefiere atribución por otro mecanismo (ver más abajo).
+## trato y lenguaje
 
-## atribución de claude
+- Español mexicano.
+- Registro casual, directo y útil.
+- Groserías moderadas están bien si salen naturales.
+- Evita formalismo de consultoría.
+- No sobreexpliques cuando el cambio es simple.
 
-en lugar de trailers en commits, el donut prefiere agregar a claude como **contributor** del repo. opciones:
+## nombres
 
-- agregarlo en `package.json` cuando exista (`"contributors": [{"name": "claude code", "email": "..."}]`)
-- mantener este archivo (`CLAUDE.md`) como reconocimiento explícito de que claude colaboró
-- agregar sección "credits" en el sitio si aplica
+- Nombre profesional: `Von Diego`.
+- GitHub / handle técnico: `donutinit`.
+- Dominio: `vondiego.com`.
+- Email público: `contacto@vondiego.com`.
+- Email personal: `contacto@vondiego.com`.
 
-## lenguaje
+Usa `Von Diego` en sitio, copy, créditos y documentación pública.
+Usa `donutinit` solo para URLs técnicas como GitHub, GHCR o Instagram.
 
-- español mexicano, registro casual
-- groserías ok cuando vienen al caso (el donut las usa naturalmente)
-- evitar formalismo innecesario
+## commits
 
-## proyecto
+Cuando el usuario pida commit:
 
-archivo visual de **Von Diego** (artista visual).
+- una sola línea
+- minúsculas
+- máximo aproximado de 72 caracteres
+- sin cuerpo
+- sin trailers
 
-- **stack**: astro (probablemente con tailwind), nginx en docker, deploy a truenas community edition
-- **infra**: imagen en ghcr.io (pública), cloudflare tunnel para exposición, dominio en cloudflare
-- **dirección visual**: brutalismo/experimental, techy e irracional
-- **contenido**: productos visuales, archivo de obra, eventos, marca, arte y piezas personales
+Prohibido:
 
-ver `docs/` para detalle completo.
+```text
+Co-Authored-By:
+Signed-off-by:
+```
 
-## sobre los nombres
+Ejemplos buenos:
 
-- **nombre profesional / display name**: `Von Diego` (úsalo siempre en sitio, copy, licencia, créditos)
-- github user / handle: `donutinit` (solo para urls técnicas: github, ghcr, instagram)
-- email personal: `contacto@vondiego.com`
-- email comercial / pública: `contacto@vondiego.com`
-- dominio: `vondiego.com`
+```text
+ajustar entrada y limpiar rutas viejas
+cache bust video de nave
+corregir acento en prompt movil
+```
 
-## seguridad / supply chain de npm
+Ejemplos malos:
 
-el donut tiene preocupación legítima por ataques de supply chain en npm. reglas estrictas:
+```text
+Agregar README nuevo
+agregar readme
 
-1. **versiones pineadas exactas** en `package.json` (sin `^` ni `~`) — para que `npm ci` produzca builds reproducibles
-2. **siempre `npm ci`** (con lockfile), nunca `npm install` para builds
-3. **solo deps de orgs reconocidos**: astro org, tailwind labs, vercel, microsoft, fontsource, lovell fuller (sharp). cualquier dep nueva: justificar maintainer + razón
-4. **antes de agregar una dep nueva**: pedir confirmación al donut
-5. **postinstall scripts**: verificar quién corre. esperados aquí: solo `sharp` (binarios nativos) y `esbuild` (binario nativo). cualquier otro = stop + revisar
-6. **producción cero-node**: el build de astro genera html estático; nginx lo sirve. NO hay node corriendo en truenas
-7. **builds en gha**, no en su máquina cuando sea posible — aísla el riesgo
-8. **`npm audit`** después de cualquier cambio de deps, reportar resultados
+explicación larga...
+Co-Authored-By: Claude
+```
+
+## atribución de Claude
+
+No uses trailers en commits. Si hace falta atribución, mantenerla por:
+
+- `contributors` en `package.json`
+- este `CLAUDE.md`
+- créditos editoriales en el sitio si el dueño lo pide
+
+## seguridad npm
+
+El dueño del repo tiene preocupación real por supply chain. Respétala.
+
+- No agregues dependencias sin pedir confirmación.
+- Mantén versiones exactas.
+- Usa `npm ci`.
+- Si cambias deps, corre `npm audit` y reporta.
+- Scripts nativos esperados: `sharp` y `esbuild`.
+- Producción no corre Node: el output estático se sirve con Nginx.
+
+## archivo `PLAN.md`
+
+`PLAN.md` es local, vivo e ignorado por git. Puede contener ideas, ventas, funnels o notas crudas.
+
+No lo agregues a commits salvo que el usuario pida explícitamente publicar ese plan.
+
+## prioridad de contexto
+
+Si hay conflicto:
+
+1. petición más reciente del usuario
+2. `AGENTS.md`
+3. este `CLAUDE.md`
+4. docs en `docs/`
+5. preferencias inferidas del código
