@@ -12,8 +12,8 @@ featured: true
 publishedAt: 2024-09-30
 ---
 
-La Zona Ciclista. Mi primer trabajo como mecánico de bicicletas no duró demasiado: mis destrezas no encajaban, así que me asignaron a las redes sociales de la tienda. Ironías de la vida: en ese cambio descubrí mi verdadera pasión por la fotografía y lo audiovisual.
+La Zona Ciclista. Mi primer trabajo como mecánico no duró mucho. Terminé tomando fotos para redes porque mis manos servían mejor con una cámara que con una llave.
 
-Después llegó Velo Store, compraron el lugar y lo transformaron en algo completamente nuevo, marcando el fin de un ciclo y el comienzo de un capítulo lleno de oportunidades e inspiración.
+Después llegó Velo Store y el lugar cambió de nombre, de forma, de ritmo.
 
-Esta es una carta de amor al lugar donde crecí.
+Esto es una despedida al taller donde empezó casi todo.

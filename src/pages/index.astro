@@ -189,6 +189,15 @@ const items: Item[] = [
 ---
 
 <BaseLayout title="" description="Von Diego — archivo en movimiento. Monterrey.">
+  <div class="ready-gate" data-ready-gate role="dialog" aria-modal="true" aria-labelledby="ready-title">
+    <div class="ready-gate-inner">
+      <p class="ready-gate-kicker">vd / archivo</p>
+      <button id="ready-title" type="button" class="ready-gate-button" data-ready-button>
+        estás listo?
+      </button>
+    </div>
+  </div>
+
   <a href="/obra" class="opening-skip">
     <span>saltar al índice</span>
     <span aria-hidden="true">→</span>
@@ -320,6 +329,8 @@ const items: Item[] = [
   </main>
 
   <script>
+    const readyGate = document.querySelector<HTMLElement>('[data-ready-gate]');
+    const readyButton = document.querySelector<HTMLButtonElement>('[data-ready-button]');
     const button = document.querySelector<HTMLButtonElement>('[data-sonido]');
     const label = document.querySelector<HTMLSpanElement>('[data-sonido-label]');
     const videoPlates = Array.from(document.querySelectorAll<HTMLElement>('.plate--video'));
@@ -327,8 +338,10 @@ const items: Item[] = [
       .map((plate) => plate.querySelector<HTMLVideoElement>('[data-plate-video]'))
       .filter((video): video is HTMLVideoElement => Boolean(video));
 
+    if (readyGate) document.documentElement.style.overflow = 'hidden';
+
     if (button && label) {
-      const state = { wantSound: true, needsGesture: false };
+      const state = { ready: false, wantSound: true, needsGesture: false };
       let playbackFrame = 0;
 
       const applyButton = () => {
@@ -378,6 +391,7 @@ const items: Item[] = [
       };
 
       const playVideo = async (v: HTMLVideoElement, fromGesture = false) => {
+        if (!state.ready) return;
         videos.forEach((video) => {
           if (video !== v) {
             video.pause();
@@ -402,6 +416,11 @@ const items: Item[] = [
       };
 
       const syncPlayback = (fromGesture = false) => {
+        if (!state.ready) {
+          videos.forEach((video) => video.pause());
+          return;
+        }
+
         const nextVideo = currentVideo();
 
         videos.forEach((video) => {
@@ -446,9 +465,21 @@ const items: Item[] = [
       });
 
       const retrySound = () => {
-        if (!state.wantSound) return;
+        if (!state.ready || !state.wantSound) return;
         syncPlayback(true);
       };
+
+      readyButton?.addEventListener('click', () => {
+        state.ready = true;
+        state.wantSound = true;
+        state.needsGesture = false;
+        readyGate?.setAttribute('data-hidden', 'true');
+        readyGate?.setAttribute('aria-hidden', 'true');
+        document.documentElement.style.overflow = '';
+        applyButton();
+        syncPlayback(true);
+      });
+
       window.addEventListener('pointerdown', retrySound);
       window.addEventListener('touchend', retrySound, { passive: true });
       window.addEventListener('keydown', retrySound);
@@ -463,7 +494,7 @@ const items: Item[] = [
       });
 
       applyButton();
-      scheduleSync();
+      videos.forEach((video) => video.pause());
     }
 
     // fade-in copy on enter; auto-quiet after 10s of visible playback

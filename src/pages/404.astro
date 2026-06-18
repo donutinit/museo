@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="404" description="No hay registro en esta ruta — Von Diego.">
+  <main class="nota">
+    <section class="nota-hero" aria-labelledby="not-found-title">
+      <p class="nota-kicker">vd / 404</p>
+      <h1 id="not-found-title" class="nota-title">
+        aquí no quedó <em>nada</em>.
+      </h1>
+    </section>
+
+    <nav class="nota-exit" aria-label="Salida">
+      <a href="/">
+        <span>inicio</span>
+        <span>archivo</span>
+      </a>
+      <a href="/obra">
+        <span>índice</span>
+        <span>obra / cintas</span>
+      </a>
+    </nav>
+  </main>
+</BaseLayout>

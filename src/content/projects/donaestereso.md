@@ -11,4 +11,6 @@ featured: false
 publishedAt: 2024-11-02
 ---
 
-Doña Estéreo en vivo: un tributo musical que revive la energía y la magia de Soda Stereo. Con cada canción, Doña Estéreo evoca la esencia de la mítica banda argentina, conectando pasado y presente en una experiencia vibrante que honra a los clásicos, mientras inyecta su propio sello artístico y mantiene vivo el legado de una generación.
+Doña Estéreo tocando Soda Stereo.
+
+Luces bajas, humo, cuerpos cantando cosas que ya sabían desde antes. La nostalgia no se explica; se prende, se desafina un poco, vuelve.

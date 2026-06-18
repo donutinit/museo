@@ -12,6 +12,8 @@ featured: false
 publishedAt: 2025-03-22
 ---
 
-E-Bike Camp en Real de Catorce: una aventura única en el corazón del semidesierto, guiada por la energía inigualable de la estrella del ciclismo, Diego Amezcua. Esta experiencia fusiona la emoción del deporte con la magia de un antiguo pueblo minero, donde cada pedalazo revela paisajes monumentales y momentos inolvidables.
+Real de Catorce en bicicleta eléctrica.
 
-El resultado: una serie fotográfica que captura la pasión, la camaradería y la adrenalina de vivir el ciclismo eléctrico en un escenario tan místico como Real de Catorce.
+Subidas largas, polvo blanco, semidesierto, cansancio, gente siguiendo una ruta que parece demasiado vieja para tener mapa.
+
+El paisaje manda. Los riders pasan por encima apenas un segundo.

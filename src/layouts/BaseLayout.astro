@@ -4,17 +4,20 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
   bare?: boolean;
 }
 
 const {
   title,
   description = 'Archivo en movimiento — Von Diego, Monterrey.',
+  image = '/media/video-posters/entrevista-yolanda.jpg',
   bare = false,
 } = Astro.props;
 
 const fullTitle = title ? `${title} — vd` : 'vd · archivo';
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = new URL(image, Astro.site);
 const path = Astro.url.pathname;
 const isOpening = path === '/' || path === '';
 const isManifest = path === '/about' || path === '/about/';
@@ -37,7 +40,9 @@ const isManifest = path === '/about' || path === '/about/';
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="vd" />
+    <meta property="og:image" content={socialImage} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={socialImage} />
   </head>
   <body>
     {!bare && (

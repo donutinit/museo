@@ -11,4 +11,6 @@ featured: false
 publishedAt: 2025-07-04
 ---
 
-Una mirada elegante y cautivadora que emana confianza en cada toma. Estos retratos celebran su estilo único y su esencia auténtica, reflejando la fuerza interior que la caracteriza.
+Retrato en exterior.
+
+Flores al frente, mirada directa, poco artificio. La imagen no busca explicar a Zara; solo sostener el gesto el tiempo suficiente.

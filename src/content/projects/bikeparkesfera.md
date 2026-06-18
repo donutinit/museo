@@ -12,4 +12,6 @@ featured: false
 publishedAt: 2025-04-12
 ---
 
-Inauguración de un bikepark. El día en que un terreno se vuelve circuito, y un proyecto se vuelve comunidad. Documentación del corte de listón, los primeros riders bajando las líneas, y la energía de quienes estuvieron desde antes de que existieran las pistas.
+Inauguración de un bikepark. Un terreno empieza a comportarse como circuito.
+
+Corte de listón, primeras bajadas, gente mirando la tierra como si ya supiera por dónde iba a pasar el cuerpo.

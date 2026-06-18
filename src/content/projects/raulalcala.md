@@ -12,4 +12,8 @@ featured: false
 publishedAt: 2025-02-18
 ---
 
-El Raúl Alcalá Challenge: el reto ciclista anual que toma las calles de Monterrey, en honor al ciclista mexicano más importante de la historia. Cobertura del evento — la salida, el pelotón, los climbs, las metas — y de los rostros que hacen este reto un ritual obligado del calendario regional.
+Reto ciclista en Monterrey.
+
+Salida, pelotón, subidas, meta. El homenaje a Raúl Alcalá aparece entre ruedas, patrullas, jerseys, caras tensas.
+
+Una ciudad cortada por bicicletas durante unas horas.

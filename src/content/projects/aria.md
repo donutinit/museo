@@ -13,6 +13,6 @@ featured: false
 publishedAt: 2024-11-20
 ---
 
-Documentación de obra industrial para Aria, expertos en climatización con más de 15 años en Monterrey. Más que registrar la instalación de equipos, el encargo era mostrar el oficio: el trabajo en altura, la precisión de cada empate, el ambiente que se transforma cuando entra el aire.
+Obra industrial para Aria Climatización. Metal, altura, herramienta, aire.
 
-La serie acompaña su evolución de proveedor técnico a referente regional.
+El encargo era técnico. La imagen mira el oficio: manos trabajando, máquinas abiertas, un sistema antes de volverse invisible.

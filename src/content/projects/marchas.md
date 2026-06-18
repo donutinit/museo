@@ -11,6 +11,8 @@ featured: false
 publishedAt: 2024-07-14
 ---
 
-Mi colección personal de caminatas junto a la gente que amo. Cada paso es un tributo a la amistad y a la conexión profunda con la naturaleza, donde los senderos se convierten en testigos silenciosos de risas, conversaciones, y la magia de compartir momentos únicos.
+Caminatas con gente cercana.
 
-Estas caminatas no son solo recorridos; son la crónica de la alegría, la nostalgia y la gratitud que florecen cuando descubrimos el mundo de la mano de quienes más apreciamos.
+No hay cima heroica. Hay pasos, piedras, agua, cansancio, bromas que no sobreviven fuera del camino.
+
+La cámara entra tarde y se va antes de estorbar.

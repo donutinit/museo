@@ -11,6 +11,8 @@ featured: false
 publishedAt: 2024-12-22
 ---
 
-Una tradición que alguna vez evocó la solidaridad y la fe, pero que hoy se ha convertido en una simple fiesta con alcohol y baile. Aquella mística de pedir posada y revivir la historia de María y José se diluye entre la música a todo volumen y la euforia nocturna.
+Fiesta decembrina.
 
-Aunque la esencia original se pierde en la modernidad, quedan quienes aún atesoran el valor de compartir y celebrar el verdadero espíritu de la temporada.
+La tradición queda como eco: luces, vasos, música fuerte, cuerpos apretados en una casa que aguanta hasta tarde.
+
+Lo sagrado aparece solo por accidente.

@@ -12,4 +12,6 @@ featured: false
 publishedAt: 2025-05-15
 ---
 
-Carrera de downhill. Cobertura completa del evento: la línea, los caídos, la grada, el polvo. Action sports en su forma más pura — alta velocidad, foco preciso, decisión en milésimas de segundo.
+Downhill. La línea, los caídos, la grada, el polvo.
+
+Todo pasa rápido. La foto decide qué golpe se queda.

@@ -12,4 +12,6 @@ featured: false
 publishedAt: 2025-06-08
 ---
 
-La llovizna no colaboró con el peinado, pero no logró opacar su belleza. Con naturalidad y confianza, cada fotografía muestra la esencia de Karen brillando, incluso bajo la lluvia.
+Retrato bajo llovizna.
+
+La sesión no pelea con el clima. Lo deja entrar: pelo húmedo, gesto quieto, verde alrededor.

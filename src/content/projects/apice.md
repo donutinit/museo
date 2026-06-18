@@ -11,4 +11,6 @@ featured: false
 publishedAt: 2025-08-10
 ---
 
-Una colección de gatos. Cada uno, con su elegancia felina y mirada hipnótica, encarna la ferocidad sutil de un depredador máximo, incluso en la tranquilidad del hogar. Estos retratos celebran su porte majestuoso y esa curiosidad inagotable que los convierte en compañeros irreemplazables.
+Animales domésticos vistos como amenaza mínima. Cuerpos quietos, ojos abiertos, una casa convertida en territorio.
+
+La ternura queda fuera de cuadro. Lo que aparece es vigilancia.

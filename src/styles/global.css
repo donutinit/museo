@@ -144,6 +144,62 @@ button {
 
 .credits a:hover { color: var(--hueso); }
 
+.ready-gate {
+  align-items: center;
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(138, 46, 28, 0.12), transparent 46%),
+    rgba(7, 6, 10, 0.985);
+  display: grid;
+  inset: 0;
+  justify-items: center;
+  opacity: 1;
+  padding: var(--content-pad);
+  position: fixed;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+  visibility: visible;
+  z-index: 260;
+}
+
+.ready-gate[data-hidden="true"] {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.ready-gate-inner {
+  display: grid;
+  gap: clamp(1rem, 2vh, 1.6rem);
+  justify-items: center;
+}
+
+.ready-gate-kicker {
+  color: var(--polvo);
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  letter-spacing: var(--tracking-mono);
+  text-transform: lowercase;
+}
+
+.ready-gate-button {
+  color: var(--hueso);
+  font-family: var(--f-serif);
+  font-size: clamp(3.5rem, 12vw, 10rem);
+  font-style: italic;
+  font-variation-settings: "opsz" 36;
+  font-weight: 320;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  padding: 0.2em 0;
+  text-align: center;
+  transition: color 0.45s ease, transform 0.45s ease;
+}
+
+.ready-gate-button:hover,
+.ready-gate-button:focus-visible {
+  color: var(--oxido);
+  transform: translateY(-0.04em);
+}
+
 .entry {
   color: var(--hueso);
   display: inline-flex;
