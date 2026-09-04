@@ -110,3 +110,4 @@ coverage/
 # ─── astro / vercel / netlify (por si en algún momento) ─
 .vercel
 .netlify
+CLAUDE.md
