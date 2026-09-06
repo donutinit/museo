@@ -78,6 +78,113 @@ rclone size r2:museo
 rclone ls r2:museo/videos
 ```
 
+## qué despliega un `git push` (y qué no)
+
+**Un push a `main` despliega el sitio. NO despliega la media.**
+
+| cambias | qué haces | listo en |
+|---|---|---|
+| código, diseño, CSS | commit + push | ~2 min |
+| texto de un proyecto (`src/content/`) | commit + push | ~2 min |
+| catálogo de cintas (`src/data/videos.ts`) | commit + push | ~2 min |
+| **una foto o un video** | **subir a R2 con `rclone`** | inmediato |
+
+La media no está en git y nunca pasa por GitHub Actions. Vive en R2 y se
+sube aparte. Un flujo típico al agregar una cinta nueva:
+
+```bash
+# 1. subir el archivo a R2
+rclone copy ./cinta-nueva.mp4 r2:museo/videos \
+  --header-upload "Cache-Control: public, max-age=31536000, immutable"
+
+# 2. registrarla en el catálogo
+$EDITOR src/data/videos.ts     # src: '/media/videos/cinta-nueva.mp4'
+
+# 3. publicar
+git add -A && git commit -m "agregar cinta nueva" && git push
+```
+
+Si te saltas el paso 1, el sitio va a apuntar a un archivo que no existe (404).
+Si te saltas el paso 3, el archivo está en R2 pero nadie lo ve.
+
+### requisito pendiente para que el push despliegue solo
+
+El workflow existe pero **falla en el paso de deploy hasta que agregues dos
+secrets** en Settings → Secrets and variables → Actions:
+
+| secret | valor |
+|---|---|
+| `CLOUDFLARE_API_TOKEN` | un token **sin filtro de IP** |
+| `CLOUDFLARE_ACCOUNT_ID` | `<account-id-redactado>` |
+
+El token de uso local está restringido por IP y los runners de GitHub salen
+por rangos de Azure, así que **no sirve el mismo**. Hacé uno nuevo con
+`Workers Scripts:Edit` + `Account Settings:Read` y sin restricción de IP.
+
+Mientras tanto, para desplegar a mano:
+
+```bash
+set -a; . ~/.config/cloudflare/portfolio.env; set +a
+npm run build && npx wrangler@4.129.0 deploy
+```
+
+## costos
+
+### quién puede cobrar
+
+**Workers no.** El worker no tiene script, solo sirve archivos estáticos, y
+las peticiones a static assets son gratis e ilimitadas.
+
+**R2 sí**, en teoría. Tres medidores:
+
+| medidor | qué cuenta | gratis al mes | después |
+|---|---|---|---|
+| almacenamiento | lo que hay en el bucket | 10 GB | $0.015/GB |
+| Clase A | escrituras: subir, borrar, listar | 1 millón | $4.50/M |
+| Clase B | lecturas: bajar un archivo | 10 millones | $0.36/M |
+| egress | ancho de banda de salida | **siempre $0** | — |
+
+### dónde estamos (migración inicial, sept 2026)
+
+- **almacenamiento:** 1.4 GB de 10 GB — 14%
+- **Clase A:** 252 operaciones de 1,000,000 — las subidas de la migración
+- **Clase B:** ~250 de 10,000,000
+
+### por qué Clase B no escala con las visitas
+
+Una lectura solo cuenta **si Cloudflare no tiene el archivo en caché**. Todo
+se sirve con `immutable` y un año de TTL, así que el primer visitante de cada
+PoP provoca una lectura a R2 y los siguientes salen del edge.
+
+Verificable en cualquier momento:
+
+```bash
+curl -sI https://media.vondiego.com/posters/apice.webp | grep cf-cache-status
+# cf-cache-status: HIT  → esa petición NO tocó R2
+```
+
+Con ~250 archivos, aunque cada PoP de Cloudflare pidiera cada uno, serían
+decenas de miles de operaciones. El límite son diez millones.
+
+### qué tendría que pasar para pagar algo
+
+- **almacenamiento:** multiplicar la librería de video por 7
+- **Clase A:** resubir el archivo completo ~4,000 veces en un mes
+- **Clase B:** 10 millones de cache misses
+
+### vigilancia
+
+- alertas: dashboard → Manage Account → Notifications → Add → R2
+- consumo en vivo: R2 → `museo` → Metrics
+
+Poner una alerta al 80% del free tier de almacenamiento es suficiente: es el
+único medidor que puede moverse de verdad, y solo subiendo mucho video.
+
+### el costo que no es dinero
+
+Cada subida de media sale por tu uplink de casa. Los 1.4 GB iniciales
+tardaron. Tenlo en cuenta antes de subir una tanda grande.
+
 ## cache-bust
 
 la media se sirve con `immutable` y cache de un año. si reemplazás un
