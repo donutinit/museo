@@ -43,9 +43,9 @@ lerna-debug.log*
 PLAN.md
 plan.md
 
-# ─── media pesado (vive en truenas, no en git) ─────────
-# en dev: symlink a ~/src/museo-media-dev
-# en prod: volume mount al dataset triceratops/portfolio
+# ─── media pesado (vive en r2, no en git) ──────────────
+# bucket `museo`, servido desde media.vondiego.com
+# ver docs/03-deploy-cloudflare.md
 public/media
 public/media/
 public/reels/

@@ -1,5 +1,15 @@
 # cloudflare tunnel
 
+> **NOTA (migración):** el tunnel **ya no sirve este sitio**. `www.vondiego.com`
+> se movió a Workers Static Assets — ver [03-deploy-cloudflare.md](./03-deploy-cloudflare.md).
+>
+> El tunnel `26d5689f` **sigue en pie** porque también expone `plane`, `review`
+> y `soli`. Solo se le quitó el public hostname de `www`.
+>
+> Este documento se conserva como referencia histórica y como guía de rollback:
+> si hiciera falta volver, se re-agrega el hostname `www.vondiego.com` →
+> `http://localhost:30303` en el ingress del tunnel.
+
 flujo para exponer el portafolio sin abrir puertos del router.
 
 ## prerequisitos
@@ -49,7 +59,7 @@ type:       http
 url:        portfolio-web:80
 ```
 
-`portfolio-web` es el nombre del container del sitio (definido en el compose de [03-deploy-truenas.md](./03-deploy-truenas.md)). cloudflared lo resuelve internamente vía docker network.
+`portfolio-web` es el nombre del container del sitio (definido en el compose de [03-deploy-cloudflare.md](./03-deploy-cloudflare.md)). cloudflared lo resuelve internamente vía docker network.
 
 ### 4. verificar
 

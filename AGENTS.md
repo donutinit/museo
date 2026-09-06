@@ -12,8 +12,8 @@ Stack:
 - CSS principal en `src/styles/global.css`.
 - Contenido fotográfico en `src/content/projects`.
 - Catálogo de video en `src/data/videos.ts`.
-- Media pesada fuera de git, servida desde `/media`.
-- Deploy por Docker/Nginx en TrueNAS, expuesto por Cloudflare Tunnel.
+- Media pesada fuera de git, en el bucket R2 `museo` (`media.vondiego.com`).
+- Deploy a Cloudflare Workers Static Assets vía Wrangler.
 
 ## reglas de trabajo
 
@@ -124,26 +124,20 @@ Rutas comerciales ocultas futuras:
 
 ## media
 
-No subas media pesada al repo.
+No subas media pesada al repo. Vive en el bucket R2 `museo`, servido desde
+`media.vondiego.com`.
 
-Local:
-
-```text
-public/media -> /home/shaolin/src/portfolio-media-dev
-```
-
-Producción:
-
-```text
-/mnt/triceratops/portfolio
-```
+En contenido y páginas se siguen escribiendo rutas `/media/...`;
+`src/lib/media.ts` las reescribe al dominio de R2 al render. No hardcodees
+`media.vondiego.com` en contenido.
 
 Si reemplazas un video en producción:
 
 1. Verifica codec con `ffprobe`.
-2. Haz backup remoto antes de sobrescribir.
-3. Usa `rsync` o `scp`.
-4. Considera cache-bust o purga de Cloudflare.
+2. Conserva el original antes de sobrescribir.
+3. Sube con `rclone copy ... r2:museo/videos`.
+4. La media se sirve `immutable` con cache de un año: usa nombre nuevo,
+   query string de cache-bust, o purga el cache de Cloudflare.
 
 Video compatible:
 

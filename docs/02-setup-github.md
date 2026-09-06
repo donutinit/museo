@@ -35,7 +35,7 @@ Von Diego tiene dos llaves:
 
 - el `GITHUB_TOKEN` que usa gha viene **automático** en cada run, no hay que crear pat manual
 - alcance del token automático: solo el repo donde corre el workflow + permisos que declaremos en el yaml
-- si en el futuro queremos imagen **privada**, ver `03-deploy-truenas.md` para cómo configurar un pat (`read:packages`) en el nas
+- si en el futuro queremos imagen **privada**, ver `03-deploy-cloudflare.md` para cómo configurar un pat (`read:packages`) en el nas
 
 ## notas
 

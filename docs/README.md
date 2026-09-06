@@ -1,14 +1,14 @@
 # docs
 
-documentación del portafolio. orden recomendado de lectura:
+documentación de museo. orden recomendado de lectura:
 
 | # | doc | qué cubre |
 |---|---|---|
-| 00 | [arquitectura](./00-arquitectura.md) | diagrama completo de cómo viven las piezas (github, ghcr, truenas, cloudflare) |
-| 01 | [decisiones técnicas](./01-decisiones-tecnicas.md) | por qué astro y no wordpress, por qué ghcr, qué hacer con los videos, etc |
-| 02 | [setup github](./02-setup-github.md) | qué se hizo del lado de github (repo, ssh, ghcr) |
-| 03 | [deploy truenas](./03-deploy-truenas.md) | cómo va a vivir esto en el nas (custom app, dataset, etc) |
-| 04 | [cloudflare tunnel](./04-cloudflare-tunnel.md) | exponer el sitio sin abrir puertos |
+| 00 | [arquitectura](./00-arquitectura.md) | cómo viven las piezas hoy (github, workers, r2) |
+| 01 | [decisiones técnicas](./01-decisiones-tecnicas.md) | por qué astro, por qué r2, qué hacer con los videos |
+| 02 | [setup github](./02-setup-github.md) | qué se hizo del lado de github |
+| 03 | [deploy cloudflare](./03-deploy-cloudflare.md) | desplegar el sitio y subir media |
+| 04 | [cloudflare tunnel](./04-cloudflare-tunnel.md) | *(legacy)* el stack anterior y cómo hacer rollback |
 | 05 | [dirección visual](./05-direccion-visual.md) | sabores brutalistas considerados y dónde quedamos |
 | 06 | [roadmap](./06-roadmap.md) | qué falta, qué sigue |
 

@@ -3,90 +3,123 @@
 ## panorama general
 
 ```
-github                          truenas                      cloudflare
-─────────                       ──────────                   ──────────
-repo: portfolio                 ┌─ app: portfolio ─┐         ┌─ dns ─┐
-  ├ src/ (astro)                │ nginx container  │◄──┐     │ tudominio.com
-  ├ dockerfile          ──►     │ sirve /dist/     │   │     └───┬───┘
-  └ .github/workflows/          │ + /media (mount) │   │         │
-     └ build.yml                └──────────────────┘   │     ┌───▼──────┐
-        │                              ▲              └─────┤ tunnel   │
-        │ on push:                     │ pull image         │ cloudflared
-        ▼                              │                    └──────────┘
-   gha: npm run build             ┌────┴────┐
-   → docker build                 │  ghcr   │ ghcr.io/donutinit/museo
-   → docker push     ────────────►│ registry│
-                                  └─────────┘
-
-   /mnt/tank/portfolio-media/  ← dataset separado, montado en el container
-     ├ reels/*.mp4              (subís por smb/sftp, sin rebuild)
-     └ photos/*.webp
+github                       cloudflare
+─────────                    ──────────
+repo: museo                  ┌─ workers static assets ─┐
+  ├ src/ (astro)             │  museo                  │
+  ├ wrangler.jsonc     ──►   │  sirve dist/            │◄── www.vondiego.com
+  ├ public/_redirects        │  _redirects, _headers   │
+  ├ public/_headers          └─────────────────────────┘
+  └ .github/workflows/
+     └ build.yml             ┌─ r2 bucket: museo ──────┐
+        │                    │  videos/                │◄── media.vondiego.com
+        │ on push a main:    │  projects/              │
+        ▼                    │  posters/               │
+   npm ci --ignore-scripts   │  thumbnails/            │
+   npm rebuild sharp esbuild │  video-posters/         │
+   npm run check && build    └─────────────────────────┘
+   wrangler deploy
 ```
+
+no hay servidor. no hay docker en el camino de producción. no hay nada
+corriendo en casa.
 
 ## componentes
 
 ### 1. github repo (este)
 
-fuente de verdad del sitio. todo lo que termina en producción empieza acá. `git push` dispara el resto del pipeline.
+fuente de verdad. `git push` a `main` dispara el resto.
 
-### 2. github actions (gha)
+### 2. github actions
 
-ci/cd. en cada push a `main`:
+en cada push a `main`:
 
-1. `npm ci && npm run build` → genera `dist/` con html/css/js estático
-2. `docker build` → mete el `dist/` adentro de una imagen con nginx
-3. `docker push ghcr.io/donutinit/museo:latest` → publica al registry
+1. `npm ci --ignore-scripts` — sin postinstall scripts
+2. `npm rebuild sharp esbuild` — solo los nativos conocidos
+3. `npm run check` — astro check
+4. `npm run build` — genera `dist/`
+5. `wrangler deploy` — sube `dist/` a Workers
 
-usa el `GITHUB_TOKEN` que actions inyecta automáticamente, sin pat manual.
+el paso 5 necesita los secrets `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID`.
+ese token **no puede tener filtro de IP**: los runners de github salen por
+rangos de azure.
 
-### 3. ghcr (github container registry)
+### 3. cloudflare workers — static assets
 
-hospeda la imagen docker. gratis e ilimitado para repos públicos. la imagen es pública (no contiene secretos, solo el sitio compilado).
+el worker `museo` no tiene script: `wrangler.jsonc` declara `assets` sin
+`main`, o sea solo sirve archivos. Cloudflare se encarga de etags,
+compresión y del CDN.
 
-### 4. truenas — custom app: `portfolio-web`
+dos archivos controlan el comportamiento, ambos en `public/` (astro los
+copia tal cual a `dist/`):
 
-container nginx pulleado desde ghcr. sirve dos cosas:
+| archivo | reemplaza a | qué hace |
+|---|---|---|
+| `_redirects` | los `return 301` del nginx.conf | `/work/*` → `/obra/*`, `/video` → `/obra/#cintas` |
+| `_headers` | los `add_header` del nginx.conf | headers de seguridad, cache de `_astro/` |
 
-- el sitio estático (que viene dentro de la imagen)
-- los assets pesados (montados desde un dataset separado, ver punto 5)
+`not_found_handling: "404-page"` sirve `/404.html`, equivalente al
+`error_page 404` de nginx.
 
-### 5. truenas — dataset: `portfolio-media`
+### 4. cloudflare r2 — bucket `museo`
+
+la media pesada. el bucket vive en `WNAM` y se expone por dominio custom
+en `media.vondiego.com`.
 
 ```
-/mnt/tank/portfolio-media/
-├ reels/         ← videos web-optimizados (mp4 h.264 con faststart)
-├ photos/        ← fotos (webp generadas; los raws viven en otro dataset)
-├ thumbnails/    ← posters de los reels (jpg ~100kb)
-└ documents/     ← cv, press kit, etc (si aplica)
+museo/
+├ videos/          mp4 h264 + faststart
+├ posters/         webp de portada
+├ thumbnails/      webp chicos del índice
+├ video-posters/   jpg de poster de cada cinta
+└ projects/<slug>/ las piezas de cada proyecto
 ```
 
-actualizar contenido = copiar archivos al dataset vía smb/sftp. **sin rebuild, sin redeploy, sin commit.** el sitio los encuentra al instante.
+por qué R2 y no meterlo al bundle del sitio: **Workers tiene límite de 25
+MiB por archivo**. los videos pesan entre 40 y 180 MB. además el egress de
+R2 es gratis, que es lo que hace viable servir 1.4 GB de video sin costo.
 
-### 6. truenas — custom app: `cloudflared`
+R2 sirve `Accept-Ranges` nativamente, así que el scrub de video funciona
+sin escribir código.
 
-container con el demonio de cloudflare tunnel. expone `portfolio-web:80` al edge de cloudflare. cero port-forwarding, cero certs ssl, cero ip pública necesaria.
+### 5. el puente: `src/lib/media.ts`
 
-### 7. cloudflare
+el contenido y las páginas siguen escribiendo rutas como `/media/...`.
+`media()` las reescribe a `media.vondiego.com` al momento de render.
 
-- dns del dominio
-- el otro extremo del tunnel
-- caché del cdn (assets se cachean en cloudflare automáticamente)
-- waf opcional del plan free
+```ts
+media('/media/videos/parto.mp4')
+// → 'https://media.vondiego.com/videos/parto.mp4'
+```
+
+esto mantiene el contenido portable: si la media se muda otra vez, se
+cambia una constante y no 500 rutas. para apuntar a otro lado durante
+desarrollo, exportá `PUBLIC_MEDIA_BASE`.
 
 ## flujo de updates
 
 | qué cambia | qué hacés | tiempo |
 |---|---|---|
-| diseño/código | edit + `git push` | ~3 min (build gha + pull) |
-| nuevo reel/foto | scp/smb al dataset | instantáneo |
-| nuevo proyecto (texto + media) | edit md + `git push` + subir media | ~3 min |
-| versión de astro o deps | `npm update` + push | ~3 min |
+| diseño/código | `git push` | ~2 min (gha + deploy) |
+| contenido (proyecto nuevo, cinta nueva) | editar `src/content/` o `src/data/videos.ts` + `git push` | ~2 min |
+| media (foto/video nuevo) | subir a R2 + apuntar el contenido | inmediato en R2, ~2 min el sitio |
 
-## decisiones de diseño relevantes
+para subir media:
 
-- **build en gha, no en truenas**: el nas no es build server. gha tiene 2000 min/mes gratis, sobra de sobra.
-- **media fuera del repo**: los archivos pesados no van a git. viven en el dataset de truenas. esto mantiene el repo liviano (clones rápidos) y permite actualizar contenido sin redeploy.
-- **imagen docker pública**: cero secretos adentro, no hay razón para sumar fricción de auth.
-- **un solo nginx para html + media**: simplicidad. mismo container sirve todo. si el día de mañana crece muchísimo, separamos.
+```bash
+rclone copy ./nuevos r2:museo/videos \
+  --header-upload "Cache-Control: public, max-age=31536000, immutable"
+```
 
-el *por qué* de cada elección vive en [01-decisiones-tecnicas](./01-decisiones-tecnicas.md).
+## qué pasó con lo anterior
+
+el sitio vivía en un host docker (nginx + watchtower) expuesto por
+cloudflare tunnel. eso sigue en pie pero **ya no sirve el sitio**:
+el hostname `www` se quitó del ingress del tunnel.
+
+el tunnel `26d5689f` NO se puede tumbar: también sirve `plane`, `review`
+y `soli`. solo se le quitó `www`.
+
+`Dockerfile`, `nginx.conf` y `deploy/museo.compose.yaml` siguen en el repo
+como vía de rollback. cuando el cutover lleve un rato estable se pueden
+borrar.

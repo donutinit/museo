@@ -9,21 +9,22 @@ El sitio funciona como una sala oscura: opening cinematográfico, índice visual
 - Astro 5, build estático.
 - Tailwind 4 vía Vite, aunque la mayor parte del sistema visual vive en `src/styles/global.css`.
 - Fuentes locales por `@fontsource-variable`.
-- Nginx en Docker para servir HTML estático y media montada.
-- GitHub Actions construye y publica la imagen en GHCR.
-- TrueNAS monta el dataset de media en `/usr/share/nginx/html/media`.
-- Cloudflare Tunnel expone `vondiego.com` sin abrir puertos del NAS.
+- Cloudflare Workers Static Assets sirve el HTML estático.
+- Cloudflare R2 sirve la media pesada desde `media.vondiego.com`.
+- GitHub Actions construye y despliega con Wrangler en cada push a `main`.
 
-Imagen:
+Producción:
 
 ```text
-ghcr.io/donutinit/museo:latest
+www.vondiego.com     → worker `museo`
+media.vondiego.com   → bucket r2 `museo`
 ```
 
 Deploy:
 
 ```text
-deploy/museo.compose.yaml
+wrangler.jsonc
+.github/workflows/build.yml
 ```
 
 ## comandos
@@ -51,7 +52,8 @@ src/
 public/
 ├ favicon.svg
 ├ robots.txt
-└ media -> symlink local al dataset de media
+├ _redirects          rutas viejas (reemplaza los 301 del nginx)
+└ _headers            headers de seguridad y cache
 ```
 
 Rutas principales:
@@ -65,24 +67,19 @@ Rutas principales:
 
 Rutas viejas:
 
-- `/work/*` redirige a `/obra/*` desde Nginx.
+- `/work/*` redirige a `/obra/*` vía `public/_redirects`.
 - `/video/` redirige a `/obra/#cintas`.
 
 ## media
 
-Los archivos pesados no viven en git. En desarrollo, `public/media` apunta por symlink a:
+Los archivos pesados no viven en git: viven en el bucket R2 `museo`, servido
+desde `media.vondiego.com`.
 
-```text
-/home/shaolin/src/portfolio-media-dev
-```
+El contenido sigue escribiendo rutas como `/media/videos/x.mp4`;
+`src/lib/media.ts` las reescribe al dominio de R2 al momento de render. Para
+apuntar a otro lado durante desarrollo, exportá `PUBLIC_MEDIA_BASE`.
 
-En producción, el container monta:
-
-```text
-/mnt/triceratops/portfolio:/usr/share/nginx/html/media:ro
-```
-
-Estructura esperada:
+Estructura del bucket (la key `videos/x.mp4` corresponde a `/media/videos/x.mp4`):
 
 ```text
 media/
@@ -118,13 +115,14 @@ Videos:
 src/data/videos.ts
 ```
 
-Al agregar media nueva, primero subirla al dataset y después apuntar el contenido al path público `/media/...`.
+Al agregar media nueva, primero subirla a R2 y después apuntar el contenido al
+path `/media/...`. Ver [`docs/03-deploy-cloudflare.md`](./docs/03-deploy-cloudflare.md).
 
 ## docs internos
 
 - [`docs/00-arquitectura.md`](./docs/00-arquitectura.md): panorama técnico.
-- [`docs/01-decisiones-tecnicas.md`](./docs/01-decisiones-tecnicas.md): por qué Astro, GHCR, TrueNAS, Cloudflare.
-- [`docs/03-deploy-truenas.md`](./docs/03-deploy-truenas.md): deploy en TrueNAS.
+- [`docs/01-decisiones-tecnicas.md`](./docs/01-decisiones-tecnicas.md): por qué Astro, por qué R2, qué hacer con los videos.
+- [`docs/03-deploy-cloudflare.md`](./docs/03-deploy-cloudflare.md): deploy y subida de media.
 - [`docs/05-direccion-visual.md`](./docs/05-direccion-visual.md): dirección estética histórica.
 - [`AGENTS.md`](./AGENTS.md): reglas para agentes de código.
 - [`CLAUDE.md`](./CLAUDE.md): notas específicas para Claude.
@@ -137,7 +135,7 @@ Al agregar media nueva, primero subirla al dataset y después apuntar el conteni
 - `npm ci` para instalaciones reproducibles.
 - No agregar dependencias nuevas sin justificar maintainer, necesidad y riesgo.
 - Esperados como scripts nativos: `sharp` y `esbuild`.
-- Producción no corre Node; Nginx sirve archivos estáticos.
+- Producción no corre Node: Cloudflare sirve archivos estáticos.
 
 ## licencia
 
