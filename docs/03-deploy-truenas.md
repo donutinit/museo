@@ -10,7 +10,7 @@ versión actual de truenas community edition (ex scale) usa docker compose como 
 
 ## archivo listo para pegar
 
-el yaml exacto vive en [`deploy/portfolio.compose.yaml`](../deploy/portfolio.compose.yaml). copialo y pegalo en truenas ui → apps → discover → custom app.
+el yaml exacto vive en [`deploy/museo.compose.yaml`](../deploy/museo.compose.yaml). copialo y pegalo en truenas ui → apps → discover → custom app.
 
 ## pasos (cuando lleguemos acá)
 
@@ -35,7 +35,7 @@ apps → discover → custom app → pegar:
 ```yaml
 services:
   portfolio:
-    image: ghcr.io/donutinit/portfolio:latest
+    image: ghcr.io/donutinit/museo:latest
     container_name: portfolio-web
     restart: unless-stopped
     ports:

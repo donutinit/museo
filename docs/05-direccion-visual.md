@@ -11,7 +11,7 @@ estas son las cuatro direcciones discutidas. **pendiente la decisión final** �
 estética de directorio unix. el portafolio se siente como hackear un servidor.
 
 ```
-INDEX OF /portfolio/
+INDEX OF /museo/
 
 DRWX  2026-03-15  001_boda_martinez/     [4 reels, 47 fotos]
 DRWX  2026-02-08  002_ed_nike_ss26/      [1 reel, 12 fotos]
@@ -30,7 +30,7 @@ DRWX  2026-01-22  003_retrato_luna/      [23 fotos]
 grids estrictos, tipografía sans pesada, color limitado pero refinado. estilo kanye website / balenciaga / yeezy.
 
 ```
-███ portfolio —— 2026 ███
+███ museo —— 2026 ███
 
 01 / work →
 02 / film

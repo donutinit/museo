@@ -14,7 +14,7 @@ repo: portfolio                 ┌─ app: portfolio ─┐         ┌─ dns 
         │ on push:                     │ pull image         │ cloudflared
         ▼                              │                    └──────────┘
    gha: npm run build             ┌────┴────┐
-   → docker build                 │  ghcr   │ ghcr.io/donutinit/portfolio
+   → docker build                 │  ghcr   │ ghcr.io/donutinit/museo
    → docker push     ────────────►│ registry│
                                   └─────────┘
 
@@ -35,7 +35,7 @@ ci/cd. en cada push a `main`:
 
 1. `npm ci && npm run build` → genera `dist/` con html/css/js estático
 2. `docker build` → mete el `dist/` adentro de una imagen con nginx
-3. `docker push ghcr.io/donutinit/portfolio:latest` → publica al registry
+3. `docker push ghcr.io/donutinit/museo:latest` → publica al registry
 
 usa el `GITHUB_TOKEN` que actions inyecta automáticamente, sin pat manual.
 

@@ -44,7 +44,7 @@ PLAN.md
 plan.md
 
 # ─── media pesado (vive en truenas, no en git) ─────────
-# en dev: symlink a ~/src/portfolio-media-dev
+# en dev: symlink a ~/src/museo-media-dev
 # en prod: volume mount al dataset triceratops/portfolio
 public/media
 public/media/

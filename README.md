@@ -1,4 +1,4 @@
-# portfolio
+# museo
 
 Archivo visual de [Von Diego](mailto:contacto@vondiego.com): foto, video y obra en movimiento desde Monterrey.
 
@@ -17,13 +17,13 @@ El sitio funciona como una sala oscura: opening cinematográfico, índice visual
 Imagen:
 
 ```text
-ghcr.io/donutinit/portfolio:latest
+ghcr.io/donutinit/museo:latest
 ```
 
 Deploy:
 
 ```text
-deploy/portfolio.compose.yaml
+deploy/museo.compose.yaml
 ```
 
 ## comandos

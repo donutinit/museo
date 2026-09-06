@@ -4,9 +4,9 @@
 
 - [x] cuenta de github existente (`donutinit`)
 - [x] ssh key generada y agregada (`~/.ssh/id_ed25519_github.pub`)
-- [x] repo creado: `github.com/donutinit/portfolio` (público)
+- [x] repo creado: `github.com/donutinit/museo` (público)
 - [x] git config local (`Von Diego` / `contacto@vondiego.com`)
-- [x] primer clone vía ssh (`git@github.com:donutinit/portfolio.git`)
+- [x] primer clone vía ssh (`git@github.com:donutinit/museo.git`)
 - [x] primer commit con estructura base
 
 ## qué falta del lado github
@@ -19,7 +19,7 @@
     packages: write
   ```
 - [ ] **tras primer push de imagen**: cambiar visibility del package a `public` en
-  `github.com/users/donutinit/packages/container/portfolio/settings`
+  `github.com/users/donutinit/packages/container/museo/settings`
 - [ ] **(opcional)** branch protection en `main` para que requiera pr → settings → branches → add rule
 
 ## sobre el ssh

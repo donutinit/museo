@@ -3,7 +3,7 @@
 ## hecho
 
 - [x] elección de stack (astro + nginx + ghcr + cloudflare tunnel)
-- [x] repo creado y clonado localmente (`~/src/portfolio`)
+- [x] repo creado y clonado localmente (`~/src/museo`)
 - [x] licencia [hlqsthuhalv](../LICENSE)
 - [x] docs base (los 7 archivos en este directorio)
 - [x] `.gitignore` configurado para astro + media pesada

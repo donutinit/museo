@@ -1,10 +1,10 @@
 # ──────────────────────────────────────────────────────────────────────
-# portfolio web — debian docker host
+# museo web — debian docker host
 # ──────────────────────────────────────────────────────────────────────
 # vive en el host docker (debian) en: /srv/stacks/portfolio/compose.yml
 #
 # arquitectura:
-#   - imagen ghcr.io/donutinit/portfolio:latest se buildea y sube sola en
+#   - imagen ghcr.io/donutinit/museo:latest se buildea y sube sola en
 #     cada push a main vía .github/workflows/build.yml
 #   - watchtower vigila SOLO este contenedor (por label) y al detectar un
 #     nuevo :latest lo jala y lo recrea. asi cada push llega al host solo.
@@ -29,7 +29,7 @@
 
 services:
   portfolio:
-    image: ghcr.io/donutinit/portfolio:latest
+    image: ghcr.io/donutinit/museo:latest
     container_name: portfolio
     restart: unless-stopped
     pull_policy: always
