@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { videos, kindLabel } from '../../data/videos';
+import { media } from '../../lib/media';
 
 export async function getStaticPaths() {
   return videos.map((v, i) => ({
@@ -50,9 +51,9 @@ const formattedTitle = video.title.toLowerCase();
           controls
           playsinline
           preload="metadata"
-          poster={video.poster}
+          poster={media(video.poster)}
         >
-          <source src={video.src} type="video/mp4" />
+          <source src={media(video.src)} type="video/mp4" />
           Tu navegador no puede reproducir esto.
         </video>
       </div>

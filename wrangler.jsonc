@@ -1,0 +1,14 @@
+{
+  // Sitio estático servido por Workers Static Assets.
+  // No hay script de Worker: `assets` sin `main` = solo archivos.
+  "name": "museo",
+  "compatibility_date": "2026-09-06",
+  "assets": {
+    "directory": "./dist",
+    // sirve /404.html en rutas inexistentes (equivalente a error_page 404)
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

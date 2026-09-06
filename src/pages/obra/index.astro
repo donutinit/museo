@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { videos, type VideoEntry } from '../../data/videos';
+import { media } from '../../lib/media';
 
 type MediaItem = {
   slug: string;
@@ -83,7 +84,7 @@ const obras: MediaItem[] = projects
       title: project.data.title.toLowerCase(),
       code: `vd/${String(project.data.year).slice(2)} · ${projectKind[project.data.type]}`,
       meta: `${String(project.data.photoCount).padStart(2, '0')} piezas`,
-      src: project.data.poster,
+      src: media(project.data.poster),
       width: size.width,
       height: size.height,
       orientation: orientation(size.width, size.height),
@@ -102,7 +103,7 @@ const cintasBase: MediaItem[] = videos
       title: videoTitle(video.title),
       code: `vd/${String(video.year).slice(2)} · cinta`,
       meta: `${video.durationLabel} · ${video.aspect}`,
-      src: video.poster,
+      src: media(video.poster),
       width: size.width,
       height: size.height,
       orientation: orientation(size.width, size.height),

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { media } from '../../lib/media';
 
 export async function getStaticPaths() {
   const projects = (await getCollection('projects')).sort(
@@ -31,7 +32,7 @@ const { project, index, total, prev, next } = Astro.props;
 const { Content } = await project.render();
 
 const photos = Array.from({ length: project.data.photoCount }, (_, i) => ({
-  src: `${project.data.photosDir}${project.data.photosPrefix}-${String(i + 1).padStart(2, '0')}.jpg`,
+  src: media(`${project.data.photosDir}${project.data.photosPrefix}-${String(i + 1).padStart(2, '0')}.jpg`),
   name: `${project.data.photosPrefix}-${String(i + 1).padStart(2, '0')}`,
   index: i + 1,
 }));

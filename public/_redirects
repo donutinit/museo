@@ -1,0 +1,10 @@
+# rutas viejas — equivalente a los `return 301` del nginx.conf anterior
+# sintaxis: <origen> <destino> <codigo>
+
+# /work/* -> /obra/*
+/work/*         /obra/:splat        301
+
+# /video (indice viejo) -> ancla de cintas en el indice nuevo.
+# OJO: solo las rutas exactas. /video/<slug> son paginas reales.
+/video          /obra/#cintas       301
+/video/         /obra/#cintas       301

@@ -1,4 +1,4 @@
-name: build and push
+name: build and deploy
 
 on:
   push:
@@ -7,14 +7,13 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -22,33 +21,33 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: set up docker buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: log in to ghcr
-        uses: docker/login-action@v3
+      - name: setup node
+        uses: actions/setup-node@v4
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          node-version: 22
+          cache: npm
 
-      - name: extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,format=short
-            type=ref,event=branch
+      # supply-chain: nada de postinstall scripts. solo se rebuildean
+      # los binarios nativos conocidos. mismo criterio que tenia el Dockerfile.
+      - name: install deps
+        run: |
+          npm ci --ignore-scripts
+          npm rebuild sharp esbuild
 
-      - name: build and push
-        uses: docker/build-push-action@v6
+      - name: check
+        run: npm run check
+
+      - name: build
+        run: npm run build
+
+      # despliega dist/ a Workers Static Assets.
+      # requiere el secret CLOUDFLARE_API_TOKEN con permisos:
+      #   Workers Scripts:Edit + Account Settings:Read
+      # OJO: ese token NO puede tener filtro de IP, los runners de github
+      # salen por IPs de azure. usar uno distinto al de uso local.
+      - name: deploy
+        uses: cloudflare/wrangler-action@v3
         with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.129.0'

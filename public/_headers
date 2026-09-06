@@ -1,0 +1,19 @@
+# equivalente a los `add_header` del nginx.conf anterior
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: interest-cohort=()
+
+# assets con hash en el nombre: cache eterna
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# sitemap y robots: cache corta
+/robots.txt
+  Cache-Control: public, max-age=86400
+/sitemap-index.xml
+  Cache-Control: public, max-age=86400
+/sitemap-*.xml
+  Cache-Control: public, max-age=86400

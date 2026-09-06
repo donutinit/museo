@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { media } from '../lib/media';
 
 type VideoItem = {
   kind: 'video';
@@ -36,7 +37,7 @@ type FinalItem = { kind: 'final'; code: string; line: string; lineEm: string };
 type Item = VideoItem | GridItem | FinalItem;
 
 const photo = (src: string, alt: string, href: string, width: number, height: number): Photo => ({
-  src,
+  src: media(src),
   alt,
   href,
   width,
@@ -298,10 +299,10 @@ const items: Item[] = [
               loop
               playsinline
               preload={i === 0 ? 'auto' : 'metadata'}
-              poster={item.poster}
+              poster={media(item.poster)}
               style={`aspect-ratio: ${item.aspect};`}
             >
-              <source src={item.src} type="video/mp4" />
+              <source src={media(item.src)} type="video/mp4" />
             </video>
           </a>
 
