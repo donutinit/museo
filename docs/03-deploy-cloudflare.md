@@ -40,18 +40,22 @@ requiere dos secrets en el repo (Settings → Secrets → Actions):
 - `CLOUDFLARE_ACCOUNT_ID`
 
 ⚠️ **el token de CI no puede tener filtro de IP.** los runners de github
-salen por rangos de azure, no por tu IP de casa. si usás un token
-IP-locked para trabajo local, hacé uno aparte para CI.
+salen por rangos de azure, no por tu IP de casa.
 
-permisos mínimos del token:
+permisos mínimos para desplegar:
 
 | tipo | permiso |
 |---|---|
 | Account | Workers Scripts:Edit |
 | Account | Account Settings:Read |
 
-(para tocar R2 y DNS hace falta además `Workers R2 Storage:Edit` y
-`Zone → DNS:Edit`, pero el deploy del sitio no los necesita.)
+**estado actual:** se está usando el mismo token que para trabajo local, que
+además trae `Workers R2 Storage:Edit`, `DNS:Edit` y `Cache Purge`. Funciona,
+pero le da a CI más alcance del necesario: si el token se filtrara desde
+Actions, alcanzaría para tocar el DNS de `vondiego.com` o borrar el bucket.
+
+Si algún día querés apretar eso, hacé un token nuevo solo con los dos
+permisos de la tabla y reemplazá el secret. El deploy no necesita nada más.
 
 ## subir media a r2
 
@@ -107,21 +111,20 @@ git add -A && git commit -m "agregar cinta nueva" && git push
 Si te saltas el paso 1, el sitio va a apuntar a un archivo que no existe (404).
 Si te saltas el paso 3, el archivo está en R2 pero nadie lo ve.
 
-### requisito pendiente para que el push despliegue solo
+### los secrets de CI
 
-El workflow existe pero **falla en el paso de deploy hasta que agregues dos
-secrets** en Settings → Secrets and variables → Actions:
+El deploy automático necesita dos secrets en
+Settings → Secrets and variables → Actions:
 
 | secret | valor |
 |---|---|
 | `CLOUDFLARE_API_TOKEN` | un token **sin filtro de IP** |
 | `CLOUDFLARE_ACCOUNT_ID` | `<account-id-redactado>` |
 
-El token de uso local está restringido por IP y los runners de GitHub salen
-por rangos de Azure, así que **no sirve el mismo**. Hacé uno nuevo con
-`Workers Scripts:Edit` + `Account Settings:Read` y sin restricción de IP.
+**Ya están puestos** (sept 2026). Ver la nota de alcance del token en
+"deploy automático" más arriba.
 
-Mientras tanto, para desplegar a mano:
+Para desplegar a mano sin pasar por CI:
 
 ```bash
 set -a; . ~/.config/cloudflare/portfolio.env; set +a
