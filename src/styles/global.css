@@ -198,6 +198,25 @@ main { flex: 1 0 auto; }
 }
 .colofon a:hover { color: var(--papel); }
 
+/* los perfiles: sordos, al canto, como créditos impresos. no piden nada. */
+.colofon-redes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem clamp(1rem, 3vw, 1.75rem);
+}
+.colofon-redes a {
+  color: var(--polvo);
+  padding-bottom: 0.15rem;
+  border-bottom: 1px solid transparent;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+.colofon-redes a:hover { color: var(--papel); border-bottom-color: var(--grasa); }
+
+.colofon-codigo { display: inline-flex; align-items: center; gap: 0.45rem; }
+.marca-gh { flex: 0 0 auto; opacity: 0.85; }
+.colofon-codigo:hover .marca-gh { opacity: 1; }
+
 /* ═════ LA HOJA ═════ */
 
 .hoja {
