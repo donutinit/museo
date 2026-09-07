@@ -661,7 +661,10 @@ button.cuadro { display: block; text-align: left; }
   display: grid;
   align-content: center;
   gap: clamp(1.25rem, 3.5vh, 2.5rem);
-  scroll-snap-align: start;
+  /* al centro: una placa que mide la ventana queda igual, y una retícula que
+     la rebasa (rodando. bicis en pantallas bajas) entra por su medio y se
+     recorre libre, sin que el snap la regrese a la orilla de arriba */
+  scroll-snap-align: center;
   scroll-snap-stop: always; /* un gesto largo no se brinca placas */
 }
 
