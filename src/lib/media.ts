@@ -1,4 +1,5 @@
 import medidasJson from '../data/medidas.json';
+import altJson from '../data/alt.json';
 
 /**
  * Base de la media pesada.
@@ -59,3 +60,13 @@ export const srcset = (path: string): string | undefined => {
 
   return [...candidatos, `${MEDIA_BASE}${resto} ${ancho}w`].join(', ');
 };
+
+/**
+ * Descripciones escritas a mano, mirando la foto. Las que faltan caen al
+ * respaldo genérico — un `alt` de relleno describe menos que nada, pero al
+ * menos nombra la pieza.
+ */
+const alts: Record<string, string> = altJson;
+
+export const altDe = (path: string, respaldo: string): string =>
+  alts[path.split('?')[0]] ?? respaldo;
