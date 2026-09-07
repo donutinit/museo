@@ -1,8 +1,28 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { grafo, persona, migas, SITIO, ID_PERSONA } from '../lib/seo';
+
+const esquema = grafo(
+  persona(),
+  {
+    '@type': 'ProfilePage',
+    '@id': `${SITIO}/about/#manifiesto`,
+    name: 'Manifiesto',
+    inLanguage: 'es-MX',
+    mainEntity: { '@id': ID_PERSONA },
+  },
+  migas([
+    { nombre: 'inicio', ruta: '/' },
+    { nombre: 'manifiesto', ruta: '/about/' },
+  ])
+);
 ---
 
-<BaseLayout title="manifiesto" description="Manifiesto de Von Diego. Foto y video desde Monterrey.">
+<BaseLayout
+  title="manifiesto"
+  description="Manifiesto de Von Diego: foto, video y montaje desde Monterrey, MX."
+  esquema={esquema}
+>
   <main class="contenedor nota" id="hoja">
     <h1 class="display nota-titulo">una imagen que sabe cuándo callarse</h1>
 

@@ -2,6 +2,7 @@
 title: Depredador Ápice
 type: personal
 year: 2025
+location: Monterrey, MX
 photoCount: 7
 photosDir: /media/projects/apice/
 photosPrefix: apice

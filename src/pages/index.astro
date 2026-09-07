@@ -2,8 +2,9 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { placas } from '../data/reel';
 import { cintaPorSlug } from '../data/videos';
-import { media, srcset } from '../lib/media';
+import { media, srcset, altDe } from '../lib/media';
 import Lupa from '../components/Lupa.astro';
+import { grafo, persona, sitio, cinta as cintaLD } from '../lib/seo';
 
 // el póster de la primera placa es lo que manda en el primer pintado
 const primeraCinta = cintaPorSlug(
@@ -12,12 +13,20 @@ const primeraCinta = cintaPorSlug(
 
 // en el carrusel la lámina no pasa de ~500 px de ancho en escritorio
 const SIZES = '(max-width: 47.99rem) 100vw, 500px';
+
+// las cintas del reel, para que Google las vea aunque el video se monte con JS
+const esquema = grafo(
+  persona(),
+  sitio(),
+  ...placas.filter((p) => p.kind === 'video').map((p) => cintaLD(cintaPorSlug(p.slug)))
+);
 ---
 
 <BaseLayout
   desnudo
   description="Foto y video desde Monterrey. El archivo de Von Diego: obra, encargo y cinta."
   precargar={primeraCinta.poster}
+  esquema={esquema}
 >
   {/* Sin JS el gate no se puede quitar y taparía el sitio entero. */}
   <noscript><style>{`.gate { display: none !important; }`}</style></noscript>
@@ -97,8 +106,8 @@ const SIZES = '(max-width: 47.99rem) 100vw, 500px';
                   type="button"
                   class="carrusel-lamina"
                   data-lupa-src={media(foto.src)}
-                  data-lupa-alt={foto.alt}
-                  aria-label={`Abrir ${foto.alt} en grande`}
+                  data-lupa-alt={altDe(foto.src, foto.alt)}
+                  aria-label={`Abrir ${altDe(foto.src, foto.alt)} en grande`}
                   style={`--ratio: ${(foto.width / foto.height).toFixed(5)};`}
                 >
                   <img

@@ -2,6 +2,7 @@
 title: Posadas
 type: personal
 year: 2024
+location: Monterrey, MX
 photoCount: 38
 photosDir: /media/projects/poasadas/
 photosPrefix: poasadas

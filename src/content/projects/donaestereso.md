@@ -2,6 +2,7 @@
 title: "Doña Estéreo: En Vivo"
 type: concierto
 year: 2024
+location: Monterrey, MX
 photoCount: 27
 photosDir: /media/projects/donaestereso/
 photosPrefix: donaestereso

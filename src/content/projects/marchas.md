@@ -2,6 +2,7 @@
 title: Marchas Eternas
 type: personal
 year: 2024
+location: Monterrey, MX
 photoCount: 15
 photosDir: /media/projects/marchas/
 photosPrefix: marchas

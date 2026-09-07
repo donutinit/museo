@@ -2,6 +2,7 @@
 title: Zara
 type: retrato
 year: 2025
+location: Monterrey, MX
 photoCount: 3
 photosDir: /media/projects/zara/
 photosPrefix: zara

@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { media, srcset, medidaDe } from '../../lib/media';
+import { media, srcset, medidaDe, altDe } from '../../lib/media';
 import { oficio } from '../../lib/archivo';
 import Lupa from '../../components/Lupa.astro';
+import { grafo, persona, imagen, migas, ID_PERSONA, SITIO } from '../../lib/seo';
 
 export async function getStaticPaths() {
   const proyectos = (await getCollection('projects')).sort(
@@ -41,21 +42,44 @@ const piezas = Array.from({ length: data.photoCount }, (_, i) => {
     conjunto: srcset(ruta),
     w: medida?.[0],
     h: medida?.[1],
-    alt: `${data.title}, pieza ${i + 1}`,
+    alt: altDe(ruta, `${data.title}, pieza ${i + 1}`),
   };
 });
 
 // en el rollo la pieza llega a ~620 px en escritorio y a la ventana en móvil
 const SIZES = '(max-width: 47.99rem) 100vw, 620px';
+
+const esquema = grafo(
+  persona(),
+  {
+    '@type': 'ImageGallery',
+    '@id': `${SITIO}/obra/${proyecto.slug}/#rollo`,
+    name: data.title,
+    description: `${data.title} — rollo de ${oficio[data.type]}, ${data.year}.`,
+    datePublished: data.publishedAt.toISOString().slice(0, 10),
+    inLanguage: 'es-MX',
+    creator: { '@id': ID_PERSONA },
+    ...(data.location ? { contentLocation: { '@type': 'Place', name: data.location } } : {}),
+    ...(data.client ? { sourceOrganization: { '@type': 'Organization', name: data.client } } : {}),
+    numberOfItems: data.photoCount,
+    image: piezas.map((pieza) => imagen(pieza.ruta, pieza.alt)),
+  },
+  migas([
+    { nombre: 'inicio', ruta: '/' },
+    { nombre: 'archivo', ruta: '/obra/' },
+    { nombre: data.title.toLowerCase(), ruta: `/obra/${proyecto.slug}/` },
+  ])
+);
 ---
 
 <BaseLayout
-  title={data.title}
-  description={`${data.title} — rollo de ${oficio[data.type]}, ${data.year}. Archivo de Von Diego.`}
+  title={`${data.title} — ${oficio[data.type]}, ${data.year}`}
+  description={`${data.title} — rollo de ${oficio[data.type]}, ${data.year}${data.location ? `, ${data.location}` : ''}. ${data.photoCount} piezas del archivo de Von Diego.`}
+  esquema={esquema}
   image={data.poster}
   imageWidth={data.posterWidth}
   imageHeight={data.posterHeight}
-  imageAlt={`${data.title} — rollo de ${oficio[data.type]}, ${data.year}`}
+  imageAlt={altDe(data.poster, `${data.title} — rollo de ${oficio[data.type]}, ${data.year}`)}
 >
   <main class="contenedor rollo" id="hoja">
     <header class="rollo-cab">

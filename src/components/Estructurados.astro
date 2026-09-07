@@ -1,0 +1,6 @@
+---
+/** Un bloque JSON-LD. No se ve; lo leen los buscadores. */
+interface Props { datos: object }
+const { datos } = Astro.props;
+---
+<script type="application/ld+json" set:html={JSON.stringify(datos)} is:inline />

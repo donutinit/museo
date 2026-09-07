@@ -2,13 +2,31 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Cuadro from '../../components/Cuadro.astro';
 import { archivo } from '../../lib/archivo';
+import { grafo, persona, migas, SITIO, ID_PERSONA } from '../../lib/seo';
 
 const { foto, cinta, piezas } = await archivo();
+
+const esquema = grafo(
+  persona(),
+  {
+    '@type': 'CollectionPage',
+    '@id': `${SITIO}/obra/#archivo`,
+    name: 'Archivo',
+    description: `El archivo completo de Von Diego: ${foto.length} rollos de foto (${piezas} piezas) y ${cinta.length} cintas de video. Monterrey, MX.`,
+    inLanguage: 'es-MX',
+    about: { '@id': ID_PERSONA },
+  },
+  migas([
+    { nombre: 'inicio', ruta: '/' },
+    { nombre: 'archivo', ruta: '/obra/' },
+  ])
+);
 ---
 
 <BaseLayout
-  title="archivo"
-  description="El archivo completo de Von Diego: rollos de foto y cintas de video."
+  title="archivo — foto y video en Monterrey"
+  description={`El archivo completo de Von Diego: ${foto.length} rollos de foto, ${piezas} piezas y ${cinta.length} cintas de video. Monterrey, MX.`}
+  esquema={esquema}
 >
   <section class="contenedor cabecera">
     <h1 class="display cabecera-marca">archivo</h1>

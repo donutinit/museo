@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { cintasPorFecha, kindLabel } from '../../data/videos';
 import { media } from '../../lib/media';
 import { medidaCinta } from '../../lib/archivo';
+import { grafo, persona, cinta as cintaLD, migas } from '../../lib/seo';
 
 export async function getStaticPaths() {
   // el mismo orden que la hoja de /obra#cintas: si ahí una cinta va después de
@@ -20,15 +21,27 @@ export async function getStaticPaths() {
 const { cinta, anterior, siguiente } = Astro.props;
 const titulo = cinta.title.toLowerCase();
 const [pw, ph] = medidaCinta(cinta.aspect);
+const oficio = kindLabel[cinta.kind].toLowerCase();
+
+const esquema = grafo(
+  persona(),
+  cintaLD(cinta),
+  migas([
+    { nombre: 'inicio', ruta: '/' },
+    { nombre: 'archivo', ruta: '/obra/' },
+    { nombre: titulo, ruta: `/video/${cinta.slug}/` },
+  ])
+);
 ---
 
 <BaseLayout
-  title={cinta.title}
+  title={`${cinta.title} — ${oficio}, ${cinta.year}`}
   description={cinta.caption ?? `${cinta.title} — cinta del archivo de Von Diego.`}
+  esquema={esquema}
   image={cinta.poster}
   imageWidth={pw}
   imageHeight={ph}
-  imageAlt={`${cinta.title} — ${kindLabel[cinta.kind].toLowerCase()}, ${cinta.year}`}
+  imageAlt={`${cinta.title} — ${oficio}, ${cinta.year}`}
 >
   <main class="contenedor rollo" id="hoja">
     <div class="visor" style={`--cuadro-aspect: ${cinta.aspect};`}>
@@ -46,7 +59,7 @@ const [pw, ph] = medidaCinta(cinta.aspect);
 
       <dl class="registro micro">
         <div><dt>cinta</dt> <dd>{cinta.slug}</dd></div>
-        <div><dt>oficio</dt> <dd>{kindLabel[cinta.kind].toLowerCase()}</dd></div>
+        <div><dt>oficio</dt> <dd>{oficio}</dd></div>
         <div><dt>año</dt> <dd>{cinta.year}</dd></div>
         <div><dt>corre</dt> <dd>{cinta.durationLabel}</dd></div>
         <div><dt>cuadro</dt> <dd>{cinta.aspect}</dd></div>

@@ -1,8 +1,29 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { grafo, persona, migas, SITIO, ID_PERSONA, CORREO } from '../lib/seo';
+
+const esquema = grafo(
+  persona(),
+  {
+    '@type': 'ContactPage',
+    '@id': `${SITIO}/contact/#contacto`,
+    name: 'Contacto',
+    inLanguage: 'es-MX',
+    mainEntity: { '@id': ID_PERSONA },
+    significantLink: `mailto:${CORREO}`,
+  },
+  migas([
+    { nombre: 'inicio', ruta: '/' },
+    { nombre: 'contacto', ruta: '/contact/' },
+  ])
+);
 ---
 
-<BaseLayout title="contacto" description="Contacto de Von Diego. Monterrey, MX.">
+<BaseLayout
+  title="contacto"
+  description="Contacto de Von Diego para foto, video y documentación. Monterrey, MX."
+  esquema={esquema}
+>
   <main class="contenedor nota" id="hoja">
     <h1 class="display nota-titulo">una dirección basta</h1>
     <a class="direccion" href="mailto:contacto@vondiego.com">contacto@vondiego.com</a>
