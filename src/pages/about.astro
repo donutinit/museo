@@ -2,61 +2,46 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="manifiesto" description="Manifiesto de Von Diego — archivo visual desde Monterrey.">
-  <a href="/obra" class="opening-skip">
-    <span>volver al índice</span>
-    <span aria-hidden="true">↗</span>
-  </a>
+<BaseLayout title="manifiesto" description="Manifiesto de Von Diego. Foto y video desde Monterrey.">
+  <main class="contenedor nota">
+    <h1 class="display nota-titulo">una imagen que sabe cuándo callarse</h1>
 
-  <main class="nota">
-    <section class="nota-hero" aria-labelledby="manifiesto-title">
-      <p class="nota-kicker">vd / manifiesto · monterrey</p>
-      <h1 id="manifiesto-title" class="nota-title">
-        una imagen que sabe <em>cuándo callarse</em>.
-      </h1>
-    </section>
-
-    <section class="nota-body">
-      <div class="nota-copy">
+    <div class="nota-cuerpo">
+      <div class="voz">
         <p>
           Trabajo con imagen fija y en movimiento. No me interesa que todo explique
           demasiado; me interesa que cada pieza encuentre su temperatura.
         </p>
         <p>
-          La cámara no está para decorar. Está para decidir qué se queda, qué se
-          corta y qué tarda en aparecer.
+          La cámara no está para decorar. Está para decidir qué se queda, qué se corta
+          y qué tarda en aparecer.
+        </p>
+        <p>
+          Una hoja de contacto no oculta los descartes: enseña el rollo completo.
+          Así está armado este archivo, rollo por rollo, sin recortar nada para que
+          cuadre en la página.
+        </p>
+        <p>
+          Antes que programador, artista. El código solamente es otra cámara.
         </p>
       </div>
 
-      <dl class="nota-facts">
-        <div><dt>oficio</dt><dd>foto / video / montaje</dd></div>
-        <div><dt>base</dt><dd>monterrey, mx</dd></div>
-        <div><dt>archivo</dt><dd>obra / cintas / encargos</dd></div>
+      <dl class="registro micro">
+        <div><dt>oficio</dt> <dd>foto, video, montaje</dd></div>
+        <div><dt>base</dt> <dd>monterrey, mx</dd></div>
+        <div><dt>archivo</dt> <dd>obra, encargo, cinta</dd></div>
+        <div><dt>correo</dt> <dd>contacto@vondiego.com</dd></div>
       </dl>
-    </section>
+    </div>
 
-    <section class="nota-acts" aria-label="Forma de trabajo">
-      {[
-        ['01', 'mirar', 'estar suficiente tiempo frente a la cosa.'],
-        ['02', 'cortar', 'dejar fuera lo que solo hace ruido.'],
-        ['03', 'entregar', 'que la pieza pueda sostenerse sola.'],
-      ].map(([num, title, copy]) => (
-        <article>
-          <span>{num}</span>
-          <h2>{title}</h2>
-          <p>{copy}</p>
-        </article>
-      ))}
-    </section>
-
-    <nav class="nota-exit" aria-label="Salida">
-      <a href="/contact">
-        <span>contacto</span>
-        <span>contacto@vondiego.com</span>
-      </a>
+    <nav class="paso" aria-label="Salida">
       <a href="/obra">
-        <span>índice</span>
-        <span>obra / cintas</span>
+        <span class="edge">archivo</span>
+        <span class="paso-titulo">los rollos completos</span>
+      </a>
+      <a href="/contact">
+        <span class="edge">contacto</span>
+        <span class="paso-titulo">escribir</span>
       </a>
     </nav>
   </main>

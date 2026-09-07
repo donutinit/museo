@@ -1,116 +1,96 @@
 # dirección visual
 
-dirección elegida: **brutalismo / experimental**. Von Diego quiere algo que destaque, no un portafolio cookie-cutter de "[nombre] | photographer".
+dirección: **la hoja de contacto**.
 
-## sabores brutalistas considerados
+Sale del README de [`donutinit`](https://github.com/donutinit): tira de negativos,
+rebate negro, grano, fuga de luz, y esa paleta de badges. No es una metáfora
+decorativa — es el objeto real del oficio, y de ahí sale toda la estructura del sitio.
 
-estas son las cuatro direcciones discutidas. **pendiente la decisión final** — bloquea el resto del trabajo de código (tipografía, layout, paleta).
+> pendiente de autorización de Von Diego. vive en la rama `hoja-de-contacto`.
 
-### 1. terminal / file-system
+## el objeto
 
-estética de directorio unix. el portafolio se siente como hackear un servidor.
+Una hoja de contacto es papel fotográfico con las tiras impresas al canto. Entre
+cuadro y cuadro el negativo va sin exponer, así que **imprime negro**. El código de
+borde se imprime junto con la imagen porque vive en el negativo. El fotógrafo marca
+con lápiz graso las que sirven.
 
-```
-INDEX OF /museo/
+Eso da la lógica completa:
 
-DRWX  2026-03-15  001_boda_martinez/     [4 reels, 47 fotos]
-DRWX  2026-02-08  002_ed_nike_ss26/      [1 reel, 12 fotos]
-DRWX  2026-01-22  003_retrato_luna/      [23 fotos]
+- **el código de borde es la navegación**, y es dato real: clase de pieza + posición
+- **el rollo es la sección**: proyecto de foto = un rollo; cinta = otro stock
+- **la marca de lápiz graso es el hover/focus** — el único gesto audaz del sitio
 
-> _
-```
+## color
 
-- tipografía: mono pesada (jetbrains mono, fira code, ibm plex mono)
-- paleta: negro + verde fósforo o ámbar (terminal vibes)
-- interacción: cursor blink, comandos tipeados, "ls", "cat", "open"
-- ideal para: alguien que quiere comunicar control técnico + estética nicho
+Seis valores, heredados del README y ajustados sólo donde el contraste lo pedía.
 
-### 2. swiss-brutalist editorial
+| token | hex | papel |
+|---|---|---|
+| `--rebate` | `#141317` | base del negativo entre cuadros |
+| `--papel` | `#d8cfc0` | hueso: texto y lettering de borde |
+| `--grasa` | `#b23a2f` | lápiz graso. **sólo el trazo**, nunca un relleno |
+| `--ambar` | `#d9873f` | código de borde de rollo **foto** |
+| `--verde` | `#7d8c72` | código de borde de rollo **cinta** |
+| `--polvo` | `#837c70` | metadata apagada |
 
-grids estrictos, tipografía sans pesada, color limitado pero refinado. estilo kanye website / balenciaga / yeezy.
+`--polvo` y `--verde` van levantados respecto al README (`#6d6659`, `#5c6b52`): en el
+README eran fondo de badge con texto claro encima; aquí son texto chico sobre negro y
+a esa altura daban 3.4:1 y 3.0:1. Levantados dan 4.7:1 y 4.6:1, sobre el mínimo AA.
 
-```
-███ museo —— 2026 ███
+El color del código de borde codifica el stock. Un sistema haciendo dos trabajos.
 
-01 / work →
-02 / film
-03 / photo
-04 / about
+## tipografía
 
-[reel autoplay full-bleed con type encima]
-```
+Dos familias, ambas variables, ambas de fontsource.
 
-- tipografía: helvetica display, inter display, neue haas grotesk
-- paleta: negro/blanco/un acento (rojo, naranja)
-- interacción: hover transitions duras, sin animaciones suaves
-- ideal para: target editorial / fashion / branding
+- **Archivo Variable** — eje `wdth` 62–125 real, así que el lettering de borde queda
+  condensado de verdad, no falseado con `letter-spacing`.
+  `wdth 62-68` display y código de borde · `wdth 76-82` ui y registro
+- **Newsreader Variable** — la voz que se lee. 17px/1.65, medida máxima 62ch.
 
-### 3. anti-design / dirty
+Salieron `@fontsource-variable/inter` y `@fontsource-variable/jetbrains-mono`: eran
+las defaults que hacían que el sitio se leyera generado, y una fuente de código no es
+lo que va impreso al canto de un negativo. Neto: una dependencia menos.
 
-tipografía mezclada, elementos rotados, overlays semi-rotos, glitch ocasional. zine punk / cargo collective 2010s.
+## layout
 
-```
-  /portafolio/
-   ~videografía~
-        + foto +
-      [scroll]↓↓↓
-   ¿que pedo?
-      *click to enter*
-```
+**Altura de tira constante, ancho de cuadro variable, aspect nativo.** Un 9:16 va
+angosto, un 16:9 va ancho. El ritmo de anchos es la textura. `flex-wrap` deja la
+última tira dispareja, igual que una hoja real.
 
-- tipografía: mix de serif + mono + display rotos
-- paleta: alta saturación, choques cromáticos
-- interacción: micro-interacciones impredecibles, easter eggs
-- ideal para: target cultura / arte / videoclip musical
+Nada se recorta nunca: el ancho sale del aspect del original, verificado contra las
+dimensiones reales de los archivos en R2.
 
-### 4. post-y2k cinematográfico
+Alineado a la izquierda, a bandera. Sin masonry, sin cards de igual tamaño.
 
-brutalismo + estética cine: aspect ratios marcados, letterboxing, type tipo créditos de película.
+## principios
 
-```
-             a film by
+1. la hoja es la interfaz. sin cards, sin radius, sin sombras. cuadro contra negro.
+2. todo número en pantalla es real: año, posición, piezas, duración, cuadro.
+3. nunca recortar. el aspect es información.
+4. una sola cosa audaz: la marca de lápiz sobre el cuadro señalado.
+5. grano estático, una capa. la fuga de luz aparece una sola vez, en la cabecera.
 
-          [tu nombre]
-              ───
+## lo que se retiró
 
-        "reel  2026"
+Del sitio anterior, por leerse como plantilla:
 
-      [▶ play]  [■ work]
-```
+- el gate «¿estás listo? clickeame» y el autoplay con sonido al scrollear
+- numeración romana `i/09 … x/10` sobre contenido que no es una secuencia
+- `<em>` sobre una palabra en cada titular, sin excepción
+- metadata pegada con puntos medios: `A · B · C · D`
+- eyebrows en versalitas trackeadas encima de cada encabezado
 
-- tipografía: times / didone / display tipo créditos
-- paleta: cinematográfica, negros profundos, highlights cálidos
-- interacción: transitions tipo wipe/fade de cine
-- ideal para: posicionarse como director / dp más que como fotógrafo
+## los cuatro sabores que se consideraron
 
-## decisión pendiente
+Historia, para no volver a discutirlos: terminal/file-system, swiss-brutalist
+editorial, anti-design/dirty, y post-y2k cinematográfico. El sitio anterior tiraba al
+cuarto. La hoja de contacto se quedó porque no es un estilo prestado de otra
+industria: es el objeto con el que ya trabaja Von Diego.
 
-esperando que Von Diego confirme cuál de los cuatro. cualquiera funciona pero implican:
+## referencias
 
-- distinto sistema tipográfico
-- distinto tono de interacción
-- distinto target implícito
-
-ver [06-roadmap.md](./06-roadmap.md) — esto es el siguiente bloqueo antes de empezar a codear.
-
-## referencias visuales recomendadas
-
-(para construir moodboard, sin importar el sabor elegido)
-
-- **balenciaga.com** — swiss-brutalist
-- **bloomberg terminal screenshots** — terminal
-- **yeezy.com archivos en wayback machine** — swiss-brutalist + post-y2k
-- **cargo.site** — anti-design, cargo era
-- **a24films.com** — post-y2k cinematográfico
-- **are.na** — buscar "brutalist web", "terminal aesthetic", "y2k portfolio"
-- **siteinspire.com** — categoría minimal/experimental
-
-## consideraciones específicas para video/foto
-
-independiente del sabor, hay decisiones de presentación que aplican a cualquier dirección:
-
-- **dark mode por defecto**: el color en video/foto se aprecia mejor sobre fondo oscuro
-- **aspect ratios honestos**: no recortar reels a un cuadrado solo por layout — usar el aspect original o letterbox limpio
-- **transitions entre proyectos**: view transitions api permite seguir un thumbnail al detalle del proyecto sin "salto" — muy cinematográfico
-- **carga progresiva**: blurhash o thumbhash en lugar de un loader genérico — más editorial
-- **modo "contact sheet"** opcional: vista densa de todas las fotos de una sesión, estilo hoja de contactos de fotógrafo análogo
+- el README de `donutinit` — la fuente real de la paleta y el grano
+- hojas de contacto de Magnum, marcadas con lápiz graso
+- lettering de borde de Kodak e Ilford

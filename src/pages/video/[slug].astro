@@ -4,94 +4,63 @@ import { videos, kindLabel } from '../../data/videos';
 import { media } from '../../lib/media';
 
 export async function getStaticPaths() {
-  return videos.map((v, i) => ({
-    params: { slug: v.slug },
+  return videos.map((cinta, i) => ({
+    params: { slug: cinta.slug },
     props: {
-      video: v,
-      index: i,
-      total: videos.length,
-      prev: videos[i - 1] ?? null,
-      next: videos[i + 1] ?? null,
+      cinta,
+      anterior: videos[i - 1] ?? null,
+      siguiente: videos[i + 1] ?? null,
     },
   }));
 }
 
-const { video, index, total, prev, next } = Astro.props;
-const plate = String(index + 1).padStart(2, '0');
-const totalLabel = String(total).padStart(2, '0');
-const aspectClass = `cine--${video.aspect.replace('/', '-')}`;
-const aspectStyle = `--cine-aspect: ${video.aspect};`;
-const formattedTitle = video.title.toLowerCase();
+const { cinta, anterior, siguiente } = Astro.props;
+const titulo = cinta.title.toLowerCase();
 ---
 
 <BaseLayout
-  title={video.title}
-  description={video.caption ?? `${video.title} — pieza de video del archivo de Von Diego.`}
+  title={cinta.title}
+  description={cinta.caption ?? `${cinta.title} — cinta del archivo de Von Diego.`}
+  image={cinta.poster}
 >
-  <a href="/obra" class="opening-skip">
-    <span>volver al índice</span>
-    <span aria-hidden="true">↗</span>
-  </a>
+  <main class="contenedor rollo">
+    <div class="visor" style={`--cuadro-aspect: ${cinta.aspect};`}>
+      <video controls playsinline preload="metadata" poster={media(cinta.poster)}>
+        <source src={media(cinta.src)} type="video/mp4" />
+        Tu navegador no puede reproducir esta cinta.
+      </video>
+    </div>
 
-  <main class={`cine ${aspectClass}`} style={aspectStyle}>
-    <header class="cine-rail">
-      <p>
-        <span class="text-mid">{plate}</span>
-        <span aria-hidden="true"> / </span>
-        <span>{totalLabel}</span>
-      </p>
-      <p>{video.tape ?? kindLabel[video.kind]}</p>
-      <p>{kindLabel[video.kind]} · {video.year} · {video.durationLabel}</p>
+    <header class="rollo-cab rollo-cab--cinta">
+      <div>
+        <h1 class="display rollo-titulo">{titulo}</h1>
+        {cinta.caption && <p class="voz cita">{cinta.caption}</p>}
+      </div>
+
+      <dl class="registro micro">
+        <div><dt>cinta</dt> <dd>{cinta.slug}</dd></div>
+        <div><dt>oficio</dt> <dd>{kindLabel[cinta.kind].toLowerCase()}</dd></div>
+        <div><dt>año</dt> <dd>{cinta.year}</dd></div>
+        <div><dt>corre</dt> <dd>{cinta.durationLabel}</dd></div>
+        <div><dt>cuadro</dt> <dd>{cinta.aspect}</dd></div>
+        <div><dt>formato</dt> <dd>h.264 aac</dd></div>
+      </dl>
     </header>
 
-    <section class="cine-stage">
-      <div class="cine-frame">
-        <video
-          autoplay
-          controls
-          playsinline
-          preload="metadata"
-          poster={media(video.poster)}
-        >
-          <source src={media(video.src)} type="video/mp4" />
-          Tu navegador no puede reproducir esto.
-        </video>
-      </div>
-    </section>
-
-    <section class="cine-meta">
-      <div class="cine-meta-main">
-        <p class="cine-kicker">{video.tape ?? 'pieza · archivo'}</p>
-        <h1 class="cine-title"><em>{formattedTitle.split(' — ')[0]}</em>{formattedTitle.includes(' — ') ? ` — ${formattedTitle.split(' — ')[1]}` : ''}.</h1>
-        {video.caption && <p class="cine-caption">«{video.caption}»</p>}
-      </div>
-
-      <aside class="cine-register">
-        <p class="cine-kicker">registro</p>
-        <dl class="cine-facts">
-          <div><dt>tipo</dt><dd>{kindLabel[video.kind]}</dd></div>
-          <div><dt>año</dt><dd>{video.year}</dd></div>
-          <div><dt>corre</dt><dd>{video.durationLabel}</dd></div>
-          <div><dt>cuadro</dt><dd>{video.aspect}</dd></div>
-          <div><dt>formato</dt><dd>mp4 · h264 · aac</dd></div>
-        </dl>
-      </aside>
-    </section>
-
-    <nav class="cine-nav">
-      {prev ? (
-        <a href={`/video/${prev.slug}`} class="cine-nav-link group">
-          <span class="cine-kicker">← anterior</span>
-          <span class="cine-nav-title">{prev.title.toLowerCase()}</span>
+    <nav class="paso" aria-label="Cintas vecinas">
+      {anterior ? (
+        <a href={`/video/${anterior.slug}`}>
+          <span class="edge">cinta anterior</span>
+          <span class="paso-titulo">{anterior.title.toLowerCase().split(/\s+—\s+/)[0]}</span>
         </a>
-      ) : <div />}
+      ) : <span />}
 
-      {next ? (
-        <a href={`/video/${next.slug}`} class="cine-nav-link cine-nav-link--next group">
-          <span class="cine-kicker">siguiente →</span>
-          <span class="cine-nav-title">{next.title.toLowerCase()}</span>
+      {siguiente ? (
+        <a href={`/video/${siguiente.slug}`}>
+          <span class="edge">cinta siguiente</span>
+          <span class="paso-titulo">{siguiente.title.toLowerCase().split(/\s+—\s+/)[0]}</span>
         </a>
-      ) : <div />}
+      ) : <span />}
     </nav>
   </main>
 </BaseLayout>

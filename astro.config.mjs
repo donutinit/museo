@@ -3,12 +3,12 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://vondiego.com',
+  site: 'https://www.vondiego.com',
   integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()],
   },
   image: {
-    domains: ['vondiego.com'],
+    domains: ['www.vondiego.com'],
   },
 });

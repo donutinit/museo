@@ -6,22 +6,30 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
-  bare?: boolean;
+  /** El reel va a pantalla completa: sin rail ni colofón encima. */
+  desnudo?: boolean;
 }
 
 const {
   title,
-  description = 'Archivo en movimiento — Von Diego, Monterrey.',
-  image = '/media/video-posters/entrevista-yolanda.jpg',
-  bare = false,
+  description = 'Archivo de foto y video de Von Diego. Monterrey, MX.',
+  image = '/media/posters/cerrandociclos.webp',
+  desnudo = false,
 } = Astro.props;
 
-const fullTitle = title ? `${title} — vd` : 'vd · archivo';
+const fullTitle = title ? `${title} — Von Diego` : 'Von Diego — archivo';
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const socialImage = new URL(media(image), Astro.site);
-const path = Astro.url.pathname;
-const isOpening = path === '/' || path === '';
-const isManifest = path === '/about' || path === '/about/';
+
+const ruta = Astro.url.pathname.replace(/\/$/, '') || '/';
+const enRuta = (base: string) => ruta === base || ruta.startsWith(`${base}/`);
+const enPortada = ruta === '/';
+
+const nav = [
+  { href: '/obra', label: 'archivo', activa: enRuta('/obra') || enRuta('/video') },
+  { href: '/about', label: 'manifiesto', activa: enRuta('/about') },
+  { href: '/contact', label: 'contacto', activa: enRuta('/contact') },
+];
 ---
 
 <!doctype html>
@@ -34,31 +42,81 @@ const isManifest = path === '/about' || path === '/about/';
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#07060a" />
+    <meta name="theme-color" content="#0d0c0f" />
+    <link rel="preconnect" href="https://media.vondiego.com" crossorigin />
 
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
-    <meta property="og:site_name" content="vd" />
+    <meta property="og:site_name" content="Von Diego" />
     <meta property="og:image" content={socialImage} />
+    <meta property="og:locale" content="es_MX" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content={socialImage} />
   </head>
+
   <body>
-    {!bare && (
-      <a href="/" class="mark" aria-label="Inicio">
-        <span>vd</span>
-        <span>archivo</span>
-      </a>
+    {!desnudo && <a class="saltar edge" href="#hoja">Saltar a la hoja</a>}
+
+    {!desnudo && (
+    <header class="rail">
+      <div class="contenedor rail-in">
+        {!enPortada && <a class="rail-marca" href="/">von diego</a>}
+        <nav class="rail-nav" aria-label="Secciones">
+          {nav.map((i) => (
+            <a href={i.href} aria-current={i.activa ? 'page' : undefined}>{i.label}</a>
+          ))}
+        </nav>
+      </div>
+    </header>
     )}
 
     <slot />
 
-    {!bare && !isOpening && !isManifest && (
-      <p class="credits">
-        <a href="/about">manifiesto →</a>
-      </p>
+    {!desnudo && (
+    <footer class="colofon">
+      <div class="contenedor colofon-in">
+        <p class="edge">von diego — archivo de foto y video</p>
+        <p class="edge">monterrey, mx</p>
+        <a class="edge" href="mailto:contacto@vondiego.com">contacto@vondiego.com</a>
+      </div>
+    </footer>
     )}
+
+    <script>
+      // Las cintas de la hoja corren sólo cuando alguien las señala, y no se
+      // descargan hasta entonces. En táctil y con movimiento reducido, quietas.
+      const fino = window.matchMedia('(hover: hover) and (pointer: fine)');
+      const quieto = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      if (fino.matches && !quieto.matches) {
+        document.querySelectorAll<HTMLAnchorElement>('.cuadro[data-cinta]').forEach((cuadro) => {
+          const video = cuadro.querySelector('video');
+          const fuente = cuadro.dataset.cinta;
+          if (!video || !fuente) return;
+
+          let espera = 0;
+
+          cuadro.addEventListener('pointerenter', () => {
+            window.clearTimeout(espera);
+            // un respiro, para no bajar video al pasar el ratón de largo
+            espera = window.setTimeout(() => {
+              if (!video.src) video.src = fuente;
+              video.play().then(
+                () => { cuadro.dataset.corriendo = 'true'; },
+                () => {}
+              );
+            }, 120);
+          });
+
+          cuadro.addEventListener('pointerleave', () => {
+            window.clearTimeout(espera);
+            delete cuadro.dataset.corriendo;
+            video.pause();
+          });
+        });
+      }
+    </script>
   </body>
 </html>

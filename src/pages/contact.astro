@@ -2,51 +2,35 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="contacto" description="Contacto de Von Diego.">
-  <a href="/obra" class="opening-skip">
-    <span>volver al índice</span>
-    <span aria-hidden="true">↗</span>
-  </a>
+<BaseLayout title="contacto" description="Contacto de Von Diego. Monterrey, MX.">
+  <main class="contenedor nota">
+    <h1 class="display nota-titulo">una dirección basta</h1>
+    <a class="direccion" href="mailto:contacto@vondiego.com">contacto@vondiego.com</a>
 
-  <main class="nota nota--contacto">
-    <section class="nota-hero" aria-labelledby="contacto-title">
-      <p class="nota-kicker">vd / contacto · monterrey</p>
-      <h1 id="contacto-title" class="nota-title">
-        una dirección <em>basta</em>.
-      </h1>
-    </section>
-
-    <section class="nota-contact">
-      <p class="nota-kicker">correo</p>
-      <a href="mailto:contacto@vondiego.com">contacto@vondiego.com</a>
-    </section>
-
-    <section class="nota-body">
-      <div class="nota-copy">
+    <div class="nota-cuerpo">
+      <div class="voz">
         <p>
           Para obra, documentación, video, retrato o una conversación concreta.
           Si hay algo que decir, escríbelo directo.
         </p>
-        <p>
-          No hay formulario. No hay embudo. No hay teatro.
-        </p>
+        <p>No hay formulario. No hay embudo. No hay teatro.</p>
       </div>
 
-      <dl class="nota-facts">
-        <div><dt>base</dt><dd>monterrey, mx</dd></div>
-        <div><dt>respuesta</dt><dd>días hábiles</dd></div>
-        <div><dt>salida</dt><dd>foto / video / archivo</dd></div>
+      <dl class="registro micro">
+        <div><dt>base</dt> <dd>monterrey, mx</dd></div>
+        <div><dt>respuesta</dt> <dd>días hábiles</dd></div>
+        <div><dt>salida</dt> <dd>foto, video, archivo</dd></div>
       </dl>
-    </section>
+    </div>
 
-    <nav class="nota-exit" aria-label="Salida">
-      <a href="/about">
-        <span>manifiesto</span>
-        <span>lo que sostiene la obra</span>
-      </a>
+    <nav class="paso" aria-label="Salida">
       <a href="/obra">
-        <span>índice</span>
-        <span>obra / cintas</span>
+        <span class="edge">archivo</span>
+        <span class="paso-titulo">los rollos completos</span>
+      </a>
+      <a href="/about">
+        <span class="edge">manifiesto</span>
+        <span class="paso-titulo">lo que sostiene la obra</span>
       </a>
     </nav>
   </main>
