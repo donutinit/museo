@@ -44,10 +44,10 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
-  /* En pantalla chica las placas de foto pasan del alto de la ventana —hasta el
-     doble— y ahí `mandatory` pelea con el dedo. Se queda suave abajo y agresivo
-     arriba, donde todas las placas caben. */
-  scroll-snap-type: y proximity;
+  /* Una placa por ventana, un gesto por fragmento: el snap agarra duro a
+     cualquier ancho. Si alguna placa rebasara la ventana, el navegador deja
+     recorrerla entera antes de encajar la siguiente. */
+  scroll-snap-type: y mandatory;
   background: var(--fondo);
   color: var(--papel);
   color-scheme: dark;
@@ -55,11 +55,6 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-size-adjust: 100%;
-}
-
-/* de aquí para arriba toda placa cabe en la ventana, así que el snap agarra duro */
-@media (min-width: 64rem) {
-  html { scroll-snap-type: y mandatory; }
 }
 
 body {
@@ -665,6 +660,7 @@ button.cuadro { display: block; text-align: left; }
   align-content: center;
   gap: clamp(1.25rem, 3.5vh, 2.5rem);
   scroll-snap-align: start;
+  scroll-snap-stop: always; /* un gesto largo no se brinca placas */
 }
 
 /* la cinta ocupa toda la pantalla: el eje que topa primero manda y el otro
