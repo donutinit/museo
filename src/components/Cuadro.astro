@@ -1,0 +1,41 @@
+---
+import type { Cuadro } from '../lib/archivo';
+
+interface Props {
+  cuadro: Cuadro;
+  /** Posición en esta hoja. Se imprime al canto, como en un negativo. */
+  posicion: number;
+  eager?: boolean;
+}
+
+const { cuadro, posicion, eager = false } = Astro.props;
+const nn = String(posicion).padStart(2, '0');
+---
+
+<a
+  class="cuadro"
+  href={cuadro.href}
+  data-stock={cuadro.stock}
+  data-cinta={cuadro.cinta}
+  style={`--ratio: ${cuadro.ratio.toFixed(5)};`}
+>
+  <span class="cuadro-media">
+    <img
+      src={cuadro.src}
+      alt=""
+      width={cuadro.w}
+      height={cuadro.h}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding={eager ? 'sync' : 'async'}
+    />
+    {cuadro.cinta && <video muted loop playsinline preload="none" tabindex="-1" aria-hidden="true"></video>}
+  </span>
+
+  <span class="cuadro-pie">
+    <span class="cuadro-titulo">{cuadro.titulo}</span>
+    <span class="cuadro-codigo">
+      <span>{cuadro.clase} {nn}</span>
+      <span>{cuadro.dato}</span>
+    </span>
+  </span>
+</a>

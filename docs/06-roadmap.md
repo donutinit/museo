@@ -9,11 +9,14 @@
 - [x] `.gitignore` configurado para astro + media pesada
 - [x] `CLAUDE.md` con instrucciones de estilo (commits one-liner, etc)
 - [x] git + ssh funcionando contra github
+- [x] dirección visual decidida: la hoja de contacto
+- [x] sistema tipográfico: archivo variable + newsreader variable
+- [x] deploy en cloudflare workers, media en el bucket r2 `museo`
 
-## bloqueado, esperando a Von Diego
+## esperando a Von Diego
 
-- [ ] **decidir sabor brutalista** (ver [05-direccion-visual.md](./05-direccion-visual.md)) — bloquea tipografía, paleta, layout
-- [ ] **decidir dominio/subdominio final** — bloquea config de cloudflare tunnel
+- [ ] **autorizar el rediseño** de la rama `hoja-de-contacto`
+      (ver [05-direccion-visual.md](./05-direccion-visual.md))
 
 ## en cola
 

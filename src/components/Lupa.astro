@@ -1,0 +1,30 @@
+---
+/**
+ * La foto en grande. Se arrastra de lado como carrusel y abajo dice dónde vas:
+ * puntitos cuando el rollo es corto, cuenta cuando es largo y los puntos ya no
+ * se leerían. El contenido lo arma `montarLupa` en el cliente.
+ */
+---
+
+<div
+  class="lupa"
+  data-lupa-visor
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Pieza en grande"
+>
+  <button type="button" class="lupa-cerrar edge" data-lupa-cerrar>cerrar</button>
+  <button type="button" class="lupa-paso edge" data-dir="prev" data-lupa-mover="-1" aria-label="Anterior">
+    anterior
+  </button>
+
+  <div class="lupa-carrusel" data-lupa-carrusel></div>
+
+  <button type="button" class="lupa-paso edge" data-dir="next" data-lupa-mover="1" aria-label="Siguiente">
+    siguiente
+  </button>
+
+  <ol class="lupa-puntos" data-lupa-puntos aria-hidden="true"></ol>
+  <p class="lupa-pie edge" data-lupa-pie aria-live="polite"></p>
+</div>
