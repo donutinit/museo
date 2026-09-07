@@ -119,7 +119,7 @@ Settings → Secrets and variables → Actions:
 | secret | valor |
 |---|---|
 | `CLOUDFLARE_API_TOKEN` | un token **sin filtro de IP** |
-| `CLOUDFLARE_ACCOUNT_ID` | `<account-id-redactado>` |
+| `CLOUDFLARE_ACCOUNT_ID` | lo saca el dashboard: Workers & Pages → Overview, columna derecha |
 
 **Ya están puestos** (sept 2026). Ver la nota de alcance del token en
 "deploy automático" más arriba.
