@@ -7,7 +7,7 @@ El sitio funciona como una sala oscura: opening cinematográfico, índice visual
 ## stack
 
 - Astro 5, build estático.
-- Tailwind 4 vía Vite, aunque la mayor parte del sistema visual vive en `src/styles/global.css`.
+- Todo el sistema visual en CSS a mano, en `src/styles/global.css`. Sin framework de estilos.
 - Fuentes locales por `@fontsource-variable`.
 - Cloudflare Workers Static Assets sirve el HTML estático.
 - Cloudflare R2 sirve la media pesada desde `media.vondiego.com`.
