@@ -17,8 +17,7 @@ Primero lee [`AGENTS.md`](./AGENTS.md). Ese archivo es la fuente principal para 
 - Nombre profesional: `Von Diego`.
 - GitHub / handle técnico: `donutinit`.
 - Dominio: `vondiego.com`.
-- Email público: `contacto@vondiego.com`.
-- Email personal: `contacto@vondiego.com`.
+- Email: `contacto@vondiego.com`. Es el único que se publica.
 
 Usa `Von Diego` en sitio, copy, créditos y documentación pública.
 Usa `donutinit` solo para URLs técnicas como GitHub, GHCR o Instagram.
