@@ -63,4 +63,14 @@ const titulo = cinta.title.toLowerCase();
       ) : <span />}
     </nav>
   </main>
+
+  <script>
+    import { velar, dormir } from '../../lib/vela';
+
+    // mientras corre la cinta, la pantalla no se apaga
+    const cinta = document.querySelector('video');
+    cinta?.addEventListener('play', velar);
+    cinta?.addEventListener('pause', dormir);
+    cinta?.addEventListener('ended', dormir);
+  </script>
 </BaseLayout>

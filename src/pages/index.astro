@@ -146,6 +146,7 @@ import Lupa from '../components/Lupa.astro';
 
   <script>
     import { montarLupa } from '../lib/lupa';
+    import { velar, dormir } from '../lib/vela';
 
     /** El mismo corte que usa el CSS: abajo de esto la placa es carrusel. */
     const enRetícula = window.matchMedia('(min-width: 48rem)');
@@ -261,6 +262,7 @@ import Lupa from '../components/Lupa.astro';
         if (estado.quiereSonido) v.volume = 1;
         try {
           await v.play();
+          velar(); // mientras corre la cinta, la pantalla no se apaga
           if (estado.quiereSonido && !v.muted) {
             estado.faltaGesto = false;
             pintarBoton();
@@ -277,6 +279,7 @@ import Lupa from '../components/Lupa.astro';
       const sincronizar = (porGesto = false) => {
         if (!estado.listo || lupaAbierta()) {
           cintas.forEach((v) => v.pause());
+          dormir(); // sin cinta en cuadro, la pantalla puede apagarse
           return;
         }
         const siguiente = cintaEnCuadro();
@@ -287,6 +290,7 @@ import Lupa from '../components/Lupa.astro';
           }
         });
         if (siguiente) correr(siguiente, porGesto);
+        else dormir();
       };
 
       resincronizar = sincronizar;
@@ -345,7 +349,10 @@ import Lupa from '../components/Lupa.astro';
       window.addEventListener('scroll', agendar, { passive: true });
       window.addEventListener('resize', agendar, { passive: true });
       document.addEventListener('visibilitychange', () => {
-        if (document.hidden) cintas.forEach((v) => v.pause());
+        if (document.hidden) {
+          cintas.forEach((v) => v.pause());
+          dormir();
+        }
         else agendar();
       });
 
