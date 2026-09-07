@@ -857,6 +857,20 @@ button.cuadro { display: block; text-align: left; }
 
 .placa--carrusel { --tira: clamp(9.5rem, 31vh, 21rem); }
 
+/* El script de la portada mide si la retícula rebasa la ventana y la reduce
+   con --escala hasta caber: ninguna placa pasa del alto de la pantalla y el
+   snap nunca tiene que decidir a qué orilla engancharse. Sin JS, la placa
+   crece como antes y se recorre normal. */
+.placa--carrusel[data-ajustada="true"] {
+  height: 100dvh;
+  align-content: start;
+  overflow: clip;
+}
+.placa--carrusel[data-ajustada="true"] .carrusel {
+  transform: scale(var(--escala, 1));
+  transform-origin: top center;
+}
+
 .carrusel {
   display: flex;
   flex-wrap: wrap;
