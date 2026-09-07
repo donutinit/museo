@@ -7,8 +7,8 @@ photoCount: 10
 photosDir: /media/projects/cerrandociclos/
 photosPrefix: cerrandociclos
 poster: /media/posters/cerrandociclos.webp
-thumbnail: /media/thumbnails/cerrandociclos.webp
-featured: true
+posterWidth: 1200
+posterHeight: 1800
 publishedAt: 2024-09-30
 ---
 

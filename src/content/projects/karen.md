@@ -7,8 +7,8 @@ photoCount: 4
 photosDir: /media/projects/karen/
 photosPrefix: karen
 poster: /media/posters/karen.webp
-thumbnail: /media/thumbnails/karen.webp
-featured: false
+posterWidth: 1440
+posterHeight: 1800
 publishedAt: 2025-06-08
 ---
 

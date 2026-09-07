@@ -6,8 +6,8 @@ photoCount: 7
 photosDir: /media/projects/apice/
 photosPrefix: apice
 poster: /media/posters/apice.webp
-thumbnail: /media/thumbnails/apice.webp
-featured: false
+posterWidth: 1200
+posterHeight: 1800
 publishedAt: 2025-08-10
 ---
 

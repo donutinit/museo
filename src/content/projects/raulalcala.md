@@ -7,8 +7,8 @@ photoCount: 26
 photosDir: /media/projects/raulalcala/
 photosPrefix: raulalcala
 poster: /media/posters/raulalcala.webp
-thumbnail: /media/thumbnails/raulalcala.webp
-featured: false
+posterWidth: 1440
+posterHeight: 1800
 publishedAt: 2025-02-18
 ---
 

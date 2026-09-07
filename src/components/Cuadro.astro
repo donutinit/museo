@@ -1,5 +1,6 @@
 ---
 import type { Cuadro } from '../lib/archivo';
+import { media, srcset } from '../lib/media';
 
 interface Props {
   cuadro: Cuadro;
@@ -10,18 +11,24 @@ interface Props {
 
 const { cuadro, posicion, eager = false } = Astro.props;
 const nn = String(posicion).padStart(2, '0');
+
+// en la hoja el cuadro nunca pasa de ~350 px de ancho: pedir el original de
+// 1200 px era bajar cuatro veces lo que se pinta
+const SIZES = '(max-width: 40rem) 45vw, 350px';
 ---
 
 <a
   class="cuadro"
   href={cuadro.href}
   data-stock={cuadro.stock}
-  data-cinta={cuadro.cinta}
+  data-cinta={cuadro.cinta && media(cuadro.cinta)}
   style={`--ratio: ${cuadro.ratio.toFixed(5)};`}
 >
   <span class="cuadro-media">
     <img
-      src={cuadro.src}
+      src={media(cuadro.src)}
+      srcset={srcset(cuadro.src)}
+      sizes={SIZES}
       alt=""
       width={cuadro.w}
       height={cuadro.h}

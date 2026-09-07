@@ -1,14 +1,27 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { placas } from '../data/reel';
-import { media } from '../lib/media';
+import { cintaPorSlug } from '../data/videos';
+import { media, srcset } from '../lib/media';
 import Lupa from '../components/Lupa.astro';
+
+// el póster de la primera placa es lo que manda en el primer pintado
+const primeraCinta = cintaPorSlug(
+  (placas.find((p) => p.kind === 'video') as { slug: string }).slug
+);
+
+// en el carrusel la lámina no pasa de ~500 px de ancho en escritorio
+const SIZES = '(max-width: 47.99rem) 100vw, 500px';
 ---
 
 <BaseLayout
   desnudo
   description="Foto y video desde Monterrey. El archivo de Von Diego: obra, encargo y cinta."
+  precargar={primeraCinta.poster}
 >
+  {/* Sin JS el gate no se puede quitar y taparía el sitio entero. */}
+  <noscript><style>{`.gate { display: none !important; }`}</style></noscript>
+
   <div class="gate" data-gate role="dialog" aria-modal="true" aria-labelledby="gate-titulo">
     <div class="gate-in">
       <p class="edge">von diego / archivo</p>
@@ -24,21 +37,28 @@ import Lupa from '../components/Lupa.astro';
 
   <a href="/obra" class="saltar-reel edge">saltar al archivo</a>
 
-  <button
-    type="button"
-    class="sonido edge"
-    data-sonido
-    data-on="true"
-    aria-pressed="true"
-    aria-label="Silenciar"
-  >
-    <span class="sonido-punto" aria-hidden="true"></span>
-    <span data-sonido-label>sonido on</span>
-  </button>
+  <div class="mandos">
+    <button type="button" class="mando edge" data-pausa aria-pressed="false">
+      <span data-pausa-label>pausa</span>
+    </button>
+    <button
+      type="button"
+      class="mando edge"
+      data-sonido
+      data-on="true"
+      aria-pressed="true"
+      aria-label="Silenciar"
+    >
+      <span class="sonido-punto" aria-hidden="true"></span>
+      <span data-sonido-label>sonido on</span>
+    </button>
+  </div>
 
   <Lupa />
 
   <main>
+    <h1 class="fuera">Von Diego — archivo de foto y video, Monterrey</h1>
+
     {placas.map((placa, i) => {
       if (placa.kind === 'final') {
         return (
@@ -76,13 +96,15 @@ import Lupa from '../components/Lupa.astro';
                 <button
                   type="button"
                   class="carrusel-lamina"
-                  data-lupa-src={foto.src}
+                  data-lupa-src={media(foto.src)}
                   data-lupa-alt={foto.alt}
                   aria-label={`Abrir ${foto.alt} en grande`}
                   style={`--ratio: ${(foto.width / foto.height).toFixed(5)};`}
                 >
                   <img
-                    src={foto.src}
+                    src={media(foto.src)}
+                    srcset={srcset(foto.src)}
+                    sizes={SIZES}
                     alt=""
                     width={foto.width}
                     height={foto.height}
@@ -100,24 +122,25 @@ import Lupa from '../components/Lupa.astro';
         );
       }
 
-      const razon = placa.aspect === '16/9' ? 1.7778 : placa.aspect === '4/3' ? 1.3333 : 0.5625;
+      const cinta = cintaPorSlug(placa.slug);
+      const razon = cinta.aspect === '16/9' ? 1.7778 : cinta.aspect === '4/3' ? 1.3333 : 0.5625;
 
       return (
         <section
           class="placa placa--cinta"
           data-placa={i}
           data-girar={placa.girar ? 'true' : undefined}
-          style={`--aspect: ${placa.aspect}; --razon: ${razon};`}
+          style={`--aspect: ${cinta.aspect}; --razon: ${razon};`}
         >
           <div class="placa-lecho">
             <video
               data-placa-video
               loop
               playsinline
-              preload={i === 0 ? 'auto' : 'metadata'}
-              poster={media(placa.poster)}
+              preload="none"
+              poster={media(cinta.poster)}
             >
-              <source src={media(placa.src)} type="video/mp4" />
+              <source src={media(cinta.src)} type="video/mp4" />
             </video>
           </div>
 
@@ -125,12 +148,13 @@ import Lupa from '../components/Lupa.astro';
             <p class="placa-codigo edge">
               <span>{placa.code}</span>
               <span>{placa.where}</span>
-              <span>vd / {placa.year}</span>
-              <span>cinta {placa.aspect}</span>
+              <span>vd / {String(cinta.year).slice(-2)}</span>
+              <span>cinta {cinta.aspect}</span>
             </p>
             <h2 class="placa-linea">
               {placa.line} <em>{placa.lineEm}</em>.
             </h2>
+            <a class="placa-ir edge" href={`/video/${cinta.slug}`}>ver la cinta</a>
           </div>
 
           {i === 0 && (
@@ -145,11 +169,13 @@ import Lupa from '../components/Lupa.astro';
   </main>
 
   <script>
-    import { montarLupa } from '../lib/lupa';
+    import { montarLupa, lupaAbierta } from '../lib/lupa';
+    import { atrapar } from '../lib/foco';
     import { velar, dormir } from '../lib/vela';
 
     /** El mismo corte que usa el CSS: abajo de esto la placa es carrusel. */
     const enRetícula = window.matchMedia('(min-width: 48rem)');
+    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     // En escritorio cada retícula debe caber en una pantalla: si rebasa, se
     // reduce con --escala. Una placa que mide la ventana exacta nunca obliga
@@ -187,178 +213,205 @@ import Lupa from '../components/Lupa.astro';
     document.fonts?.ready.then(ajustarRetículas);
     window.addEventListener('resize', ajustarRetículas, { passive: true });
 
-    /** La lupa la usa para callar las cintas mientras se ve una foto. */
-    let resincronizar: ((porGesto?: boolean) => void) | null = null;
+    // ── el estado del reel, y el motor que lo mueve ──────────────────────
+    // Con movimiento reducido el reel arranca detenido: quien lo quiera
+    // corriendo lo prende, en vez de que le caiga encima.
+    const estado = {
+      listo: false,
+      quiereSonido: true,
+      faltaGesto: false,
+      pausado: quieto.matches,
+    };
 
-    const gate = document.querySelector<HTMLElement>('[data-gate]');
-    const gateBoton = document.querySelector<HTMLButtonElement>('[data-gate-boton]');
-    const boton = document.querySelector<HTMLButtonElement>('[data-sonido]');
-    const etiqueta = document.querySelector<HTMLSpanElement>('[data-sonido-label]');
     const placasCinta = Array.from(document.querySelectorAll<HTMLElement>('.placa--cinta'));
     const cintas = placasCinta
       .map((p) => p.querySelector<HTMLVideoElement>('[data-placa-video]'))
       .filter((v): v is HTMLVideoElement => Boolean(v));
 
-    if (gate) document.documentElement.style.overflow = 'hidden';
+    /** Los mandos la reasignan; mientras tanto no pinta nada. */
+    let pintarMandos: () => void = () => {};
 
-    if (boton && etiqueta) {
-      const estado = { listo: false, quiereSonido: true, faltaGesto: false };
-      let cuadroPendiente = 0;
+    const visible = (el: HTMLElement) => {
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      const vw = window.innerWidth || document.documentElement.clientWidth;
+      const h = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+      const w = Math.min(r.right, vw) - Math.max(r.left, 0);
+      if (h <= 0 || w <= 0 || r.height <= 0 || r.width <= 0) return 0;
+      return (h * w) / (r.height * r.width);
+    };
 
-      const pintarBoton = () => {
-        boton.setAttribute('aria-pressed', String(estado.quiereSonido));
-        boton.setAttribute('aria-label', estado.quiereSonido ? 'Silenciar' : 'Activar sonido');
-        boton.dataset.on = String(estado.quiereSonido);
-        etiqueta.textContent = estado.quiereSonido
+    /** La cinta que manda es la más cerca del centro del cuadro. */
+    const cintaEnCuadro = () => {
+      const centro = (window.innerHeight || document.documentElement.clientHeight) / 2;
+      let distancia = Number.POSITIVE_INFINITY;
+      let razon = 0;
+      let elegida: HTMLVideoElement | null = null;
+
+      placasCinta.forEach((placa) => {
+        const video = placa.querySelector<HTMLVideoElement>('[data-placa-video]');
+        if (!video) return;
+        const r = visible(placa);
+        if (r < 0.2) return;
+        const caja = placa.getBoundingClientRect();
+        const d = Math.abs((caja.top + caja.bottom) / 2 - centro);
+        if (!elegida || r > razon + 0.12 || d < distancia) {
+          distancia = d;
+          razon = r;
+          elegida = video;
+        }
+      });
+
+      return elegida;
+    };
+
+    const callarOtras = (menos: HTMLVideoElement | null) => {
+      cintas.forEach((otra) => {
+        if (otra !== menos) {
+          otra.pause();
+          otra.muted = true;
+        }
+      });
+    };
+
+    const correr = async (v: HTMLVideoElement, porGesto = false) => {
+      if (!estado.listo || estado.pausado) return;
+      callarOtras(v);
+      v.muted = !estado.quiereSonido;
+      if (estado.quiereSonido) v.volume = 1;
+      try {
+        await v.play();
+        velar(); // mientras corre la cinta, la pantalla no se apaga
+        if (estado.quiereSonido && !v.muted) {
+          estado.faltaGesto = false;
+          pintarMandos();
+        }
+      } catch {
+        if (!estado.quiereSonido || porGesto) return;
+        estado.faltaGesto = true;
+        pintarMandos();
+        v.muted = true;
+        try { await v.play(); } catch {}
+      }
+    };
+
+    const sincronizar = (porGesto = false) => {
+      if (!estado.listo || estado.pausado || lupaAbierta()) {
+        cintas.forEach((v) => v.pause());
+        dormir(); // sin cinta en cuadro, la pantalla puede apagarse
+        return;
+      }
+      const siguiente = cintaEnCuadro();
+      callarOtras(siguiente);
+      if (siguiente) correr(siguiente, porGesto);
+      else dormir();
+    };
+
+    let cuadroPendiente = 0;
+    const agendar = () => {
+      if (cuadroPendiente) return;
+      cuadroPendiente = window.requestAnimationFrame(() => {
+        cuadroPendiente = 0;
+        sincronizar();
+      });
+    };
+
+    // ── el gate: no depende de ningún mando ─────────────────────────────
+    const gate = document.querySelector<HTMLElement>('[data-gate]');
+    const gateBoton = document.querySelector<HTMLButtonElement>('[data-gate-boton]');
+
+    if (gate && gateBoton) {
+      document.documentElement.style.overflow = 'hidden';
+      const soltarFoco = atrapar(gate);
+      gateBoton.focus({ preventScroll: true });
+
+      gateBoton.addEventListener('click', () => {
+        estado.listo = true;
+        estado.quiereSonido = true;
+        estado.faltaGesto = false;
+        soltarFoco();
+        gate.setAttribute('data-ido', 'true');
+        gate.setAttribute('aria-hidden', 'true');
+        document.documentElement.style.overflow = '';
+        pintarMandos();
+        sincronizar(true);
+      });
+    } else {
+      // sin gate no hay gesto que pedir: el reel arranca en cuanto se pueda
+      estado.listo = true;
+    }
+
+    // ── los mandos: sonido y pausa ──────────────────────────────────────
+    const botonSonido = document.querySelector<HTMLButtonElement>('[data-sonido]');
+    const etiquetaSonido = document.querySelector<HTMLSpanElement>('[data-sonido-label]');
+    const botonPausa = document.querySelector<HTMLButtonElement>('[data-pausa]');
+    const etiquetaPausa = document.querySelector<HTMLSpanElement>('[data-pausa-label]');
+
+    if (botonSonido && etiquetaSonido) {
+      pintarMandos = () => {
+        botonSonido.setAttribute('aria-pressed', String(estado.quiereSonido));
+        botonSonido.setAttribute(
+          'aria-label',
+          estado.quiereSonido ? 'Silenciar' : 'Activar sonido'
+        );
+        botonSonido.dataset.on = String(estado.quiereSonido);
+        etiquetaSonido.textContent = estado.quiereSonido
           ? estado.faltaGesto
             ? 'toca sonido'
             : 'sonido on'
           : 'sonido off';
-      };
 
-      const visible = (el: HTMLElement) => {
-        const r = el.getBoundingClientRect();
-        const vh = window.innerHeight || document.documentElement.clientHeight;
-        const vw = window.innerWidth || document.documentElement.clientWidth;
-        const h = Math.min(r.bottom, vh) - Math.max(r.top, 0);
-        const w = Math.min(r.right, vw) - Math.max(r.left, 0);
-        if (h <= 0 || w <= 0 || r.height <= 0 || r.width <= 0) return 0;
-        return (h * w) / (r.height * r.width);
-      };
-
-      /** La cinta que manda es la más cerca del centro del cuadro. */
-      const cintaEnCuadro = () => {
-        const centro = (window.innerHeight || document.documentElement.clientHeight) / 2;
-        let distancia = Number.POSITIVE_INFINITY;
-        let razon = 0;
-        let elegida: HTMLVideoElement | null = null;
-
-        placasCinta.forEach((placa) => {
-          const video = placa.querySelector<HTMLVideoElement>('[data-placa-video]');
-          if (!video) return;
-          const r = visible(placa);
-          if (r < 0.2) return;
-          const caja = placa.getBoundingClientRect();
-          const d = Math.abs((caja.top + caja.bottom) / 2 - centro);
-          if (!elegida || r > razon + 0.12 || d < distancia) {
-            distancia = d;
-            razon = r;
-            elegida = video;
-          }
-        });
-
-        return elegida;
-      };
-
-      const correr = async (v: HTMLVideoElement, porGesto = false) => {
-        if (!estado.listo) return;
-        cintas.forEach((otra) => {
-          if (otra !== v) {
-            otra.pause();
-            otra.muted = true;
-          }
-        });
-        v.muted = !estado.quiereSonido;
-        if (estado.quiereSonido) v.volume = 1;
-        try {
-          await v.play();
-          velar(); // mientras corre la cinta, la pantalla no se apaga
-          if (estado.quiereSonido && !v.muted) {
-            estado.faltaGesto = false;
-            pintarBoton();
-          }
-        } catch {
-          if (!estado.quiereSonido || porGesto) return;
-          estado.faltaGesto = true;
-          pintarBoton();
-          v.muted = true;
-          try { await v.play(); } catch {}
+        if (botonPausa && etiquetaPausa) {
+          botonPausa.setAttribute('aria-pressed', String(estado.pausado));
+          botonPausa.setAttribute(
+            'aria-label',
+            estado.pausado ? 'Reanudar el reel' : 'Detener el reel'
+          );
+          etiquetaPausa.textContent = estado.pausado ? 'correr' : 'pausa';
         }
       };
 
-      const sincronizar = (porGesto = false) => {
-        if (!estado.listo || lupaAbierta()) {
-          cintas.forEach((v) => v.pause());
-          dormir(); // sin cinta en cuadro, la pantalla puede apagarse
-          return;
-        }
-        const siguiente = cintaEnCuadro();
-        cintas.forEach((v) => {
-          if (v !== siguiente) {
-            v.pause();
-            v.muted = true;
-          }
-        });
-        if (siguiente) correr(siguiente, porGesto);
-        else dormir();
-      };
-
-      resincronizar = sincronizar;
-
-      const agendar = () => {
-        if (cuadroPendiente) return;
-        cuadroPendiente = window.requestAnimationFrame(() => {
-          cuadroPendiente = 0;
-          sincronizar();
-        });
-      };
-
-      const observador = new IntersectionObserver(agendar, { threshold: [0, 0.2, 0.45, 0.7, 1] });
-      placasCinta.forEach((p) => observador.observe(p));
-
-      cintas.forEach((v) => {
-        v.addEventListener('play', () => {
-          cintas.forEach((otra) => {
-            if (otra !== v) {
-              otra.pause();
-              otra.muted = true;
-            }
-          });
-        });
-      });
-
-      boton.addEventListener('click', () => {
+      botonSonido.addEventListener('click', () => {
         estado.quiereSonido = !estado.quiereSonido;
         if (!estado.quiereSonido) estado.faltaGesto = false;
-        pintarBoton();
+        pintarMandos();
         sincronizar(true);
       });
-
-      const lupaAbierta = () =>
-        Boolean(document.querySelector('[data-lupa-visor][data-abierta="true"]'));
-
-      const reintentar = () => {
-        if (!estado.listo || !estado.quiereSonido || lupaAbierta()) return;
-        sincronizar(true);
-      };
-
-      gateBoton?.addEventListener('click', () => {
-        estado.listo = true;
-        estado.quiereSonido = true;
-        estado.faltaGesto = false;
-        gate?.setAttribute('data-ido', 'true');
-        gate?.setAttribute('aria-hidden', 'true');
-        document.documentElement.style.overflow = '';
-        pintarBoton();
-        sincronizar(true);
-      });
-
-      window.addEventListener('pointerdown', reintentar);
-      window.addEventListener('touchend', reintentar, { passive: true });
-      window.addEventListener('keydown', reintentar);
-      window.addEventListener('scroll', agendar, { passive: true });
-      window.addEventListener('resize', agendar, { passive: true });
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          cintas.forEach((v) => v.pause());
-          dormir();
-        }
-        else agendar();
-      });
-
-      pintarBoton();
-      cintas.forEach((v) => v.pause());
     }
+
+    // WCAG 2.2.2: algo que se mueve solo y no para necesita cómo pararlo.
+    botonPausa?.addEventListener('click', () => {
+      estado.pausado = !estado.pausado;
+      pintarMandos();
+      sincronizar(true);
+    });
+
+    const observador = new IntersectionObserver(agendar, {
+      threshold: [0, 0.2, 0.45, 0.7, 1],
+    });
+    placasCinta.forEach((p) => observador.observe(p));
+
+    cintas.forEach((v) => v.addEventListener('play', () => callarOtras(v)));
+
+    const reintentar = () => {
+      if (!estado.listo || estado.pausado || !estado.quiereSonido || lupaAbierta()) return;
+      sincronizar(true);
+    };
+
+    window.addEventListener('pointerdown', reintentar);
+    window.addEventListener('touchend', reintentar, { passive: true });
+    window.addEventListener('keydown', reintentar);
+    window.addEventListener('scroll', agendar, { passive: true });
+    window.addEventListener('resize', agendar, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        cintas.forEach((v) => v.pause());
+        dormir();
+      } else agendar();
+    });
+
+    pintarMandos();
+    cintas.forEach((v) => v.pause());
 
     // la copia entra al asomarse la placa; la cinta se apaga sola a los 10 s
     const CALLAR_A_LOS = 10_000;
@@ -424,7 +477,7 @@ import Lupa from '../components/Lupa.astro';
         document
           .querySelectorAll<HTMLVideoElement>('[data-placa-video]')
           .forEach((v) => v.pause()),
-      alCerrar: () => resincronizar?.(true),
+      alCerrar: () => sincronizar(true),
     });
   </script>
 </BaseLayout>

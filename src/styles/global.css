@@ -44,10 +44,6 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
-  /* Una placa por ventana, un gesto por fragmento: el snap agarra duro a
-     cualquier ancho. Si alguna placa rebasara la ventana, el navegador deja
-     recorrerla entera antes de encajar la siguiente. */
-  scroll-snap-type: y mandatory;
   background: var(--fondo);
   color: var(--papel);
   color-scheme: dark;
@@ -69,6 +65,14 @@ img, video { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 ul, ol { list-style: none; }
+
+/* Una placa por ventana, un gesto por fragmento: el snap agarra duro a
+   cualquier ancho. Si alguna placa rebasara la ventana, el navegador deja
+   recorrerla entera antes de encajar la siguiente.
+
+   Sólo donde hay placas: en /obra y en las notas no hay nada que encajar, y
+   un snap obligatorio sin destinos sólo puede estorbar. */
+html:has(.placa) { scroll-snap-type: y mandatory; }
 
 /* ─── el grano del papel: una capa, estática, sobre todo ─── */
 body::after {
@@ -239,7 +243,6 @@ main { flex: 1 0 auto; }
   min-height: 3.1rem;
 }
 .cuadro-titulo {
-  display: block;
   font-family: var(--f-edge);
   font-size: 0.75rem;
   font-stretch: 76%;
@@ -500,6 +503,19 @@ main { flex: 1 0 auto; }
   outline-offset: 3px;
 }
 
+/* fuera de cuadro: lo lee un lector de pantalla, no lo ve nadie */
+.fuera {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .saltar {
   position: absolute;
   left: -9999px;
@@ -580,7 +596,7 @@ button.cuadro { display: block; text-align: left; }
 
 .rollo-cab--cinta { margin-top: clamp(2rem, 6vh, 3.5rem); }
 
-/* en portada el nombre lo carga el h1; el rail no lo repite */
+/* en portada no hay rail: la marca la carga el gate y el h1 fuera de cuadro */
 .rail-nav { margin-left: auto; }
 
 /* ═════════════════════════════════════════════════════════
@@ -626,29 +642,41 @@ button.cuadro { display: block; text-align: left; }
   .gate-accion--fina { display: none; }
 }
 
-/* los dos mandos flotantes */
-.saltar-reel, .sonido {
+/* los mandos flotantes */
+.saltar-reel, .mandos {
   position: fixed;
   z-index: 80;
+}
+.saltar-reel {
+  top: 1.1rem;
+  right: var(--margen);
   color: var(--polvo);
   transition: color 160ms ease;
 }
-.saltar-reel:hover, .sonido:hover { color: var(--papel); }
-.saltar-reel { top: 1.1rem; right: var(--margen); }
-.sonido {
+.saltar-reel:hover { color: var(--papel); }
+
+.mandos {
   bottom: 1.1rem;
   right: var(--margen);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: clamp(1rem, 3.5vw, 1.75rem);
 }
+.mando {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--polvo);
+  transition: color 160ms ease;
+}
+.mando:hover { color: var(--papel); }
 .sonido-punto {
   width: 0.4rem;
   height: 0.4rem;
   background: var(--polvo);
   transition: background 160ms ease;
 }
-.sonido[data-on="true"] .sonido-punto { background: var(--ambar); }
+.mando[data-sonido][data-on="true"] .sonido-punto { background: var(--ambar); }
 
 /* la placa */
 /* la placa mide la ventana visible de verdad (dvh): con svh, al encogerse
@@ -739,6 +767,16 @@ button.cuadro { display: block; text-align: left; }
 }
 .placa--dentro .placa-copia { opacity: 1; translate: none; }
 .placa--callada .placa-copia { opacity: 0.34; }
+
+/* de la placa a la cinta completa: discreto, al canto, como el resto */
+.placa-ir {
+  justify-self: start;
+  margin-top: 0.35rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--grasa) 70%, transparent);
+  transition: color 160ms ease;
+}
+.placa-ir:hover { color: var(--papel); }
 
 .placa-salida { display: flex; flex-wrap: wrap; align-items: baseline; gap: 1rem 2rem; margin-top: 0.75rem; }
 

@@ -7,8 +7,8 @@ photoCount: 31
 photosDir: /media/projects/ebikecamp/
 photosPrefix: ebikecamp
 poster: /media/posters/ebikecamp.webp
-thumbnail: /media/thumbnails/ebikecamp.webp
-featured: false
+posterWidth: 1920
+posterHeight: 2880
 publishedAt: 2025-03-22
 ---
 

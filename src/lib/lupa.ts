@@ -5,6 +5,8 @@
  * fotos van juntas: en la portada el grupo es la placa; en un rollo, todo el
  * rollo.
  */
+import { atrapar } from './foco';
+
 export interface OpcionesLupa {
   /** Qué fotos se recorren a partir de la que se abrió. */
   grupoDe: (boton: HTMLButtonElement) => HTMLButtonElement[];
@@ -31,6 +33,7 @@ export function montarLupa({ grupoDe, puedeAbrir, alAbrir, alCerrar }: OpcionesL
   let grupo: HTMLButtonElement[] = [];
   let posicion = -1;
   let volverA: HTMLElement | null = null;
+  let soltarFoco: (() => void) | null = null;
 
   const pintar = () => {
     puntos?.querySelectorAll<HTMLElement>('li').forEach((punto, i) => {
@@ -110,9 +113,12 @@ export function montarLupa({ grupoDe, puedeAbrir, alAbrir, alCerrar }: OpcionesL
     pintar();
     window.requestAnimationFrame(() => irA(inicio, false));
     document.querySelector<HTMLButtonElement>('[data-lupa-cerrar]')?.focus();
+    soltarFoco = atrapar(visor);
   };
 
   const cerrar = () => {
+    soltarFoco?.();
+    soltarFoco = null;
     delete visor.dataset.abierta;
     visor.setAttribute('aria-hidden', 'true');
     carrusel.replaceChildren();

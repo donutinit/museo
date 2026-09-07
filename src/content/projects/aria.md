@@ -8,8 +8,8 @@ photoCount: 6
 photosDir: /media/projects/aria/
 photosPrefix: aria
 poster: /media/posters/aria.webp
-thumbnail: /media/thumbnails/aria.webp
-featured: false
+posterWidth: 1600
+posterHeight: 1067
 publishedAt: 2024-11-20
 ---
 

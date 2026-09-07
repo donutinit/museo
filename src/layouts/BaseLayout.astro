@@ -6,6 +6,12 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
+  /** Medida nativa de la imagen social: decide si la tarjeta va grande o chica. */
+  imageWidth?: number;
+  imageHeight?: number;
+  imageAlt?: string;
+  /** Imagen que manda en el primer pintado; se precarga con prioridad. */
+  precargar?: string;
   /** El reel va a pantalla completa: sin rail ni colofón encima. */
   desnudo?: boolean;
 }
@@ -13,13 +19,22 @@ interface Props {
 const {
   title,
   description = 'Archivo de foto y video de Von Diego. Monterrey, MX.',
-  image = '/media/posters/cerrandociclos.webp',
+  // apaisada a propósito: la tarjeta social es 1.91:1 y una vertical se recorta
+  image = '/media/video-posters/entrevista-yolanda.jpg',
+  imageWidth = 1920,
+  imageHeight = 1080,
+  imageAlt = 'Archivo de foto y video de Von Diego',
+  precargar,
   desnudo = false,
 } = Astro.props;
 
 const fullTitle = title ? `${title} — Von Diego` : 'Von Diego — archivo';
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const socialImage = new URL(media(image), Astro.site);
+
+// una vertical recortada al 1.91:1 de `summary_large_image` queda decapitada;
+// para esas, la tarjeta chica respeta la imagen completa
+const tarjeta = imageWidth >= imageHeight ? 'summary_large_image' : 'summary';
 
 const ruta = Astro.url.pathname.replace(/\/$/, '') || '/';
 const enRuta = (base: string) => ruta === base || ruta.startsWith(`${base}/`);
@@ -37,13 +52,19 @@ const nav = [
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="generator" content={Astro.generator} />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#0d0c0f" />
-    <link rel="preconnect" href="https://media.vondiego.com" crossorigin />
+
+    {/* sin `crossorigin`: img y video van en modo no-CORS y ese es el pool que
+        hay que calentar. Con el atributo se precalienta el pool equivocado. */}
+    <link rel="preconnect" href="https://media.vondiego.com" />
+
+    {precargar && (
+      <link rel="preload" as="image" href={media(precargar)} fetchpriority="high" />
+    )}
 
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -51,9 +72,13 @@ const nav = [
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="Von Diego" />
     <meta property="og:image" content={socialImage} />
+    <meta property="og:image:width" content={String(imageWidth)} />
+    <meta property="og:image:height" content={String(imageHeight)} />
+    <meta property="og:image:alt" content={imageAlt} />
     <meta property="og:locale" content="es_MX" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:card" content={tarjeta} />
     <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content={imageAlt} />
   </head>
 
   <body>

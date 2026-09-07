@@ -7,8 +7,8 @@ photoCount: 16
 photosDir: /media/projects/bikefest/
 photosPrefix: bikefest
 poster: /media/posters/bikefest.webp
-thumbnail: /media/thumbnails/bikefest.webp
-featured: false
+posterWidth: 1440
+posterHeight: 1800
 publishedAt: 2025-05-15
 ---
 

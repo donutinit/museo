@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { media } from '../../lib/media';
+import { media, srcset, medidaDe } from '../../lib/media';
 import { oficio } from '../../lib/archivo';
 import Lupa from '../../components/Lupa.astro';
 
@@ -32,20 +32,32 @@ const { Content } = await proyecto.render();
 
 const piezas = Array.from({ length: data.photoCount }, (_, i) => {
   const nn = String(i + 1).padStart(2, '0');
+  const ruta = `${data.photosDir}${data.photosPrefix}-${nn}.jpg`;
+  const medida = medidaDe(ruta);
   return {
     nn,
-    src: media(`${data.photosDir}${data.photosPrefix}-${nn}.jpg`),
+    ruta,
+    src: media(ruta),
+    conjunto: srcset(ruta),
+    w: medida?.[0],
+    h: medida?.[1],
     alt: `${data.title}, pieza ${i + 1}`,
   };
 });
+
+// en el rollo la pieza llega a ~620 px en escritorio y a la ventana en móvil
+const SIZES = '(max-width: 47.99rem) 100vw, 620px';
 ---
 
 <BaseLayout
   title={data.title}
   description={`${data.title} — rollo de ${oficio[data.type]}, ${data.year}. Archivo de Von Diego.`}
   image={data.poster}
+  imageWidth={data.posterWidth}
+  imageHeight={data.posterHeight}
+  imageAlt={`${data.title} — rollo de ${oficio[data.type]}, ${data.year}`}
 >
-  <main class="contenedor rollo">
+  <main class="contenedor rollo" id="hoja">
     <header class="rollo-cab">
       <div>
         <h1 class="display rollo-titulo">{data.title}</h1>
@@ -62,7 +74,7 @@ const piezas = Array.from({ length: data.photoCount }, (_, i) => {
       </dl>
     </header>
 
-    <div class="hoja hoja--intrinseca rollo-hoja" id="hoja">
+    <div class="hoja hoja--intrinseca rollo-hoja">
       {piezas.map((pieza, i) => (
         <button
           type="button"
@@ -74,7 +86,11 @@ const piezas = Array.from({ length: data.photoCount }, (_, i) => {
           <span class="cuadro-media">
             <img
               src={pieza.src}
+              srcset={pieza.conjunto}
+              sizes={SIZES}
               alt={pieza.alt}
+              width={pieza.w}
+              height={pieza.h}
               loading={i < 4 ? 'eager' : 'lazy'}
               decoding={i < 4 ? 'sync' : 'async'}
             />

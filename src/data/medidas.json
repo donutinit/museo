@@ -1,0 +1,914 @@
+{
+  "/media/posters/apice.webp": [
+    1200,
+    1800
+  ],
+  "/media/posters/aria.webp": [
+    1600,
+    1067
+  ],
+  "/media/posters/bikefest.webp": [
+    1440,
+    1800
+  ],
+  "/media/posters/bikeparkesfera.webp": [
+    1440,
+    1800
+  ],
+  "/media/posters/cerrandociclos.webp": [
+    1200,
+    1800
+  ],
+  "/media/posters/donaestereso.webp": [
+    1200,
+    1800
+  ],
+  "/media/posters/ebikecamp.webp": [
+    1920,
+    2880
+  ],
+  "/media/posters/karen.webp": [
+    1440,
+    1800
+  ],
+  "/media/posters/marchas.webp": [
+    1200,
+    1800
+  ],
+  "/media/posters/poasadas.webp": [
+    1200,
+    1800
+  ],
+  "/media/posters/raulalcala.webp": [
+    1440,
+    1800
+  ],
+  "/media/posters/zara.webp": [
+    1440,
+    1800
+  ],
+  "/media/projects/apice/apice-01.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/apice/apice-02.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/apice/apice-03.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/apice/apice-04.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/apice/apice-05.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/apice/apice-06.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/apice/apice-07.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/aria/aria-01.jpg": [
+    1600,
+    1067
+  ],
+  "/media/projects/aria/aria-02.jpg": [
+    1600,
+    1067
+  ],
+  "/media/projects/aria/aria-03.jpg": [
+    1600,
+    1067
+  ],
+  "/media/projects/aria/aria-04.jpg": [
+    1067,
+    1600
+  ],
+  "/media/projects/aria/aria-05.jpg": [
+    1600,
+    1067
+  ],
+  "/media/projects/aria/aria-06.jpg": [
+    1067,
+    1600
+  ],
+  "/media/projects/bikefest/bikefest-01.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-02.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-03.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-04.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-05.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-06.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-07.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-08.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-09.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-10.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-11.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-12.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-13.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-14.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-15.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikefest/bikefest-16.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-01.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-02.jpg": [
+    1800,
+    1012
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-03.jpg": [
+    1800,
+    1013
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-04.jpg": [
+    1800,
+    1012
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-05.jpg": [
+    1800,
+    1012
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-06.jpg": [
+    1800,
+    1013
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-07.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-08.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-09.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-10.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-11.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-12.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-13.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-14.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-15.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-16.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-17.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-18.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-19.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-20.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/bikeparkesfera/bikeparkesfera-21.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/cerrandociclos/cerrandociclos-01.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/cerrandociclos/cerrandociclos-02.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/cerrandociclos/cerrandociclos-03.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/cerrandociclos/cerrandociclos-04.jpg": [
+    1200,
+    2133
+  ],
+  "/media/projects/cerrandociclos/cerrandociclos-05.jpg": [
+    1200,
+    2133
+  ],
+  "/media/projects/cerrandociclos/cerrandociclos-06.jpg": [
+    1200,
+    2133
+  ],
+  "/media/projects/cerrandociclos/cerrandociclos-07.jpg": [
+    1200,
+    2133
+  ],
+  "/media/projects/cerrandociclos/cerrandociclos-08.jpg": [
+    1200,
+    2133
+  ],
+  "/media/projects/cerrandociclos/cerrandociclos-09.jpg": [
+    1200,
+    2133
+  ],
+  "/media/projects/cerrandociclos/cerrandociclos-10.jpg": [
+    1200,
+    2133
+  ],
+  "/media/projects/donaestereso/donaestereso-01.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-02.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/donaestereso/donaestereso-03.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-04.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-05.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/donaestereso/donaestereso-06.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-07.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-08.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/donaestereso/donaestereso-09.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/donaestereso/donaestereso-10.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-11.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-12.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-13.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-14.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-15.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-16.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-17.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-18.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/donaestereso/donaestereso-19.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/donaestereso/donaestereso-20.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/donaestereso/donaestereso-21.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-22.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/donaestereso/donaestereso-23.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-24.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-25.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/donaestereso/donaestereso-26.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/donaestereso/donaestereso-27.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/ebikecamp/ebikecamp-01.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-02.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-03.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-04.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-05.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-06.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-07.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-08.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-09.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-10.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-11.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-12.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-13.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-14.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-15.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-16.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-17.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-18.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-19.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-20.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-21.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-22.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-23.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-24.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-25.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/ebikecamp/ebikecamp-26.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-27.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-28.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-29.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-30.jpg": [
+    1920,
+    2880
+  ],
+  "/media/projects/ebikecamp/ebikecamp-31.jpg": [
+    3840,
+    2560
+  ],
+  "/media/projects/karen/karen-01.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/karen/karen-02.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/karen/karen-03.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/karen/karen-04.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/marchas/marchas-01.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/marchas/marchas-02.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/marchas/marchas-03.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/marchas/marchas-04.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/marchas/marchas-05.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/marchas/marchas-06.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/marchas/marchas-07.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/marchas/marchas-08.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/marchas/marchas-09.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/marchas/marchas-10.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/marchas/marchas-11.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/marchas/marchas-12.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/marchas/marchas-13.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/marchas/marchas-14.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/marchas/marchas-15.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-01.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-02.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-03.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-04.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-05.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-06.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-07.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-08.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-09.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-10.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-11.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-12.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-13.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-14.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-15.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-16.jpg": [
+    1379,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-17.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-18.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-19.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-20.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-21.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-22.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-23.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-24.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-25.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-26.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-27.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-28.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-29.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-30.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-31.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-32.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-33.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-34.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-35.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/poasadas/poasadas-36.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-37.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/poasadas/poasadas-38.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-01.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-02.jpg": [
+    1800,
+    958
+  ],
+  "/media/projects/raulalcala/raulalcala-03.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-04.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-05.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-06.jpg": [
+    1013,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-07.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/raulalcala/raulalcala-08.jpg": [
+    1013,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-09.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-10.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-11.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-12.jpg": [
+    1200,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-13.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-14.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/raulalcala/raulalcala-15.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/raulalcala/raulalcala-16.jpg": [
+    1800,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-17.jpg": [
+    1800,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-18.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/raulalcala/raulalcala-19.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/raulalcala/raulalcala-20.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/raulalcala/raulalcala-21.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/raulalcala/raulalcala-22.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/raulalcala/raulalcala-23.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/raulalcala/raulalcala-24.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/raulalcala/raulalcala-25.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/raulalcala/raulalcala-26.jpg": [
+    1800,
+    1200
+  ],
+  "/media/projects/zara/zara-01.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/zara/zara-02.jpg": [
+    1440,
+    1800
+  ],
+  "/media/projects/zara/zara-03.jpg": [
+    1376,
+    1800
+  ],
+  "/media/video-posters/aria-lk.jpg": [
+    1080,
+    1920
+  ],
+  "/media/video-posters/aria-wavtech.jpg": [
+    1080,
+    1920
+  ],
+  "/media/video-posters/cuvisa-joselin.jpg": [
+    1080,
+    1920
+  ],
+  "/media/video-posters/drummond-infinniguard.jpg": [
+    1080,
+    1920
+  ],
+  "/media/video-posters/entrevista-beto.jpg": [
+    1920,
+    1080
+  ],
+  "/media/video-posters/entrevista-lalo.jpg": [
+    1920,
+    1080
+  ],
+  "/media/video-posters/entrevista-maricela.jpg": [
+    1920,
+    1080
+  ],
+  "/media/video-posters/entrevista-missael-vhs.jpg": [
+    640,
+    480
+  ],
+  "/media/video-posters/entrevista-yolanda.jpg": [
+    1920,
+    1080
+  ],
+  "/media/video-posters/parto.jpg": [
+    1080,
+    810
+  ],
+  "/media/video-posters/presentacion-nave.jpg": [
+    1080,
+    1920
+  ],
+  "/media/video-posters/recepcion-250-toneladas.jpg": [
+    1080,
+    1920
+  ]
+}

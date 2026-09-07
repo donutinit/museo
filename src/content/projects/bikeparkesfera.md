@@ -7,8 +7,8 @@ photoCount: 21
 photosDir: /media/projects/bikeparkesfera/
 photosPrefix: bikeparkesfera
 poster: /media/posters/bikeparkesfera.webp
-thumbnail: /media/thumbnails/bikeparkesfera.webp
-featured: false
+posterWidth: 1440
+posterHeight: 1800
 publishedAt: 2025-04-12
 ---
 

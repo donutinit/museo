@@ -6,8 +6,8 @@ photoCount: 3
 photosDir: /media/projects/zara/
 photosPrefix: zara
 poster: /media/posters/zara.webp
-thumbnail: /media/thumbnails/zara.webp
-featured: false
+posterWidth: 1440
+posterHeight: 1800
 publishedAt: 2025-07-04
 ---
 

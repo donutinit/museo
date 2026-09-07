@@ -6,8 +6,8 @@ photoCount: 38
 photosDir: /media/projects/poasadas/
 photosPrefix: poasadas
 poster: /media/posters/poasadas.webp
-thumbnail: /media/thumbnails/poasadas.webp
-featured: false
+posterWidth: 1200
+posterHeight: 1800
 publishedAt: 2024-12-22
 ---
 

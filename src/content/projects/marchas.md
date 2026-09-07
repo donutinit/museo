@@ -6,8 +6,8 @@ photoCount: 15
 photosDir: /media/projects/marchas/
 photosPrefix: marchas
 poster: /media/posters/marchas.webp
-thumbnail: /media/thumbnails/marchas.webp
-featured: false
+posterWidth: 1200
+posterHeight: 1800
 publishedAt: 2024-07-14
 ---
 

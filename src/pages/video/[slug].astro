@@ -1,29 +1,36 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { videos, kindLabel } from '../../data/videos';
+import { cintasPorFecha, kindLabel } from '../../data/videos';
 import { media } from '../../lib/media';
+import { medidaCinta } from '../../lib/archivo';
 
 export async function getStaticPaths() {
-  return videos.map((cinta, i) => ({
+  // el mismo orden que la hoja de /obra#cintas: si ahí una cinta va después de
+  // otra, aquí "siguiente" tiene que llevar a esa misma
+  return cintasPorFecha.map((cinta, i) => ({
     params: { slug: cinta.slug },
     props: {
       cinta,
-      anterior: videos[i - 1] ?? null,
-      siguiente: videos[i + 1] ?? null,
+      anterior: cintasPorFecha[i - 1] ?? null,
+      siguiente: cintasPorFecha[i + 1] ?? null,
     },
   }));
 }
 
 const { cinta, anterior, siguiente } = Astro.props;
 const titulo = cinta.title.toLowerCase();
+const [pw, ph] = medidaCinta(cinta.aspect);
 ---
 
 <BaseLayout
   title={cinta.title}
   description={cinta.caption ?? `${cinta.title} — cinta del archivo de Von Diego.`}
   image={cinta.poster}
+  imageWidth={pw}
+  imageHeight={ph}
+  imageAlt={`${cinta.title} — ${kindLabel[cinta.kind].toLowerCase()}, ${cinta.year}`}
 >
-  <main class="contenedor rollo">
+  <main class="contenedor rollo" id="hoja">
     <div class="visor" style={`--cuadro-aspect: ${cinta.aspect};`}>
       <video controls playsinline preload="metadata" poster={media(cinta.poster)}>
         <source src={media(cinta.src)} type="video/mp4" />

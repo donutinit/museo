@@ -6,8 +6,8 @@ photoCount: 27
 photosDir: /media/projects/donaestereso/
 photosPrefix: donaestereso
 poster: /media/posters/donaestereso.webp
-thumbnail: /media/thumbnails/donaestereso.webp
-featured: false
+posterWidth: 1200
+posterHeight: 1800
 publishedAt: 2024-11-02
 ---
 

@@ -12,8 +12,9 @@ const projects = defineCollection({
     photosDir: z.string(),
     photosPrefix: z.string(),
     poster: z.string(),
-    thumbnail: z.string(),
-    featured: z.boolean().default(false),
+    /** Medida nativa del póster: de aquí sale el aspect del cuadro en la hoja. */
+    posterWidth: z.number().int().positive(),
+    posterHeight: z.number().int().positive(),
     publishedAt: z.coerce.date(),
   }),
 });
