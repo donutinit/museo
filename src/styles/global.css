@@ -913,6 +913,7 @@ button.cuadro { display: block; text-align: left; }
   .carrusel {
     flex-wrap: nowrap;
     justify-content: flex-start; /* hereda center: con overflow recortaría la primera foto */
+    align-items: stretch; /* hereda flex-start de la retícula: sin esto las láminas pegan arriba */
     gap: 0;
     width: 100%;
     min-height: 100dvh;
