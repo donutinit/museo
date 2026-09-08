@@ -16,7 +16,7 @@
   --grasa:  #b23a2f;
   --ambar:  #d9873f;
   --verde:  #7d8c72;
-  --polvo:  #837c70;
+  --polvo:  #857e72;
 
   /* derivados */
   --fondo:  #0d0c0f;
@@ -51,6 +51,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -128,16 +129,20 @@ body::after {
   line-height: 1.65;
   color: color-mix(in oklab, var(--papel) 88%, transparent);
   max-width: var(--medida);
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 .voz p + p { margin-top: 1.05em; }
 .voz em { font-style: italic; }
 .voz a { border-bottom: 1px solid var(--polvo); }
-.voz a:hover { border-bottom-color: var(--grasa); color: var(--papel); }
+.voz a:hover,
+.voz a:focus-visible { border-bottom-color: var(--grasa); color: var(--papel); }
 
 /* ═════ armazón ═════ */
 
 .contenedor {
   width: 100%;
+  min-width: 0;
   max-width: var(--ancho);
   margin-inline: auto;
   padding-inline: var(--margen);
@@ -158,7 +163,9 @@ body::after {
   justify-content: space-between;
   gap: 1.5rem;
   padding-block: 0.85rem;
+  min-width: 0;
 }
+.rail-marca { flex: 0 0 auto; }
 .rail-marca {
   font-family: var(--f-edge);
   font-size: 0.9375rem;
@@ -167,7 +174,7 @@ body::after {
   letter-spacing: 0.14em;
   color: var(--papel);
 }
-.rail-nav { display: flex; gap: clamp(0.9rem, 3vw, 2rem); }
+.rail-nav { display: flex; min-width: 0; gap: clamp(0.9rem, 3vw, 2rem); }
 .rail-nav a {
   font-family: var(--f-edge);
   font-size: 0.75rem;
@@ -179,9 +186,10 @@ body::after {
   transition: color 140ms ease, border-color 140ms ease;
 }
 .rail-nav a:hover,
+.rail-nav a:focus-visible,
 .rail-nav a[aria-current="page"] { color: var(--papel); border-bottom-color: var(--grasa); }
 
-main { flex: 1 0 auto; }
+main { flex: 1 0 auto; width: 100%; min-width: 0; }
 
 /* colofón */
 .colofon {
@@ -196,7 +204,8 @@ main { flex: 1 0 auto; }
   align-items: baseline;
   padding-block: 1.5rem 2.5rem;
 }
-.colofon a:hover { color: var(--papel); }
+.colofon a:hover,
+.colofon a:focus-visible { color: var(--papel); }
 
 /* los perfiles: sordos, al canto, como créditos impresos. no piden nada. */
 .colofon-redes {
@@ -211,11 +220,13 @@ main { flex: 1 0 auto; }
   border-bottom: 1px solid transparent;
   transition: color 140ms ease, border-color 140ms ease;
 }
-.colofon-redes a:hover { color: var(--papel); border-bottom-color: var(--grasa); }
+.colofon-redes a:hover,
+.colofon-redes a:focus-visible { color: var(--papel); border-bottom-color: var(--grasa); }
 
 .colofon-codigo { display: inline-flex; align-items: center; gap: 0.45rem; }
 .marca-gh { flex: 0 0 auto; opacity: 0.85; }
-.colofon-codigo:hover .marca-gh { opacity: 1; }
+.colofon-codigo:hover .marca-gh,
+.colofon-codigo:focus-visible .marca-gh { opacity: 1; }
 
 /* ═════ LA HOJA ═════ */
 
@@ -232,6 +243,7 @@ main { flex: 1 0 auto; }
   container-type: inline-size;
   width: min(calc(var(--tira) * var(--ratio)), 100%);
   position: relative;
+  min-width: 0;
 }
 
 .cuadro-media {
@@ -288,7 +300,6 @@ main { flex: 1 0 auto; }
   font-weight: 500;
   letter-spacing: 0.09em;
   color: var(--ambar);
-  opacity: 0.9;
 }
 .cuadro[data-stock="cinta"] .cuadro-codigo { color: var(--verde); }
 .cuadro-codigo span:last-child { color: var(--polvo); }
@@ -342,6 +353,7 @@ main { flex: 1 0 auto; }
   padding-bottom: 0.55rem;
   border-bottom: 1px solid var(--linea);
 }
+.banda > * { min-width: 0; }
 .banda:first-of-type { margin-top: clamp(1.5rem, 4vh, 2.5rem); }
 .banda-nombre {
   font-family: var(--f-edge);
@@ -363,6 +375,7 @@ main { flex: 1 0 auto; }
   padding-bottom: clamp(2rem, 6vh, 3.5rem);
   border-bottom: 1px solid var(--linea);
 }
+.rollo-cab > * { min-width: 0; }
 @media (min-width: 62rem) {
   .rollo-cab { grid-template-columns: minmax(0, 1fr) 15rem; }
 }
@@ -370,11 +383,12 @@ main { flex: 1 0 auto; }
   font-size: clamp(2.25rem, 7.5vw, 5rem);
   margin-bottom: 1.5rem;
   text-transform: lowercase;
+  overflow-wrap: anywhere;
 }
 .rollo-texto { margin-top: 1.5rem; }
 
 /* registro: tabla de datos duros */
-.registro { display: grid; gap: 0.55rem; align-content: start; }
+.registro { display: grid; min-width: 0; gap: 0.55rem; align-content: start; }
 .registro > div {
   display: flex;
   justify-content: space-between;
@@ -383,7 +397,7 @@ main { flex: 1 0 auto; }
   border-bottom: 1px solid var(--linea);
 }
 .registro dt { color: var(--polvo); }
-.registro dd { color: var(--papel); text-align: right; }
+.registro dd { min-width: 0; color: var(--papel); text-align: right; overflow-wrap: anywhere; }
 
 /* los cuadros del rollo, grandes */
 .rollo-hoja { --tira: clamp(11rem, 30vw, 26rem); padding-top: clamp(2rem, 6vh, 3.5rem); }
@@ -406,12 +420,13 @@ main { flex: 1 0 auto; }
 /* paso de rollo */
 .paso {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1rem clamp(1.5rem, 5vw, 3rem);
   margin-top: clamp(3rem, 9vh, 5.5rem);
   padding-top: 1.5rem;
   border-top: 1px solid var(--linea);
 }
+.paso > *, .paso a { min-width: 0; }
 .paso a { display: grid; gap: 0.3rem; align-content: start; }
 .paso a:last-child { text-align: right; }
 .paso-titulo {
@@ -421,8 +436,10 @@ main { flex: 1 0 auto; }
   font-weight: 500;
   color: color-mix(in oklab, var(--papel) 80%, transparent);
   transition: color 140ms ease;
+  overflow-wrap: anywhere;
 }
-.paso a:hover .paso-titulo { color: var(--papel); }
+.paso a:hover .paso-titulo,
+.paso a:focus-visible .paso-titulo { color: var(--papel); }
 
 /* ═════ notas: manifiesto, contacto, 404 ═════ */
 
@@ -440,6 +457,7 @@ main { flex: 1 0 auto; }
   padding-top: clamp(2rem, 5vh, 3rem);
   border-top: 1px solid var(--linea);
 }
+.nota-cuerpo > * { min-width: 0; }
 @media (min-width: 62rem) {
   .nota-cuerpo { grid-template-columns: minmax(0, 1fr) 15rem; }
 }
@@ -456,8 +474,11 @@ main { flex: 1 0 auto; }
   border-bottom: 2px solid var(--grasa);
   padding-bottom: 0.12em;
   transition: color 160ms ease;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
-.direccion:hover { color: var(--ambar); }
+.direccion:hover,
+.direccion:focus-visible { color: var(--ambar); }
 
 /* ═════ visor a pantalla completa ═════ */
 
@@ -501,7 +522,8 @@ main { flex: 1 0 auto; }
   color: var(--polvo);
   transition: color 160ms ease;
 }
-.lupa-paso:hover, .lupa-cerrar:hover { color: var(--papel); }
+.lupa-paso:hover, .lupa-paso:focus-visible,
+.lupa-cerrar:hover, .lupa-cerrar:focus-visible { color: var(--papel); }
 
 /* un velo mínimo hacia la orilla, para que la etiqueta se lea sobre foto clara */
 .lupa-paso[data-dir="prev"] {
@@ -622,25 +644,30 @@ button.cuadro { display: block; text-align: left; }
    el reel: la portada. una placa a la vez, a pantalla llena.
    ═════════════════════════════════════════════════════════ */
 
-/* el gate. no es teatro: el clic es lo que desbloquea el audio,
-   porque ningún navegador deja sonar un video sin un gesto antes. */
+/* El archivo no arranca hasta que la persona confirma que está lista. */
 .gate {
   position: fixed;
   inset: 0;
   z-index: 120;
   display: grid;
-  place-items: center;
+  place-items: center start;
   padding: var(--margen);
   background: var(--fondo);
   transition: opacity 420ms ease, visibility 420ms;
 }
 .gate[data-ido="true"] { opacity: 0; visibility: hidden; pointer-events: none; }
 
-.gate-in { display: grid; gap: clamp(1.5rem, 5vh, 3rem); justify-items: center; text-align: center; }
-.gate-boton { display: grid; gap: 1.1rem; justify-items: center; }
+.gate-in {
+  width: min(100%, 64rem);
+  display: grid;
+  gap: clamp(1.5rem, 5vh, 3rem);
+  justify-items: start;
+  text-align: left;
+}
+.gate-boton { display: grid; gap: 1.1rem; justify-items: start; text-align: left; }
 .gate-pregunta {
   font-family: var(--f-voz);
-  font-style: italic;
+  font-style: normal;
   font-size: clamp(2.25rem, 9vw, 5rem);
   line-height: 1;
   color: var(--papel);
@@ -654,7 +681,8 @@ button.cuadro { display: block; text-align: left; }
   padding-bottom: 0.3rem;
   transition: color 160ms ease;
 }
-.gate-boton:hover .gate-accion { color: var(--papel); }
+.gate-boton:hover .gate-accion,
+.gate-boton:focus-visible .gate-accion { color: var(--papel); }
 .gate-accion--movil { display: none; }
 @media (hover: none) and (pointer: coarse) {
   .gate-accion--movil { display: inline; }
@@ -672,7 +700,8 @@ button.cuadro { display: block; text-align: left; }
   color: var(--polvo);
   transition: color 160ms ease;
 }
-.saltar-reel:hover { color: var(--papel); }
+.saltar-reel:hover,
+.saltar-reel:focus-visible { color: var(--papel); }
 
 .mandos {
   bottom: 1.1rem;
@@ -688,7 +717,8 @@ button.cuadro { display: block; text-align: left; }
   color: var(--polvo);
   transition: color 160ms ease;
 }
-.mando:hover { color: var(--papel); }
+.mando:hover,
+.mando:focus-visible { color: var(--papel); }
 .sonido-punto {
   width: 0.4rem;
   height: 0.4rem;
@@ -752,9 +782,7 @@ button.cuadro { display: block; text-align: left; }
     color-mix(in oklab, var(--fondo) 88%, transparent),
     transparent
   );
-  transition: opacity 520ms ease;
 }
-.placa--callada::after { opacity: 0.34; }
 
 .placa-codigo {
   display: flex;
@@ -771,21 +799,15 @@ button.cuadro { display: block; text-align: left; }
   color: var(--papel);
   max-width: 22ch;
 }
-.placa-linea em { font-style: italic; }
+.placa-linea em { font-style: normal; color: var(--ambar); }
 
 .placa-titulo { font-size: clamp(2rem, 6vw, 4rem); }
 .placa-titulo em { font-style: normal; color: var(--ambar); }
 
-/* la copia entra al asomarse la placa, y se apaga sola para dejar ver la imagen */
 .placa-copia {
   display: grid;
   gap: 0.7rem;
-  opacity: 0;
-  translate: 0 0.5rem;
-  transition: opacity 520ms ease, translate 520ms ease;
 }
-.placa--dentro .placa-copia { opacity: 1; translate: none; }
-.placa--callada .placa-copia { opacity: 0.34; }
 
 /* de la placa a la cinta completa: discreto, al canto, como el resto */
 .placa-ir {
@@ -795,7 +817,8 @@ button.cuadro { display: block; text-align: left; }
   border-bottom: 1px solid color-mix(in oklab, var(--grasa) 70%, transparent);
   transition: color 160ms ease;
 }
-.placa-ir:hover { color: var(--papel); }
+.placa-ir:hover,
+.placa-ir:focus-visible { color: var(--papel); }
 
 .placa-salida { display: flex; flex-wrap: wrap; align-items: baseline; gap: 1rem 2rem; margin-top: 0.75rem; }
 
@@ -816,10 +839,6 @@ button.cuadro { display: block; text-align: left; }
 .placa--final .placa-linea { border-top: 1px solid var(--linea); padding-top: clamp(1.25rem, 4vh, 2rem); }
 
 .pista-flecha { font-size: 0.9rem; line-height: 1; }
-
-@media (prefers-reduced-motion: reduce) {
-  .placa-copia { opacity: 1; translate: none; }
-}
 
 /* ─── la cinta girada ───
    En vertical, una cinta apaisada apenas ocupa el 26% del alto. Girada un
@@ -889,9 +908,19 @@ button.cuadro { display: block; text-align: left; }
 
 .lupa-paso:disabled { opacity: 0.25; pointer-events: none; }
 
-/* en táctil se arrastra con el dedo: las flechas sobran y estorban sobre la foto */
+/* En táctil se arrastra con el dedo. Las flechas no se pintan, pero siguen en
+   el árbol accesible para lectores de pantalla. */
 @media (hover: none) and (pointer: coarse) {
-  .lupa-paso { display: none; }
+  .lupa-paso {
+    width: 1px;
+    height: 1px;
+    top: auto;
+    bottom: auto;
+    margin: -1px;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    overflow: hidden;
+  }
 }
 
 
@@ -1041,5 +1070,29 @@ button.cuadro { display: block; text-align: left; }
       color-mix(in oklab, var(--fondo) 88%, transparent),
       transparent
     );
+  }
+}
+
+/* En anchos estrechos el rail necesita dos renglones. Ninguna palabra puede
+   ensanchar el lienzo y quedar cortada detrás de `overflow-x: clip`. */
+@media (max-width: 34rem) {
+  .rail-in {
+    display: grid;
+    justify-content: stretch;
+    align-items: start;
+    gap: 0.6rem;
+    padding-block: 0.7rem;
+  }
+  .rail-nav {
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+    gap: 0.65rem;
+  }
+  .banda { align-items: flex-end; }
+  .banda .edge { text-align: right; }
+  .registro > div {
+    display: grid;
+    grid-template-columns: minmax(0, 0.45fr) minmax(0, 1fr);
   }
 }

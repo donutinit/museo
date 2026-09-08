@@ -34,7 +34,6 @@ const extras = new Map();
 
 for (const v of videos) {
   extras.set(`${SITIO}/video/${v.slug}/`, {
-    lastmod: new Date(v.date).toISOString(),
     img: [{ url: abs(v.poster), title: v.title, caption: v.caption ?? v.title }],
     video: [
       {
@@ -43,7 +42,6 @@ for (const v of videos) {
         description: v.caption ?? `${v.title} — cinta del archivo de Von Diego.`,
         content_loc: abs(v.src),
         duration: duracionSegundos(v.durationLabel),
-        publication_date: v.date,
         family_friendly: 'yes',
       },
     ],
@@ -75,7 +73,7 @@ export default defineConfig({
       namespaces: { image: true, video: true },
       serialize(item) {
         const extra = extras.get(item.url);
-        return extra ? { ...item, ...extra } : { ...item, lastmod: new Date().toISOString() };
+        return extra ? { ...item, ...extra } : item;
       },
     }),
   ],

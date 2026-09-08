@@ -33,9 +33,10 @@ const SIZES = '(max-width: 40rem) 45vw, 350px';
       width={cuadro.w}
       height={cuadro.h}
       loading={eager ? 'eager' : 'lazy'}
-      decoding={eager ? 'sync' : 'async'}
+      decoding="async"
+      fetchpriority={eager ? 'high' : undefined}
     />
-    {cuadro.cinta && <video muted loop playsinline preload="none" tabindex="-1" aria-hidden="true"></video>}
+    {cuadro.cinta && <video muted loop playsinline preload="none" aria-hidden="true"></video>}
   </span>
 
   <span class="cuadro-pie">

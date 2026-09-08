@@ -33,7 +33,10 @@ const {
 } = Astro.props;
 
 const fullTitle = title ? `${title} — Von Diego` : 'Von Diego — archivo';
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const canonicalPath = Astro.url.pathname === '/'
+  ? '/'
+  : `${Astro.url.pathname.replace(/\/$/, '')}/`;
+const canonical = new URL(canonicalPath, Astro.site);
 const socialImage = new URL(media(image), Astro.site);
 
 // una vertical recortada al 1.91:1 de `summary_large_image` queda decapitada;
@@ -45,9 +48,9 @@ const enRuta = (base: string) => ruta === base || ruta.startsWith(`${base}/`);
 const enPortada = ruta === '/';
 
 const nav = [
-  { href: '/obra', label: 'archivo', activa: enRuta('/obra') || enRuta('/video') },
-  { href: '/about', label: 'manifiesto', activa: enRuta('/about') },
-  { href: '/contact', label: 'contacto', activa: enRuta('/contact') },
+  { href: '/obra/', label: 'archivo', activa: enRuta('/obra') || enRuta('/video') },
+  { href: '/about/', label: 'manifiesto', activa: enRuta('/about') },
+  { href: '/contact/', label: 'contacto', activa: enRuta('/contact') },
 ];
 ---
 

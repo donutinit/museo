@@ -81,7 +81,7 @@ export const cinta = (v: VideoEntry) => ({
   description: v.caption ?? `${v.title} — cinta del archivo de ${AUTOR}.`,
   thumbnailUrl: absoluta(v.poster),
   contentUrl: absoluta(v.src),
-  uploadDate: v.date,
+  dateCreated: v.recordedAt,
   duration: duracionISO(v.durationLabel),
   genre: kindLabel[v.kind],
   inLanguage: 'es-MX',

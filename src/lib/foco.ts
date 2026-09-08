@@ -47,3 +47,25 @@ export function atrapar(caja: HTMLElement): () => void {
   document.addEventListener('keydown', enCiclo, true);
   return () => document.removeEventListener('keydown', enCiclo, true);
 }
+
+/**
+ * Saca de navegación y del árbol accesible todo lo que queda detrás de un
+ * diálogo. Recorre cada nivel por si la caja no cuelga directamente de body.
+ */
+export function aislar(caja: HTMLElement): () => void {
+  const estados = new Map<HTMLElement, boolean>();
+  let rama: HTMLElement = caja;
+
+  while (rama.parentElement) {
+    const padre = rama.parentElement;
+    Array.from(padre.children).forEach((hermano) => {
+      if (!(hermano instanceof HTMLElement) || hermano === rama || hermano.tagName === 'SCRIPT') return;
+      if (!estados.has(hermano)) estados.set(hermano, hermano.inert);
+      hermano.inert = true;
+    });
+    if (padre === document.body) break;
+    rama = padre;
+  }
+
+  return () => estados.forEach((estado, elemento) => { elemento.inert = estado; });
+}

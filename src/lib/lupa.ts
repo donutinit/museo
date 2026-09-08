@@ -5,13 +5,11 @@
  * fotos van juntas: en la portada el grupo es la placa; en un rollo, todo el
  * rollo.
  */
-import { atrapar } from './foco';
+import { aislar, atrapar } from './foco';
 
 export interface OpcionesLupa {
   /** Qué fotos se recorren a partir de la que se abrió. */
   grupoDe: (boton: HTMLButtonElement) => HTMLButtonElement[];
-  /** Si devuelve false, el clic no abre nada. Sirve para dejarla sólo en escritorio. */
-  puedeAbrir?: () => boolean;
   alAbrir?: () => void;
   alCerrar?: () => void;
 }
@@ -19,7 +17,7 @@ export interface OpcionesLupa {
 /** Arriba de esto los puntitos dejan de leerse y conviene la cuenta. */
 const TOPE_DE_PUNTOS = 12;
 
-export function montarLupa({ grupoDe, puedeAbrir, alAbrir, alCerrar }: OpcionesLupa): void {
+export function montarLupa({ grupoDe, alAbrir, alCerrar }: OpcionesLupa): void {
   const visor = document.querySelector<HTMLElement>('[data-lupa-visor]');
   const carrusel = document.querySelector<HTMLElement>('[data-lupa-carrusel]');
   const puntos = document.querySelector<HTMLElement>('[data-lupa-puntos]');
@@ -34,6 +32,8 @@ export function montarLupa({ grupoDe, puedeAbrir, alAbrir, alCerrar }: OpcionesL
   let posicion = -1;
   let volverA: HTMLElement | null = null;
   let soltarFoco: (() => void) | null = null;
+  let soltarAislamiento: (() => void) | null = null;
+  let desbordeAnterior = '';
 
   const pintar = () => {
     puntos?.querySelectorAll<HTMLElement>('li').forEach((punto, i) => {
@@ -97,7 +97,6 @@ export function montarLupa({ grupoDe, puedeAbrir, alAbrir, alCerrar }: OpcionesL
   );
 
   const abrir = (boton: HTMLButtonElement) => {
-    if (puedeAbrir && !puedeAbrir()) return;
     grupo = grupoDe(boton);
     const inicio = grupo.indexOf(boton);
     if (inicio < 0) return;
@@ -107,25 +106,29 @@ export function montarLupa({ grupoDe, puedeAbrir, alAbrir, alCerrar }: OpcionesL
     // primero se muestra: el carrusel necesita ancho real para posicionarse
     visor.dataset.abierta = 'true';
     visor.setAttribute('aria-hidden', 'false');
+    desbordeAnterior = document.documentElement.style.overflow;
     document.documentElement.style.overflow = 'hidden';
+    soltarAislamiento = aislar(visor);
     montar(inicio);
     posicion = inicio;
     pintar();
     window.requestAnimationFrame(() => irA(inicio, false));
-    document.querySelector<HTMLButtonElement>('[data-lupa-cerrar]')?.focus();
     soltarFoco = atrapar(visor);
+    document.querySelector<HTMLButtonElement>('[data-lupa-cerrar]')?.focus();
   };
 
   const cerrar = () => {
     soltarFoco?.();
     soltarFoco = null;
+    soltarAislamiento?.();
+    soltarAislamiento = null;
     delete visor.dataset.abierta;
     visor.setAttribute('aria-hidden', 'true');
     carrusel.replaceChildren();
     puntos?.replaceChildren();
     posicion = -1;
     grupo = [];
-    document.documentElement.style.overflow = '';
+    document.documentElement.style.overflow = desbordeAnterior;
     volverA?.focus();
     volverA = null;
     alCerrar?.();

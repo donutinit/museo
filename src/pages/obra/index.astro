@@ -26,6 +26,7 @@ const esquema = grafo(
 <BaseLayout
   title="archivo — foto y video en Monterrey"
   description={`El archivo completo de Von Diego: ${foto.length} rollos de foto, ${piezas} piezas y ${cinta.length} cintas de video. Monterrey, MX.`}
+  precargar={foto[0]?.src}
   esquema={esquema}
 >
   <section class="contenedor cabecera">
@@ -47,7 +48,7 @@ const esquema = grafo(
 
     <div class="hoja">
       {foto.map((cuadro, i) => (
-        <Cuadro cuadro={cuadro} posicion={i + 1} eager={i < 6} />
+        <Cuadro cuadro={cuadro} posicion={i + 1} eager={i === 0} />
       ))}
     </div>
 

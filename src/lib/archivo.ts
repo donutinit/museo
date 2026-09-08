@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { cintasPorFecha, type VideoEntry } from '../data/videos';
+import { medidaDe } from './media';
 
 /** El stock decide el color del código de borde: ámbar para foto, olivo para cinta. */
 export type Stock = 'foto' | 'cinta';
@@ -46,7 +47,7 @@ const tituloCinta = (t: string) => t.toLowerCase().split(/\s+—\s+/)[0].trim();
 export const cuadroDeObra = (p: CollectionEntry<'projects'>): Cuadro => {
   const { posterWidth: w, posterHeight: h } = p.data;
   return {
-    href: `/obra/${p.slug}`,
+    href: `/obra/${p.id}/`,
     src: p.data.poster,
     alt: p.data.title,
     ratio: w / h,
@@ -61,9 +62,9 @@ export const cuadroDeObra = (p: CollectionEntry<'projects'>): Cuadro => {
 };
 
 export const cuadroDeCinta = (v: VideoEntry): Cuadro => {
-  const [w, h] = medidaCinta(v.aspect);
+  const [w, h] = medidaDe(v.poster) ?? medidaCinta(v.aspect);
   return {
-    href: `/video/${v.slug}`,
+    href: `/video/${v.slug}/`,
     src: v.poster,
     alt: v.title,
     ratio: w / h,
@@ -73,7 +74,7 @@ export const cuadroDeCinta = (v: VideoEntry): Cuadro => {
     clase: v.kind,
     dato: corrida(v.durationLabel),
     stock: 'cinta',
-    fecha: new Date(v.date),
+    fecha: new Date(v.recordedAt),
     cinta: v.src,
   };
 };

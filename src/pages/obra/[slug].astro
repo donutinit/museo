@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import { media, srcset, medidaDe, altDe } from '../../lib/media';
 import { oficio } from '../../lib/archivo';
 import Lupa from '../../components/Lupa.astro';
@@ -12,11 +12,11 @@ export async function getStaticPaths() {
   );
 
   return proyectos.map((proyecto, i) => ({
-    params: { slug: proyecto.slug },
+    params: { slug: proyecto.id },
     props: {
       proyecto,
-      anterior: proyectos[i + 1] ?? null,
-      siguiente: proyectos[i - 1] ?? null,
+      anterior: proyectos[i - 1] ?? null,
+      siguiente: proyectos[i + 1] ?? null,
     },
   }));
 }
@@ -29,7 +29,7 @@ interface Props {
 
 const { proyecto, anterior, siguiente } = Astro.props;
 const { data } = proyecto;
-const { Content } = await proyecto.render();
+const { Content } = await render(proyecto);
 
 const piezas = Array.from({ length: data.photoCount }, (_, i) => {
   const nn = String(i + 1).padStart(2, '0');
@@ -53,7 +53,7 @@ const esquema = grafo(
   persona(),
   {
     '@type': 'ImageGallery',
-    '@id': `${SITIO}/obra/${proyecto.slug}/#rollo`,
+    '@id': `${SITIO}/obra/${proyecto.id}/#rollo`,
     name: data.title,
     description: `${data.title} — rollo de ${oficio[data.type]}, ${data.year}.`,
     datePublished: data.publishedAt.toISOString().slice(0, 10),
@@ -67,7 +67,7 @@ const esquema = grafo(
   migas([
     { nombre: 'inicio', ruta: '/' },
     { nombre: 'archivo', ruta: '/obra/' },
-    { nombre: data.title.toLowerCase(), ruta: `/obra/${proyecto.slug}/` },
+    { nombre: data.title.toLowerCase(), ruta: `/obra/${proyecto.id}/` },
   ])
 );
 ---
@@ -80,6 +80,7 @@ const esquema = grafo(
   imageWidth={data.posterWidth}
   imageHeight={data.posterHeight}
   imageAlt={altDe(data.poster, `${data.title} — rollo de ${oficio[data.type]}, ${data.year}`)}
+  precargar={piezas[0]?.ruta}
 >
   <main class="contenedor rollo" id="hoja">
     <header class="rollo-cab">
@@ -115,8 +116,9 @@ const esquema = grafo(
               alt={pieza.alt}
               width={pieza.w}
               height={pieza.h}
-              loading={i < 4 ? 'eager' : 'lazy'}
-              decoding={i < 4 ? 'sync' : 'async'}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchpriority={i === 0 ? 'high' : undefined}
             />
           </span>
           <span class="cuadro-pie">
@@ -131,14 +133,14 @@ const esquema = grafo(
 
     <nav class="paso" aria-label="Rollos vecinos">
       {anterior ? (
-        <a href={`/obra/${anterior.slug}`}>
+        <a href={`/obra/${anterior.id}/`}>
           <span class="edge">rollo anterior</span>
           <span class="paso-titulo">{anterior.data.title.toLowerCase()}</span>
         </a>
       ) : <span />}
 
       {siguiente ? (
-        <a href={`/obra/${siguiente.slug}`}>
+        <a href={`/obra/${siguiente.id}/`}>
           <span class="edge">rollo siguiente</span>
           <span class="paso-titulo">{siguiente.data.title.toLowerCase()}</span>
         </a>

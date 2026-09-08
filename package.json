@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -13,14 +16,14 @@
     "derivados": "node scripts/derivados.mjs"
   },
   "dependencies": {
-    "@astrojs/sitemap": "3.7.3",
+    "@astrojs/sitemap": "3.7.4",
     "@fontsource-variable/archivo": "5.3.0",
-    "@fontsource-variable/newsreader": "5.2.10",
-    "astro": "5.18.2",
+    "@fontsource-variable/newsreader": "5.3.0",
+    "astro": "7.3.1",
     "sharp": "0.35.4"
   },
   "devDependencies": {
-    "@astrojs/check": "0.9.9",
+    "@astrojs/check": "0.9.10",
     "typescript": "5.9.3"
   },
   "overrides": {
@@ -37,5 +40,8 @@
       "email": "noreply@anthropic.com",
       "url": "https://claude.com/claude-code"
     }
-  ]
+  ],
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
 }

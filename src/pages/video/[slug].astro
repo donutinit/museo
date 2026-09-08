@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { cintasPorFecha, kindLabel } from '../../data/videos';
-import { media } from '../../lib/media';
+import { media, medidaDe } from '../../lib/media';
 import { medidaCinta } from '../../lib/archivo';
 import { grafo, persona, cinta as cintaLD, migas } from '../../lib/seo';
 
@@ -20,7 +20,7 @@ export async function getStaticPaths() {
 
 const { cinta, anterior, siguiente } = Astro.props;
 const titulo = cinta.title.toLowerCase();
-const [pw, ph] = medidaCinta(cinta.aspect);
+const [pw, ph] = medidaDe(cinta.poster) ?? medidaCinta(cinta.aspect);
 const oficio = kindLabel[cinta.kind].toLowerCase();
 
 const esquema = grafo(
@@ -45,7 +45,7 @@ const esquema = grafo(
 >
   <main class="contenedor rollo" id="hoja">
     <div class="visor" style={`--cuadro-aspect: ${cinta.aspect};`}>
-      <video controls playsinline preload="metadata" poster={media(cinta.poster)}>
+      <video controls playsinline preload="none" poster={media(cinta.poster)}>
         <source src={media(cinta.src)} type="video/mp4" />
         Tu navegador no puede reproducir esta cinta.
       </video>
@@ -69,14 +69,14 @@ const esquema = grafo(
 
     <nav class="paso" aria-label="Cintas vecinas">
       {anterior ? (
-        <a href={`/video/${anterior.slug}`}>
+        <a href={`/video/${anterior.slug}/`}>
           <span class="edge">cinta anterior</span>
           <span class="paso-titulo">{anterior.title.toLowerCase().split(/\s+—\s+/)[0]}</span>
         </a>
       ) : <span />}
 
       {siguiente ? (
-        <a href={`/video/${siguiente.slug}`}>
+        <a href={`/video/${siguiente.slug}/`}>
           <span class="edge">cinta siguiente</span>
           <span class="paso-titulo">{siguiente.title.toLowerCase().split(/\s+—\s+/)[0]}</span>
         </a>

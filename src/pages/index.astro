@@ -28,25 +28,22 @@ const esquema = grafo(
   precargar={primeraCinta.poster}
   esquema={esquema}
 >
-  {/* Sin JS el gate no se puede quitar y taparía el sitio entero. */}
-  <noscript><style>{`.gate { display: none !important; }`}</style></noscript>
-
   <div class="gate" data-gate role="dialog" aria-modal="true" aria-labelledby="gate-titulo">
     <div class="gate-in">
       <p class="edge">von diego / archivo</p>
-      <button id="gate-titulo" type="button" class="gate-boton" data-gate-boton>
+      <a id="gate-titulo" class="gate-boton" data-gate-boton href="/obra/">
         <span class="gate-pregunta">¿estás listo?</span>
         <span class="gate-accion">
           <span class="gate-accion--movil">tócame</span>
           <span class="gate-accion--fina">clickeame</span>
         </span>
-      </button>
+      </a>
     </div>
   </div>
 
-  <a href="/obra" class="saltar-reel edge">saltar al archivo</a>
+  <a href="/obra/" class="saltar-reel edge" data-detras-gate inert>saltar al archivo</a>
 
-  <div class="mandos">
+  <div class="mandos" data-detras-gate inert>
     <button type="button" class="mando edge" data-pausa aria-pressed="false">
       <span data-pausa-label>pausa</span>
     </button>
@@ -54,18 +51,18 @@ const esquema = grafo(
       type="button"
       class="mando edge"
       data-sonido
-      data-on="true"
-      aria-pressed="true"
-      aria-label="Silenciar"
+      data-on="false"
+      aria-pressed="false"
+      aria-label="Activar sonido"
     >
       <span class="sonido-punto" aria-hidden="true"></span>
-      <span data-sonido-label>sonido on</span>
+      <span data-sonido-label>sonido off</span>
     </button>
   </div>
 
   <Lupa />
 
-  <main>
+  <main data-detras-gate inert>
     <h1 class="fuera">Von Diego — archivo de foto y video, Monterrey</h1>
 
     {placas.map((placa, i) => {
@@ -78,8 +75,8 @@ const esquema = grafo(
                 <em>{placa.line}</em> {placa.lineEm}.
               </h2>
               <nav class="placa-salida">
-                <a class="direccion" href="/obra">revisar la obra completa</a>
-                <a class="edge" href="/contact">contacto@vondiego.com</a>
+                <a class="direccion" href="/obra/">revisar la obra completa</a>
+                <a class="edge" href="/contact/">contacto@vondiego.com</a>
               </nav>
             </div>
           </section>
@@ -101,7 +98,7 @@ const esquema = grafo(
             </header>
 
             <div class="carrusel" data-carrusel>
-              {placa.photos.map((foto, j) => (
+              {placa.photos.map((foto) => (
                 <button
                   type="button"
                   class="carrusel-lamina"
@@ -117,8 +114,8 @@ const esquema = grafo(
                     alt=""
                     width={foto.width}
                     height={foto.height}
-                    loading={i <= 1 && j < 4 ? 'eager' : 'lazy'}
-                    decoding={i <= 1 && j < 4 ? 'sync' : 'async'}
+                    loading="lazy"
+                    decoding="async"
                   />
                 </button>
               ))}
@@ -145,6 +142,7 @@ const esquema = grafo(
             <video
               data-placa-video
               loop
+              muted
               playsinline
               preload="none"
               poster={media(cinta.poster)}
@@ -163,7 +161,7 @@ const esquema = grafo(
             <h2 class="placa-linea">
               {placa.line} <em>{placa.lineEm}</em>.
             </h2>
-            <a class="placa-ir edge" href={`/video/${cinta.slug}`}>ver la cinta</a>
+            <a class="placa-ir edge" href={`/video/${cinta.slug}/`}>ver la cinta</a>
           </div>
 
           {i === 0 && (
@@ -179,7 +177,7 @@ const esquema = grafo(
 
   <script>
     import { montarLupa, lupaAbierta } from '../lib/lupa';
-    import { atrapar } from '../lib/foco';
+    import { aislar, atrapar } from '../lib/foco';
     import { velar, dormir } from '../lib/vela';
 
     /** El mismo corte que usa el CSS: abajo de esto la placa es carrusel. */
@@ -227,7 +225,7 @@ const esquema = grafo(
     // corriendo lo prende, en vez de que le caiga encima.
     const estado = {
       listo: false,
-      quiereSonido: true,
+      quiereSonido: false,
       faltaGesto: false,
       pausado: quieto.matches,
     };
@@ -327,23 +325,30 @@ const esquema = grafo(
 
     // ── el gate: no depende de ningún mando ─────────────────────────────
     const gate = document.querySelector<HTMLElement>('[data-gate]');
-    const gateBoton = document.querySelector<HTMLButtonElement>('[data-gate-boton]');
+    const gateBoton = document.querySelector<HTMLAnchorElement>('[data-gate-boton]');
 
     if (gate && gateBoton) {
       document.documentElement.style.overflow = 'hidden';
       const soltarFoco = atrapar(gate);
+      const soltarAislamiento = aislar(gate);
       gateBoton.focus({ preventScroll: true });
 
-      gateBoton.addEventListener('click', () => {
+      gateBoton.addEventListener('click', (evento) => {
+        evento.preventDefault();
         estado.listo = true;
-        estado.quiereSonido = true;
+        estado.quiereSonido = false;
         estado.faltaGesto = false;
         soltarFoco();
+        soltarAislamiento();
+        document.querySelectorAll<HTMLElement>('[data-detras-gate]').forEach((elemento) => {
+          elemento.inert = false;
+        });
         gate.setAttribute('data-ido', 'true');
         gate.setAttribute('aria-hidden', 'true');
         document.documentElement.style.overflow = '';
         pintarMandos();
         sincronizar(true);
+        document.querySelector<HTMLElement>('.saltar-reel')?.focus({ preventScroll: true });
       });
     } else {
       // sin gate no hay gesto que pedir: el reel arranca en cuanto se pueda
@@ -422,36 +427,6 @@ const esquema = grafo(
     pintarMandos();
     cintas.forEach((v) => v.pause());
 
-    // la copia entra al asomarse la placa; la cinta se apaga sola a los 10 s
-    const CALLAR_A_LOS = 10_000;
-    const relojes = new WeakMap<Element, number>();
-
-    const asomo = new IntersectionObserver(
-      (entradas) => {
-        entradas.forEach((e) => {
-          const el = e.target as HTMLElement;
-          if (e.isIntersecting && e.intersectionRatio > 0.35) {
-            el.classList.add('placa--dentro');
-            if (el.classList.contains('placa--cinta') && !relojes.has(el)) {
-              relojes.set(el, window.setTimeout(() => {
-                el.classList.add('placa--callada');
-                relojes.delete(el);
-              }, CALLAR_A_LOS));
-            }
-          } else {
-            el.classList.remove('placa--dentro', 'placa--callada');
-            const t = relojes.get(el);
-            if (t !== undefined) {
-              window.clearTimeout(t);
-              relojes.delete(el);
-            }
-          }
-        });
-      },
-      { threshold: [0.35] }
-    );
-    document.querySelectorAll<HTMLElement>('[data-placa]').forEach((p) => asomo.observe(p));
-
     // los puntitos siguen a la lámina encuadrada en cada carrusel del feed
     document.querySelectorAll<HTMLElement>('[data-carrusel]').forEach((carrusel) => {
       const puntos = carrusel.parentElement?.querySelector<HTMLElement>('[data-carrusel-puntos]');
@@ -474,10 +449,9 @@ const esquema = grafo(
       pintar();
     });
 
-    // en escritorio la placa es retícula y el clic abre la foto;
-    // en móvil se arrastra de lado y el clic no hace nada
+    // En cualquier ancho el clic abre la foto; en móvil el visor también se
+    // puede recorrer con el dedo.
     montarLupa({
-      puedeAbrir: () => enRetícula.matches,
       grupoDe: (boton) =>
         Array.from(
           boton.closest('.carrusel')?.querySelectorAll<HTMLButtonElement>('[data-lupa-src]') ?? []

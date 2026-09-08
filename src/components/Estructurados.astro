@@ -2,5 +2,7 @@
 /** Un bloque JSON-LD. No se ve; lo leen los buscadores. */
 interface Props { datos: object }
 const { datos } = Astro.props;
+// Evita que una cadena con `<` pueda cerrar el bloque antes de tiempo.
+const json = JSON.stringify(datos).replaceAll('<', '\\u003c');
 ---
-<script type="application/ld+json" set:html={JSON.stringify(datos)} is:inline />
+<script type="application/ld+json" set:html={json} is:inline />
