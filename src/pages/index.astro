@@ -182,6 +182,7 @@ const esquema = grafo(
 
     /** El mismo corte que usa el CSS: abajo de esto la placa es carrusel. */
     const enRetícula = window.matchMedia('(min-width: 48rem)');
+    const enMóvil = window.matchMedia('(max-width: 47.99rem)');
     const quieto = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     // En escritorio cada retícula debe caber en una pantalla: si rebasa, se
@@ -234,6 +235,112 @@ const esquema = grafo(
     const cintas = placasCinta
       .map((p) => p.querySelector<HTMLVideoElement>('[data-placa-video]'))
       .filter((v): v is HTMLVideoElement => Boolean(v));
+
+    // En táctil el navegador puede atravesar varios puntos de snap con un
+    // solo impulso. Aquí cada gesto vertical avanza una placa y el viaje se
+    // hace más largo, sin quitar el scroll normal si el script no carga.
+    const placasReel = Array.from(document.querySelectorAll<HTMLElement>('[data-placa]'));
+    const DURACION_PASO = 820;
+    let pasoEnCurso = false;
+    let inicioTáctil: { x: number; y: number; indice: number } | null = null;
+    let ruedaEnCurso = false;
+    let finDeRueda = 0;
+
+    const indiceAlCentro = () => {
+      const centro = window.innerHeight / 2;
+      let indice = 0;
+      let distancia = Number.POSITIVE_INFINITY;
+
+      placasReel.forEach((placa, i) => {
+        const caja = placa.getBoundingClientRect();
+        const actual = Math.abs((caja.top + caja.bottom) / 2 - centro);
+        if (actual < distancia) {
+          indice = i;
+          distancia = actual;
+        }
+      });
+
+      return indice;
+    };
+
+    const irAPlaca = (indice: number) => {
+      const placa = placasReel[Math.max(0, Math.min(placasReel.length - 1, indice))];
+      if (!placa || pasoEnCurso) return;
+
+      const caja = placa.getBoundingClientRect();
+      const origen = window.scrollY;
+      const máximo = document.documentElement.scrollHeight - window.innerHeight;
+      const destino = Math.max(
+        0,
+        Math.min(máximo, origen + caja.top - (window.innerHeight - caja.height) / 2)
+      );
+
+      if (Math.abs(destino - origen) < 2) return;
+      if (quieto.matches) {
+        window.scrollTo(0, destino);
+        return;
+      }
+
+      pasoEnCurso = true;
+      document.documentElement.classList.add('reel-moviendo');
+      const inicio = performance.now();
+
+      const mover = (ahora: number) => {
+        const avance = Math.min(1, (ahora - inicio) / DURACION_PASO);
+        const suave = 1 - Math.pow(1 - avance, 4);
+        window.scrollTo(0, origen + (destino - origen) * suave);
+
+        if (avance < 1) {
+          window.requestAnimationFrame(mover);
+          return;
+        }
+
+        document.documentElement.classList.remove('reel-moviendo');
+        pasoEnCurso = false;
+        agendar();
+      };
+
+      window.requestAnimationFrame(mover);
+    };
+
+    if (placasReel.length) {
+      document.documentElement.classList.add('reel-controlado');
+
+      window.addEventListener('touchstart', (evento) => {
+        if (!enMóvil.matches || !estado.listo || lupaAbierta() || evento.touches.length !== 1) {
+          inicioTáctil = null;
+          return;
+        }
+        const toque = evento.touches[0];
+        inicioTáctil = { x: toque.clientX, y: toque.clientY, indice: indiceAlCentro() };
+      }, { passive: true });
+
+      window.addEventListener('touchend', (evento) => {
+        if (!inicioTáctil || !enMóvil.matches || lupaAbierta()) return;
+        const toque = evento.changedTouches[0];
+        const dx = toque.clientX - inicioTáctil.x;
+        const dy = toque.clientY - inicioTáctil.y;
+        const { indice } = inicioTáctil;
+        inicioTáctil = null;
+
+        if (Math.abs(dy) < 44 || Math.abs(dy) <= Math.abs(dx) * 1.1) return;
+        irAPlaca(indice + (dy < 0 ? 1 : -1));
+      }, { passive: true });
+
+      window.addEventListener('touchcancel', () => { inicioTáctil = null; }, { passive: true });
+
+      window.addEventListener('wheel', (evento) => {
+        if (!enMóvil.matches || !estado.listo || lupaAbierta()) return;
+        if (Math.abs(evento.deltaY) <= Math.abs(evento.deltaX) || Math.abs(evento.deltaY) < 8) return;
+        evento.preventDefault();
+
+        window.clearTimeout(finDeRueda);
+        finDeRueda = window.setTimeout(() => { ruedaEnCurso = false; }, 180);
+        if (ruedaEnCurso) return;
+        ruedaEnCurso = true;
+        irAPlaca(indiceAlCentro() + (evento.deltaY > 0 ? 1 : -1));
+      }, { passive: false });
+    }
 
     /** Los mandos la reasignan; mientras tanto no pinta nada. */
     let pintarMandos: () => void = () => {};
@@ -336,8 +443,13 @@ const esquema = grafo(
       gateBoton.addEventListener('click', (evento) => {
         evento.preventDefault();
         estado.listo = true;
-        estado.quiereSonido = false;
+        estado.quiereSonido = true;
         estado.faltaGesto = false;
+        const yolanda = cintas[0];
+        if (yolanda) {
+          yolanda.preload = 'auto';
+          yolanda.load();
+        }
         soltarFoco();
         soltarAislamiento();
         document.querySelectorAll<HTMLElement>('[data-detras-gate]').forEach((elemento) => {

@@ -988,6 +988,14 @@ button.cuadro { display: block; text-align: left; }
 
 /* ─── de tablet para abajo: carrusel ─── */
 @media (max-width: 47.99rem) {
+  /* Con JS, el reel convierte el impulso vertical en un solo paso deliberado.
+     El eje horizontal y el zoom siguen libres para carruseles y lupa. */
+  html.reel-controlado {
+    touch-action: pan-x pinch-zoom;
+    overscroll-behavior-y: none;
+  }
+  html.reel-moviendo { scroll-snap-type: none; }
+
   .placa--carrusel {
     position: relative;
     padding: 0;
