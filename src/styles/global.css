@@ -665,6 +665,9 @@ button.cuadro { display: block; text-align: left; }
   text-align: left;
 }
 .gate-boton { display: grid; gap: 1.1rem; justify-items: start; text-align: left; }
+/* El enlace recibe foco al abrir el diálogo. La acción cambia de color y
+   conserva una señal visible para teclado sin encajonar la pregunta. */
+.gate-boton:focus-visible { outline: 0; }
 .gate-pregunta {
   font-family: var(--f-voz);
   font-style: normal;
@@ -988,14 +991,6 @@ button.cuadro { display: block; text-align: left; }
 
 /* ─── de tablet para abajo: carrusel ─── */
 @media (max-width: 47.99rem) {
-  /* Con JS, el reel convierte el impulso vertical en un solo paso deliberado.
-     El eje horizontal y el zoom siguen libres para carruseles y lupa. */
-  html.reel-controlado {
-    touch-action: pan-x pinch-zoom;
-    overscroll-behavior-y: none;
-  }
-  html.reel-moviendo { scroll-snap-type: none; }
-
   .placa--carrusel {
     position: relative;
     padding: 0;
