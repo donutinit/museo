@@ -779,7 +779,8 @@ body:has(.rollo--sofia-max) .colofon::before {
 
 .sofia-nota--n6 .sofia-nota-texto {
   font-family: var(--font-display);
-  font-size: clamp(var(--text-md), 3.4vw, var(--text-2xl));
+  /* la celda es media retícula: el texto es corto, así que va grande o se pierde */
+  font-size: clamp(var(--text-lg), 5.4vw, var(--text-4xl));
   font-stretch: 74%;
   font-weight: 900;
   letter-spacing: -0.01em;

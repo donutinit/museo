@@ -88,6 +88,30 @@ const chispas = Array.from({ length: 54 }, () => ({
   forma: FORMAS[Math.floor(dado() * FORMAS.length)],
 }));
 
+// Fecha de la sesión. Vive aquí y no en el frontmatter porque el esquema de
+// `projects` no tiene campo para ella: `publishedAt` es cuándo se publicó, no
+// cuándo se fotografió. Si algún día se agrega al esquema, esto se va.
+const FECHA_ROLLO = '26.08.2026';
+
+// Todo el texto suelto de la hoja sale de aquí: lugar, año, código, fecha y
+// cuenta. Nada de adjetivos — las palabras del rollo se dicen una sola vez, en
+// el markdown, y no se repiten alrededor de las fotos.
+const datosRollo = [
+  data.photosPrefix,
+  oficio[data.type],
+  ...(data.location ? [data.location.toLowerCase()] : []),
+  FECHA_ROLLO,
+  `${data.photoCount} piezas`,
+];
+const anteTitulo = [oficio[data.type], data.location?.toLowerCase(), String(data.year)]
+  .filter(Boolean)
+  .join(' · ');
+const bajoTitulo = `rollo ${data.photosPrefix} · ${data.photoCount} piezas`;
+const registroPortada = `${FECHA_ROLLO} · 01/${data.photoCount}`;
+// la banda es un bucle: se repite el mismo tramo dos veces para que empalme.
+// el espacio del final va duro, si no el navegador lo tira y los tramos se pegan
+const cintaRollo = `${datosRollo.join(' ★ ')} ★\u00a0`;
+
 // Rellenos de la secuencia. Cada uno tiene su celda propia en la retícula, así
 // que ocupan el hueco que ninguna lámina usa y jamás caen encima de una foto.
 const notas: { tras: number; clase: string; texto?: string }[] = [
@@ -95,8 +119,8 @@ const notas: { tras: number; clase: string; texto?: string }[] = [
   { tras: 2, clase: 'sofia-nota--n2' },
   { tras: 5, clase: 'sofia-nota--n3' },
   { tras: 6, clase: 'sofia-nota--n4' },
-  { tras: 9, clase: 'sofia-nota--n5', texto: 'flash directo' },
-  { tras: 9, clase: 'sofia-nota--n6', texto: 'lentejuela · malla · calcomanía' },
+  { tras: 9, clase: 'sofia-nota--n5', texto: FECHA_ROLLO },
+  { tras: 9, clase: 'sofia-nota--n6', texto: `${data.photoCount} piezas` },
 ];
 
 const esquema = grafo(
@@ -150,12 +174,12 @@ const esquema = grafo(
           <span class="sofia-guirnalda" aria-hidden="true"></span>
 
           <div class="sofia-rotulo">
-            <p class="sofia-antetitulo" data-nosnippet aria-hidden="true">archivo · fucsia · 12 piezas</p>
+            <p class="sofia-antetitulo" data-nosnippet aria-hidden="true">{anteTitulo}</p>
             <h1 class="sofia-titulo" id="sofia-titulo">
               <span class="sofia-titulo-eco" aria-hidden="true">{data.title}</span>
               <span class="sofia-titulo-cara">{data.title}</span>
             </h1>
-            <p class="sofia-lema" data-nosnippet>brillo · plástico · calcomanía · flash</p>
+            <p class="sofia-lema" data-nosnippet>{bajoTitulo}</p>
           </div>
 
           <div class="sofia-marco">
@@ -188,14 +212,14 @@ const esquema = grafo(
             </div>
           </div>
 
-          <p class="sofia-portada-registro"><span data-nosnippet>retrato · 26.08.2026 · 01/12</span></p>
+          <p class="sofia-portada-registro"><span data-nosnippet>{registroPortada}</span></p>
           <span class="sofia-guirnalda sofia-guirnalda--baja" aria-hidden="true"></span>
         </section>
 
         <div class="sofia-marquesina" aria-hidden="true" data-nosnippet>
           <div class="sofia-marquesina-pista">
-            <span>sofía max ★ brillo ★ plástico ★ calcomanía ★ flash ★ fucsia ★ lentejuela ★ malla ★&nbsp;</span>
-            <span>sofía max ★ brillo ★ plástico ★ calcomanía ★ flash ★ fucsia ★ lentejuela ★ malla ★&nbsp;</span>
+            <span>{cintaRollo}</span>
+            <span>{cintaRollo}</span>
           </div>
         </div>
 
