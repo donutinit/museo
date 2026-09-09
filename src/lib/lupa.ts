@@ -25,8 +25,34 @@ export function montarLupa({ grupoDe, alAbrir, alCerrar }: OpcionesLupa): void {
   const anterior = document.querySelector<HTMLButtonElement>('[data-lupa-mover="-1"]');
   const siguiente = document.querySelector<HTMLButtonElement>('[data-lupa-mover="1"]');
   const disparadores = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-lupa-src]'));
+  const movimientoReducido = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   if (!visor || !carrusel || disparadores.length === 0) return;
+
+  disparadores.forEach((boton) => {
+    const imagen = boton.querySelector('img');
+    if (!imagen) return;
+
+    const lista = () => {
+      boton.dataset.state = 'success';
+      boton.removeAttribute('aria-busy');
+    };
+    const fallida = () => {
+      boton.dataset.state = 'error';
+      boton.removeAttribute('aria-busy');
+      boton.disabled = true;
+    };
+
+    if (imagen.complete) {
+      if (imagen.naturalWidth > 0) lista();
+      else fallida();
+    } else {
+      boton.dataset.state = 'loading';
+      boton.setAttribute('aria-busy', 'true');
+      imagen.addEventListener('load', lista, { once: true });
+      imagen.addEventListener('error', fallida, { once: true });
+    }
+  });
 
   let grupo: HTMLButtonElement[] = [];
   let posicion = -1;
@@ -66,7 +92,10 @@ export function montarLupa({ grupoDe, alAbrir, alCerrar }: OpcionesLupa): void {
   const irA = (i: number, suave: boolean) => {
     const lamina = carrusel.children[i] as HTMLElement | undefined;
     if (!lamina) return;
-    carrusel.scrollTo({ left: lamina.offsetLeft, behavior: suave ? 'smooth' : 'auto' });
+    carrusel.scrollTo({
+      left: lamina.offsetLeft,
+      behavior: suave && !movimientoReducido.matches ? 'smooth' : 'auto',
+    });
     posicion = i;
     pintar();
   };
@@ -97,7 +126,9 @@ export function montarLupa({ grupoDe, alAbrir, alCerrar }: OpcionesLupa): void {
   );
 
   const abrir = (boton: HTMLButtonElement) => {
-    grupo = grupoDe(boton);
+    grupo = grupoDe(boton).filter(
+      (pieza) => !pieza.disabled && pieza.dataset.state !== 'error'
+    );
     const inicio = grupo.indexOf(boton);
     if (inicio < 0) return;
 

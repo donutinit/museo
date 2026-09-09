@@ -178,3 +178,6 @@ export const cintaPorSlug = (slug: string): VideoEntry => {
   if (!v) throw new Error(`no existe la cinta "${slug}" en el catálogo`);
   return v;
 };
+
+/** Subtítulos pequeños y versionados con el sitio; la media pesada sigue en R2. */
+export const subtitulosDe = (slug: string): string => `/captions/${slug}.vtt`;

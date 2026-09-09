@@ -122,6 +122,16 @@ Rutas comerciales ocultas futuras:
 - excluirlas del sitemap si se implementan
 - pensarlas para links directos por WhatsApp/correo
 
+## experiencia audiovisual de portada
+
+La ruta `/` es una pieza audiovisual, no una landing convencional.
+
+- El gate “¿estás listo?” obtiene un gesto explícito de entrada.
+- Después de ese gesto, la primera cinta arranca con sonido. Es deliberado.
+- Esta excepción aplica sólo a `/`; no se extiende a `/obra`, `/video/[slug]` ni otras rutas.
+- No cambies la entrada a `muted` ni reportes este comportamiento como `sound-on autoplay` en auditorías. Sólo señálalo si deja de estar precedido por el gate o si se extiende fuera de la portada.
+- Los mandos de sonido y pausa deben seguir disponibles después de entrar.
+
 ## media
 
 No subas media pesada al repo. Vive en el bucket R2 `museo`, servido desde

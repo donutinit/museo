@@ -8,8 +8,6 @@
  */
 /* Hallmark · pre-emit critique: P5 H5 E5 S5 R4 V5 */
 
-@import "../../tokens.css";
-
 body:has(.rollo--sofia-max) {
   --fondo: var(--color-paper);
   --rebate: var(--color-paper-2);
@@ -268,10 +266,11 @@ body:has(.rollo--sofia-max) .colofon {
 .sofia-foto:is([aria-busy="true"], [data-state="loading"]),
 .sofia-portada:is([aria-busy="true"], [data-state="loading"]) { cursor: wait; }
 
-.sofia-foto:is([data-state="loading"], [data-state="error"], [data-state="success"])::after,
-.sofia-portada:is([data-state="loading"], [data-state="error"], [data-state="success"])::after {
+.sofia-foto:is([data-state="loading"], [data-state="error"])::after,
+.sofia-portada:is([data-state="loading"], [data-state="error"])::after {
   position: absolute;
   inset: auto var(--space-md) var(--space-md) auto;
+  transform: none;
   padding: var(--space-xs) var(--space-sm);
   background: var(--color-paper);
   color: var(--color-ink);
@@ -284,8 +283,6 @@ body:has(.rollo--sofia-max) .colofon {
 .sofia-portada[data-state="loading"]::after { content: "cargando"; }
 .sofia-foto[data-state="error"]::after,
 .sofia-portada[data-state="error"]::after { content: "imagen no disponible"; border: var(--rule-hair) dashed var(--color-accent); }
-.sofia-foto[data-state="success"]::after,
-.sofia-portada[data-state="success"]::after { content: "lista"; border: var(--rule-hair) solid var(--color-ink-2); }
 
 .rollo--sofia-max > .paso {
   width: min(100%, 88rem);

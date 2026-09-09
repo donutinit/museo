@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { cintasPorFecha, kindLabel } from '../../data/videos';
+import { cintasPorFecha, kindLabel, subtitulosDe } from '../../data/videos';
 import { media, medidaDe } from '../../lib/media';
 import { medidaCinta } from '../../lib/archivo';
 import { grafo, persona, cinta as cintaLD, migas } from '../../lib/seo';
@@ -47,6 +47,13 @@ const esquema = grafo(
     <div class="visor" style={`--cuadro-aspect: ${cinta.aspect};`}>
       <video controls playsinline preload="none" poster={media(cinta.poster)}>
         <source src={media(cinta.src)} type="video/mp4" />
+        <track
+          kind="captions"
+          src={subtitulosDe(cinta.slug)}
+          srclang="es"
+          label="Español"
+          default
+        />
         Tu navegador no puede reproducir esta cinta.
       </video>
     </div>

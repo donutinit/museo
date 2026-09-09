@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { placas } from '../data/reel';
-import { cintaPorSlug } from '../data/videos';
+import { cintaPorSlug, subtitulosDe } from '../data/videos';
 import { media, srcset, altDe } from '../lib/media';
 import Lupa from '../components/Lupa.astro';
 import { grafo, persona, sitio, cinta as cintaLD } from '../lib/seo';
@@ -46,6 +46,17 @@ const esquema = grafo(
   <div class="mandos" data-detras-gate inert>
     <button type="button" class="mando edge" data-pausa aria-pressed="false">
       <span data-pausa-label>pausa</span>
+    </button>
+    <button
+      type="button"
+      class="mando edge"
+      data-subtitulos
+      data-on="true"
+      aria-pressed="true"
+      aria-label="Ocultar subtítulos"
+    >
+      <span class="sonido-punto" aria-hidden="true"></span>
+      <span data-subtitulos-label>subtítulos on</span>
     </button>
     <button
       type="button"
@@ -148,7 +159,15 @@ const esquema = grafo(
               poster={media(cinta.poster)}
             >
               <source src={media(cinta.src)} type="video/mp4" />
+              <track
+                data-placa-track
+                kind="captions"
+                src={subtitulosDe(cinta.slug)}
+                srclang="es"
+                label="Español"
+              />
             </video>
+            <p class="placa-subtitulo" data-placa-subtitulo></p>
           </div>
 
           <div class="placa-copia">
@@ -228,12 +247,34 @@ const esquema = grafo(
       quiereSonido: false,
       faltaGesto: false,
       pausado: quieto.matches,
+      subtitulos: true,
     };
 
     const placasCinta = Array.from(document.querySelectorAll<HTMLElement>('.placa--cinta'));
     const cintas = placasCinta
       .map((p) => p.querySelector<HTMLVideoElement>('[data-placa-video]'))
       .filter((v): v is HTMLVideoElement => Boolean(v));
+
+    const repintarSubtitulos: Array<() => void> = [];
+    placasCinta.forEach((placa) => {
+      const video = placa.querySelector<HTMLVideoElement>('[data-placa-video]');
+      const track = video?.querySelector<HTMLTrackElement>('[data-placa-track]');
+      const salida = placa.querySelector<HTMLElement>('[data-placa-subtitulo]');
+      if (!track || !salida) return;
+
+      const pista = track.track;
+      pista.mode = 'hidden';
+      const pintar = () => {
+        const texto = estado.subtitulos
+          ? Array.from(pista.activeCues ?? [])
+              .map((cue) => (cue as VTTCue).text)
+              .join('\n')
+          : '';
+        salida.textContent = texto;
+      };
+      pista.addEventListener('cuechange', pintar);
+      repintarSubtitulos.push(pintar);
+    });
 
     /** Los mandos la reasignan; mientras tanto no pinta nada. */
     let pintarMandos: () => void = () => {};
@@ -333,6 +374,9 @@ const esquema = grafo(
       const soltarAislamiento = aislar(gate);
       gateBoton.focus({ preventScroll: true });
 
+      // Dirección deliberada: sólo en `/`, el gate obtiene el gesto de entrada
+      // a la pieza audiovisual y la primera cinta arranca con sonido. No mover
+      // este comportamiento a otras rutas; ver AGENTS.md.
       gateBoton.addEventListener('click', (evento) => {
         evento.preventDefault();
         estado.listo = true;
@@ -365,6 +409,8 @@ const esquema = grafo(
     const etiquetaSonido = document.querySelector<HTMLSpanElement>('[data-sonido-label]');
     const botonPausa = document.querySelector<HTMLButtonElement>('[data-pausa]');
     const etiquetaPausa = document.querySelector<HTMLSpanElement>('[data-pausa-label]');
+    const botonSubtitulos = document.querySelector<HTMLButtonElement>('[data-subtitulos]');
+    const etiquetaSubtitulos = document.querySelector<HTMLSpanElement>('[data-subtitulos-label]');
 
     if (botonSonido && etiquetaSonido) {
       pintarMandos = () => {
@@ -379,6 +425,18 @@ const esquema = grafo(
             ? 'toca sonido'
             : 'sonido on'
           : 'sonido off';
+
+        if (botonSubtitulos && etiquetaSubtitulos) {
+          botonSubtitulos.setAttribute('aria-pressed', String(estado.subtitulos));
+          botonSubtitulos.setAttribute(
+            'aria-label',
+            estado.subtitulos ? 'Ocultar subtítulos' : 'Mostrar subtítulos'
+          );
+          botonSubtitulos.dataset.on = String(estado.subtitulos);
+          etiquetaSubtitulos.textContent = estado.subtitulos
+            ? 'subtítulos on'
+            : 'subtítulos off';
+        }
 
         if (botonPausa && etiquetaPausa) {
           botonPausa.setAttribute('aria-pressed', String(estado.pausado));
@@ -397,6 +455,12 @@ const esquema = grafo(
         sincronizar(true);
       });
     }
+
+    botonSubtitulos?.addEventListener('click', () => {
+      estado.subtitulos = !estado.subtitulos;
+      pintarMandos();
+      repintarSubtitulos.forEach((pintar) => pintar());
+    });
 
     // WCAG 2.2.2: algo que se mueve solo y no para necesita cómo pararlo.
     botonPausa?.addEventListener('click', () => {

@@ -83,6 +83,8 @@ const esquema = grafo(
   imageHeight={data.posterHeight}
   imageAlt={altDe(data.poster, `${data.title} — rollo de ${oficio[data.type]}, ${data.year}`)}
   precargar={piezas[0]?.ruta}
+  precargarSrcset={piezas[0]?.conjunto}
+  precargarSizes={esSofiaMax ? '100vw' : SIZES}
 >
   <main class:list={['contenedor', 'rollo', { 'rollo--sofia-max': esSofiaMax }]} id="hoja">
     {esSofiaMax ? (

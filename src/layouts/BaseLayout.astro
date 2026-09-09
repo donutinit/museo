@@ -13,6 +13,9 @@ interface Props {
   imageAlt?: string;
   /** Imagen que manda en el primer pintado; se precarga con prioridad. */
   precargar?: string;
+  /** Los mismos candidatos y medida que usa el `<img>` visible. */
+  precargarSrcset?: string;
+  precargarSizes?: string;
   /** Grafo JSON-LD de la página. Invisible: sólo lo leen los buscadores. */
   esquema?: object;
   /** El reel va a pantalla completa: sin rail ni colofón encima. */
@@ -28,6 +31,8 @@ const {
   imageHeight = 1080,
   imageAlt = 'Archivo de foto y video de Von Diego',
   precargar,
+  precargarSrcset,
+  precargarSizes,
   esquema,
   desnudo = false,
 } = Astro.props;
@@ -70,7 +75,14 @@ const nav = [
     <link rel="preconnect" href="https://media.vondiego.com" />
 
     {precargar && (
-      <link rel="preload" as="image" href={media(precargar)} fetchpriority="high" />
+      <link
+        rel="preload"
+        as="image"
+        href={media(precargar)}
+        imagesrcset={precargarSrcset}
+        imagesizes={precargarSizes}
+        fetchpriority="high"
+      />
     )}
 
     <meta property="og:title" content={fullTitle} />
