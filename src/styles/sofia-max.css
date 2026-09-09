@@ -1,12 +1,21 @@
-/* Hallmark · macrostructure: Photographic · H6 hero knobs: crop=full-bleed, caption=lower-left
- * theme: custom · vibe: "plástico, glitter, fucsia, archivo nocturno" · paper: oklch(13% 0.025 345) · accent: oklch(68% 0.200 350)
+/* Hallmark · macrostructure: Photographic · H6 hero knobs: crop=framed, caption=below
+ * theme: custom · vibe: "plástico, glitter, fucsia, altar de calcomanías" · paper: oklch(13% 0.025 345) · accent: oklch(68% 0.200 350)
  * display: Archivo Variable · body: Newsreader Variable · axes: dark / display-heavy / chromatic-other (fucsia)
  * enrichment: E8 Hero Photography · supplied original · nav: N1 minimal · footer: Ft2 inline rule
  * contrast: pass (40–41) · slop: pass (42–45) · honest: pass (46) · chrome: pass (47) · tokens: pass (48)
  * responsive: pass (34, 49) · mobile: pass (34, 49, 50–57) · icons: pass (30)
- * studied: no · context: explicit · v1.1.0
+ * studied: no · context: explicit · v2.0.0
  */
 /* Hallmark · pre-emit critique: P5 H5 E5 S5 R4 V5 */
+
+/* ═════════════════════════════════════════════════════════
+   Sofía Max — la excepción brillante del archivo.
+   Regla dura de esta hoja: el adorno nunca toca la foto.
+   Todo lo decorativo vive detrás (z-index menor, capas fijas,
+   confeti bajo las láminas) o al lado (marco, passe, celdas
+   vacías de la retícula). Ninguna capa se pinta encima de una
+   imagen, ni siquiera el grano del sitio.
+   ═════════════════════════════════════════════════════════ */
 
 body:has(.rollo--sofia-max) {
   --fondo: var(--color-paper);
@@ -16,14 +25,160 @@ body:has(.rollo--sofia-max) {
   --grasa: var(--color-accent);
   --ambar: var(--color-focus);
   --linea: var(--color-rule-2);
+
+  /* paleta de la sesión: lo que trae puesto ella */
+  --s-fucsia: oklch(70% 0.235 350);
+  --s-chicle: oklch(85% 0.115 350);
+  --s-turquesa: oklch(82% 0.135 195);
+  --s-violeta: oklch(64% 0.205 300);
+  --s-oro: oklch(88% 0.145 95);
+  --s-lila: oklch(78% 0.130 320);
+  --s-hueso: oklch(97% 0.012 345);
+
+  /* estrella de cuatro puntas, dibujada una vez y reusada */
+  --forma-estrella: polygon(50% 0%, 59% 41%, 100% 50%, 59% 59%, 50% 100%, 41% 59%, 0% 50%, 41% 41%);
+  --estrella-fucsia: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 32'%3E%3Cpath fill='%23ff5ad0' d='M24 2c1.4 7.6 6 12.2 14 14-8 1.8-12.6 6.4-14 14-1.4-7.6-6-12.2-14-14 8-1.8 12.6-6.4 14-14Z'/%3E%3C/svg%3E");
+  --estrella-turquesa: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 32'%3E%3Cpath fill='%237fe9e2' d='M24 2c1.4 7.6 6 12.2 14 14-8 1.8-12.6 6.4-14 14-1.4-7.6-6-12.2-14-14 8-1.8 12.6-6.4 14-14Z'/%3E%3C/svg%3E");
+  --estrella-oro: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 32'%3E%3Cpath fill='%23ffd76d' d='M24 2c1.4 7.6 6 12.2 14 14-8 1.8-12.6 6.4-14 14-1.4-7.6-6-12.2-14-14 8-1.8 12.6-6.4 14-14Z'/%3E%3C/svg%3E");
+  --estrella-hueso: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 32'%3E%3Cpath fill='%23fff0fa' d='M24 2c1.4 7.6 6 12.2 14 14-8 1.8-12.6 6.4-14 14-1.4-7.6-6-12.2-14-14 8-1.8 12.6-6.4 14-14Z'/%3E%3C/svg%3E");
+
+  --holo: linear-gradient(
+    100deg,
+    oklch(88% 0.150 350) 0%,
+    oklch(72% 0.220 320) 14%,
+    oklch(84% 0.130 260) 28%,
+    oklch(88% 0.130 195) 42%,
+    oklch(92% 0.150 150) 56%,
+    oklch(92% 0.160 95) 70%,
+    oklch(80% 0.180 40) 84%,
+    oklch(88% 0.150 350) 100%
+  );
+
   background: var(--color-paper);
   color: var(--color-ink);
 }
 
+/* El grano del sitio es una capa encima de todo, fotos incluidas. En esta hoja
+   no hay grano: aquí el ruido va abajo, y la imagen se queda limpia. */
+body:has(.rollo--sofia-max)::after { content: none; }
+
+/* ─── el vergo de glitter: capas fijas, siempre detrás ─── */
+
+.sofia-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  background:
+    radial-gradient(140% 100% at 50% -20%, color-mix(in oklch, var(--s-violeta) 30%, transparent), transparent 64%),
+    var(--color-paper);
+}
+
+.sofia-capa {
+  position: absolute;
+  inset: -18%;
+  display: block;
+}
+
+.sofia-capa--aurora {
+  opacity: 0.30;
+  background:
+    radial-gradient(38% 30% at 18% 12%, color-mix(in oklch, var(--s-fucsia) 62%, transparent), transparent 70%),
+    radial-gradient(34% 28% at 84% 26%, color-mix(in oklch, var(--s-turquesa) 46%, transparent), transparent 72%),
+    radial-gradient(46% 34% at 62% 78%, color-mix(in oklch, var(--s-violeta) 62%, transparent), transparent 72%),
+    radial-gradient(30% 24% at 12% 74%, color-mix(in oklch, var(--s-oro) 34%, transparent), transparent 70%);
+  animation: sofia-respirar 34s var(--ease-in-out) infinite alternate;
+}
+
+.sofia-capa--polvo {
+  opacity: 0.9;
+  background-image:
+    radial-gradient(circle at 15% 22%, var(--s-chicle) 0 0.9px, transparent 1.7px),
+    radial-gradient(circle at 68% 8%, var(--s-turquesa) 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 42% 66%, var(--s-oro) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 84% 48%, var(--s-fucsia) 0 1.1px, transparent 2px),
+    radial-gradient(circle at 30% 90%, var(--s-lila) 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 92% 82%, var(--s-hueso) 0 0.6px, transparent 1.3px),
+    radial-gradient(circle at 6% 54%, var(--s-hueso) 0 0.5px, transparent 1.1px);
+  background-size: 47px 47px, 61px 61px, 73px 73px, 89px 89px, 53px 53px, 67px 67px, 41px 41px;
+  animation: sofia-titilar 6.5s var(--ease-in-out) infinite alternate;
+}
+
+.sofia-capa--lentejuela {
+  opacity: 0.32;
+  background-image:
+    radial-gradient(circle at 26% 34%, transparent 0 2.6px, color-mix(in oklch, var(--s-fucsia) 72%, transparent) 2.6px 3.6px, transparent 3.9px),
+    radial-gradient(circle at 74% 62%, transparent 0 3.4px, color-mix(in oklch, var(--s-turquesa) 60%, transparent) 3.4px 4.4px, transparent 4.8px),
+    radial-gradient(circle at 50% 12%, transparent 0 2px, color-mix(in oklch, var(--s-oro) 64%, transparent) 2px 2.8px, transparent 3.1px);
+  background-size: 137px 137px, 191px 191px, 109px 109px;
+  animation:
+    sofia-titilar 9s var(--ease-in-out) infinite alternate-reverse,
+    sofia-derivar 64s var(--ease-in-out) infinite alternate;
+}
+
+.sofia-capa--estrellas {
+  opacity: 0.85;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(124.3 185.0) rotate(53) scale(10.1)' fill='%237fe9e2' opacity='0.74'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(34.0 165.5) rotate(18) scale(10.3)' fill='%23c98cff' opacity='0.53'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(192.6 176.3) rotate(20) scale(8.2)' fill='%23ff5ad0' opacity='0.88'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(7.7 96.8) rotate(13) scale(10.4)' fill='%237fe9e2' opacity='0.78'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(164.1 212.7) rotate(84) scale(6.3)' fill='%23ffd76d' opacity='0.54'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(34.4 178.2) rotate(13) scale(10.6)' fill='%23ff5ad0' opacity='0.97'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(149.9 62.2) rotate(73) scale(8.9)' fill='%23ff5ad0' opacity='0.88'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(87.2 104.6) rotate(71) scale(5.4)' fill='%23ff5ad0' opacity='0.55'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(137.3 174.1) rotate(8) scale(8.7)' fill='%23c98cff' opacity='0.95'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(159.0 231.1) rotate(32) scale(6.9)' fill='%237fe9e2' opacity='0.63'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(8.4 3.4) rotate(49) scale(4.8)' fill='%237fe9e2' opacity='0.9'/><circle cx='71.5' cy='20.9' r='5.6' fill='none' stroke='%23fff0fa' stroke-width='1.68' opacity='0.41'/><circle cx='190.7' cy='69.8' r='5.9' fill='none' stroke='%237fe9e2' stroke-width='1.77' opacity='0.55'/><circle cx='141.8' cy='169.2' r='8.2' fill='none' stroke='%23ffd76d' stroke-width='2.46' opacity='0.38'/><circle cx='31.7' cy='231.7' r='4.0' fill='none' stroke='%23fff0fa' stroke-width='1.20' opacity='0.3'/><circle cx='154.7' cy='186.2' r='5.8' fill='none' stroke='%237fe9e2' stroke-width='1.74' opacity='0.37'/></svg>"), url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 170 170'><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(162.1 165.5) rotate(73) scale(4.3)' fill='%23fff0fa' opacity='0.96'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(17.0 114.7) rotate(24) scale(4.4)' fill='%23c98cff' opacity='0.83'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(37.9 35.1) rotate(2) scale(2.6)' fill='%23ff5ad0' opacity='1.0'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(24.0 18.7) rotate(41) scale(2.8)' fill='%23fff0fa' opacity='0.67'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(29.0 33.1) rotate(66) scale(3.4)' fill='%237fe9e2' opacity='0.96'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(96.9 114.6) rotate(14) scale(3.1)' fill='%23ffd76d' opacity='0.46'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(0.5 97.2) rotate(63) scale(4.5)' fill='%23ff5ad0' opacity='0.82'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(69.8 160.8) rotate(89) scale(5.5)' fill='%23ff5ad0' opacity='0.67'/><path d='M0,-1 C.12,-.3 .3,-.12 1,0 C.3,.12 .12,.3 0,1 C-.12,.3 -.3,.12 -1,0 C-.3,-.12 -.12,-.3 0,-1 Z' transform='translate(111.2 126.4) rotate(72) scale(5.2)' fill='%23ff5ad0' opacity='0.5'/><circle cx='89.5' cy='163.8' r='3.1' fill='none' stroke='%23ff5ad0' stroke-width='0.93' opacity='0.6'/><circle cx='142.9' cy='22.3' r='3.0' fill='none' stroke='%23c98cff' stroke-width='0.90' opacity='0.52'/><circle cx='72.3' cy='165.7' r='1.7' fill='none' stroke='%237fe9e2' stroke-width='0.51' opacity='0.62'/><circle cx='169.2' cy='73.1' r='4.3' fill='none' stroke='%23ffd76d' stroke-width='1.29' opacity='0.52'/></svg>");
+  background-size: 240px 240px, 170px 170px;
+  background-position: 0 0, 61px 37px;
+  animation: sofia-derivar 48s var(--ease-in-out) infinite alternate-reverse;
+}
+
+.sofia-capa--holo {
+  opacity: 0.05;
+  mix-blend-mode: screen;
+  background-image: repeating-linear-gradient(
+    112deg,
+    oklch(78% 0.200 350) 0 18px,
+    oklch(80% 0.160 300) 18px 36px,
+    oklch(84% 0.140 240) 36px 54px,
+    oklch(86% 0.140 195) 54px 72px,
+    oklch(88% 0.160 150) 72px 90px,
+    oklch(90% 0.160 95) 90px 108px,
+    oklch(84% 0.180 30) 108px 126px
+  );
+  animation: sofia-derivar 28s var(--ease-in-out) infinite alternate;
+}
+
+@keyframes sofia-titilar {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+@keyframes sofia-respirar {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to { transform: scale(1.14) translate3d(2%, -2.5%, 0); }
+}
+
+@keyframes sofia-derivar {
+  from { transform: translate3d(-2%, 1.5%, 0); }
+  to { transform: translate3d(3%, -2%, 0); }
+}
+
+/* velo: el glitter tiene que sonar fuerte pero nunca más que la foto */
+.sofia-fondo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklch, var(--color-paper) 44%, transparent);
+}
+
+/* ─── rail y colofón, teñidos ─── */
+
 body:has(.rollo--sofia-max) .rail {
-  background: color-mix(in oklch, var(--color-paper) 88%, transparent);
+  background: color-mix(in oklch, var(--color-paper) 82%, transparent);
   color: var(--color-ink);
-  border-block-end-color: var(--color-rule-2);
+  border-block-end: 0;
+  box-shadow: inset 0 -2px 0 0 transparent;
+}
+
+body:has(.rollo--sofia-max) .rail::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background-image: var(--holo);
 }
 
 body:has(.rollo--sofia-max) .rail-in,
@@ -53,31 +208,234 @@ body:has(.rollo--sofia-max) :is(.rail-nav a, .colofon a, .paso a)[aria-disabled=
 }
 
 body:has(.rollo--sofia-max) .colofon {
-  border-block-start-color: var(--color-rule-2);
+  position: relative;
+  border-block-start: 0;
+  background: color-mix(in oklch, var(--color-paper) 72%, transparent);
+}
+
+body:has(.rollo--sofia-max) .colofon::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: clamp(0.75rem, 2vw, 1.15rem);
+  background-image: var(--estrella-fucsia);
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  opacity: 0.7;
 }
 
 .rollo--sofia-max {
   width: 100%;
   max-width: none;
   padding: 0;
-  background: var(--color-paper);
+  background: transparent;
   color: var(--color-ink);
 }
 
+/* ─── apertura: rótulo arriba, foto enmarcada, nada encima ─── */
+
 .sofia-apertura {
   position: relative;
+  display: grid;
+  justify-items: center;
+  gap: clamp(var(--space-lg), 3vw, var(--space-xl));
   min-width: 0;
-  height: clamp(26rem, 82svh, 58rem);
-  overflow: clip;
-  isolation: isolate;
-  background: var(--color-paper-2);
+  padding: clamp(var(--space-xl), 5vw, var(--space-3xl)) var(--page-gutter);
+}
+
+.sofia-guirnalda {
+  display: block;
+  width: 100%;
+  height: clamp(1.1rem, 2.6vw, 1.9rem);
+  background-image: var(--estrella-fucsia), var(--estrella-turquesa);
+  background-repeat: repeat-x, repeat-x;
+  background-size: auto 100%, auto 58%;
+  background-position: left center, 1.4rem center;
+  opacity: 0.85;
+}
+
+.sofia-guirnalda--baja {
+  background-image: var(--estrella-oro), var(--estrella-fucsia);
+  background-size: auto 62%, auto 100%;
+  background-position: 0.9rem center, left center;
+}
+
+.sofia-rotulo {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+  text-align: center;
+}
+
+.sofia-antetitulo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-meta);
+  font-size: var(--text-sm);
+  font-stretch: 74%;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--s-turquesa);
+}
+
+.sofia-antetitulo::before,
+.sofia-antetitulo::after {
+  content: "";
+  width: 1.5rem;
+  height: 1rem;
+  background-image: var(--estrella-turquesa);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.sofia-titulo {
+  display: grid;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 13vw, 11rem);
+  font-style: normal;
+  font-stretch: 105%;
+  font-weight: 900;
+  line-height: 0.86;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.sofia-titulo > * { grid-area: 1 / 1; }
+
+.sofia-titulo-eco {
+  color: transparent;
+  -webkit-text-stroke: clamp(1px, 0.24vw, 3px) var(--s-turquesa);
+  translate: clamp(4px, 1vw, 14px) clamp(4px, 1vw, 14px);
+  text-shadow:
+    clamp(4px, 1.1vw, 15px) clamp(4px, 1.1vw, 15px) 0 color-mix(in oklch, var(--s-violeta) 78%, transparent),
+    clamp(9px, 2.2vw, 30px) clamp(9px, 2.2vw, 30px) 0 color-mix(in oklch, var(--s-fucsia) 42%, transparent);
+}
+
+.sofia-titulo-cara {
   color: var(--color-ink);
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .sofia-titulo-cara {
+    color: transparent;
+    background-image: var(--holo);
+    background-size: 260% 100%;
+    background-position: 0 center;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: sofia-holograma 14s var(--ease-in-out) infinite alternate;
+  }
+}
+
+@keyframes sofia-holograma {
+  from { background-position: 0 center; }
+  to { background-position: 100% center; }
+}
+
+.sofia-lema {
+  margin-block-start: clamp(var(--space-2xs), 1.4vw, var(--space-md));
+  font-family: var(--font-body);
+  font-size: clamp(var(--text-base), 2.2vw, var(--text-md));
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--s-chicle);
+}
+
+/* el marco: mate de glitter + passe oscuro. La foto va dentro, sin nada arriba */
+.sofia-marco {
+  position: relative;
+  /* el grupo de mezcla se queda en el mate: la diamantina del marco no puede
+     alcanzar la imagen aunque comparta caja */
+  isolation: isolate;
+  width: min(100%, 72rem);
+  min-width: 0;
+  padding: clamp(0.5rem, 1.6vw, 1.25rem);
+  background-image: conic-gradient(
+    from 200deg at 50% 50%,
+    oklch(72% 0.220 350),
+    oklch(66% 0.210 300),
+    oklch(78% 0.140 250),
+    oklch(84% 0.130 195),
+    oklch(88% 0.150 120),
+    oklch(90% 0.160 95),
+    oklch(78% 0.190 40),
+    oklch(72% 0.220 350)
+  );
+  box-shadow:
+    clamp(6px, 1vw, 14px) clamp(6px, 1vw, 14px) 0 color-mix(in oklch, var(--s-violeta) 88%, transparent),
+    clamp(12px, 2vw, 28px) clamp(12px, 2vw, 28px) 0 color-mix(in oklch, var(--s-fucsia) 40%, transparent),
+    0 0 clamp(2rem, 6vw, 6rem) color-mix(in oklch, var(--s-fucsia) 42%, transparent);
+}
+
+/* polvo de diamantina sobre el mate, nunca sobre la imagen: el passe es opaco */
+.sofia-marco::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 22% 38%, oklch(100% 0 0 / 0.85) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 71% 12%, oklch(100% 0 0 / 0.6) 0 0.8px, transparent 1.5px),
+    radial-gradient(circle at 46% 78%, oklch(100% 0 0 / 0.7) 0 0.9px, transparent 1.6px);
+  background-size: 19px 19px, 27px 27px, 23px 23px;
+  mix-blend-mode: screen;
+}
+
+.sofia-passe {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  padding: clamp(0.4rem, 1.2vw, 0.9rem);
+  background: var(--color-paper);
+}
+
+.sofia-esquina {
+  position: absolute;
+  z-index: 2;
+  width: clamp(1.5rem, 4vw, 3.25rem);
+  aspect-ratio: 1;
+  background: var(--s-hueso);
+  clip-path: var(--forma-estrella);
+  filter: drop-shadow(0 0 0.7rem color-mix(in oklch, var(--s-fucsia) 85%, transparent));
+  pointer-events: none;
+}
+
+.sofia-esquina--no { inset-block-start: 0; inset-inline-start: 0; translate: -50% -50%; }
+.sofia-esquina--ne { inset-block-start: 0; inset-inline-end: 0; translate: 50% -50%; background: var(--s-turquesa); }
+.sofia-esquina--so { inset-block-end: 0; inset-inline-start: 0; translate: -50% 50%; background: var(--s-oro); }
+.sofia-esquina--se { inset-block-end: 0; inset-inline-end: 0; translate: 50% 50%; background: var(--s-chicle); }
+
+/* la cinta que "sostiene" el marco: cae fuera del cuadro, sobre el mate */
+.sofia-cinta-adhesiva {
+  position: absolute;
+  z-index: 2;
+  inset-block-start: 0;
+  inset-inline-start: 50%;
+  width: clamp(5rem, 14vw, 11rem);
+  height: clamp(1.4rem, 2.8vw, 2.3rem);
+  translate: -50% -62%;
+  rotate: -3deg;
+  opacity: 0.92;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    90deg,
+    oklch(88% 0.150 350) 0 8px,
+    oklch(86% 0.140 195) 8px 16px,
+    oklch(90% 0.160 95) 16px 24px
+  );
+  box-shadow: 0 0.35rem 0.9rem color-mix(in oklch, var(--color-paper) 70%, transparent);
 }
 
 .sofia-portada {
   display: block;
   width: 100%;
-  height: 100%;
   min-height: 44px;
   position: relative;
   cursor: zoom-in;
@@ -85,75 +443,90 @@ body:has(.rollo--sofia-max) .colofon {
   border-radius: var(--radius-none);
 }
 
+/* sin tope de alto: si la imagen se encajonara, el mate quedaría más ancho que
+   la foto y el marco dejaría de abrazarla */
 .sofia-portada img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 42%;
-}
-
-.sofia-portada-copia {
-  position: absolute;
-  z-index: var(--z-raised);
-  inset-inline: var(--page-gutter);
-  inset-block-end: var(--space-lg);
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: var(--space-lg);
-  pointer-events: none;
-  color: var(--color-ink);
-}
-
-.sofia-titulo {
-  min-width: 0;
-  overflow-wrap: anywhere;
-  font-family: var(--font-display);
-  font-size: clamp(var(--text-lg), 4vw, var(--text-3xl));
-  font-style: normal;
-  font-stretch: 62%;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.025em;
+  height: auto;
 }
 
 .sofia-portada-registro {
-  flex: 0 0 auto;
+  padding: var(--space-2xs) var(--space-md);
+  background-image: var(--holo);
+  color: var(--color-accent-ink);
   font-family: var(--font-meta);
   font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
   font-stretch: 70%;
-  letter-spacing: 0.08em;
-  text-align: end;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  rotate: -0.8deg;
 }
 
-.sofia-brillo {
-  --brillo-tamano: var(--space-lg);
-  position: absolute;
-  z-index: var(--z-raised);
-  width: var(--brillo-tamano);
-  height: var(--brillo-tamano);
-  pointer-events: none;
-  color: var(--color-accent);
-  background: currentColor;
-  clip-path: polygon(50% 0, 58% 40%, 100% 50%, 58% 60%, 50% 100%, 42% 60%, 0 50%, 42% 40%);
-  mix-blend-mode: screen;
+/* ─── marquesina ─── */
+
+.sofia-marquesina {
+  position: relative;
+  overflow: clip;
+  width: 100%;
+  padding-block: var(--space-2xs);
+  background-image: var(--holo);
+  color: var(--color-accent-ink);
+  font-family: var(--font-display);
+  font-size: clamp(var(--text-base), 2.4vw, var(--text-xl));
+  font-stretch: 76%;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  user-select: none;
 }
 
-.sofia-brillo:nth-of-type(1) { inset: 9% auto auto 7%; rotate: 11deg; }
-.sofia-brillo:nth-of-type(2) { --brillo-tamano: var(--space-sm); inset: 18% 9% auto auto; rotate: 28deg; color: var(--color-ink); }
-.sofia-brillo:nth-of-type(3) { --brillo-tamano: var(--space-xl); inset: auto 12% 18% auto; rotate: 5deg; }
-.sofia-brillo:nth-of-type(4) { --brillo-tamano: var(--space-xs); inset: 44% auto auto 15%; color: var(--color-ink); }
+.sofia-marquesina-pista {
+  display: flex;
+  width: max-content;
+  animation: sofia-correr 28s linear infinite;
+}
+
+.sofia-marquesina-pista > span { white-space: nowrap; }
+
+@keyframes sofia-correr {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+/* ─── ficha ─── */
 
 .sofia-ficha {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-xl);
   width: min(100%, 88rem);
   margin-inline: auto;
-  padding: var(--space-2xl) var(--page-gutter) var(--space-3xl);
-  background: var(--color-paper);
+  margin-block: clamp(var(--space-xl), 4vw, var(--space-3xl));
+  padding: var(--space-xl) clamp(var(--space-lg), 4vw, var(--space-2xl));
+  background: color-mix(in oklch, var(--color-paper) 76%, transparent);
   color: var(--color-ink);
+  box-shadow:
+    0 0 0 var(--rule-hair) color-mix(in oklch, var(--s-fucsia) 55%, transparent),
+    0 0 0 clamp(4px, 0.7vw, 9px) color-mix(in oklch, var(--s-violeta) 26%, transparent);
+}
+
+.sofia-ficha-voz {
+  display: grid;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+.sofia-racimo {
+  display: block;
+  width: clamp(6rem, 18vw, 9rem);
+  height: clamp(1.1rem, 2.4vw, 1.6rem);
+  background-image: var(--estrella-fucsia), var(--estrella-oro);
+  background-repeat: repeat-x, repeat-x;
+  background-size: auto 100%, auto 55%;
+  background-position: left center, 1.1rem center;
 }
 
 .sofia-ficha .voz {
@@ -167,7 +540,16 @@ body:has(.rollo--sofia-max) .colofon {
   color: var(--color-ink);
 }
 
-.sofia-ficha .voz p:first-child { color: var(--color-accent); }
+.sofia-ficha .voz p:first-child {
+  font-family: var(--font-display);
+  font-size: clamp(var(--text-lg), 4vw, var(--text-2xl));
+  font-stretch: 88%;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--s-chicle);
+}
 
 .sofia-ficha .registro {
   align-self: start;
@@ -176,25 +558,87 @@ body:has(.rollo--sofia-max) .colofon {
   color: var(--color-muted);
 }
 
-.sofia-ficha .registro > div { border-block-end-color: var(--color-rule-2); }
-.sofia-ficha .registro dd { color: var(--color-ink-2); }
+.sofia-ficha .registro > div { border-block-end-color: color-mix(in oklch, var(--s-fucsia) 45%, transparent); }
+.sofia-ficha .registro dt { color: var(--s-turquesa); }
+.sofia-ficha .registro dd { color: var(--color-ink); }
+
+/* ─── secuencia ─── */
 
 .sofia-secuencia {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3xl);
   min-width: 0;
-  padding-block: var(--space-xl) var(--space-4xl);
-  background: var(--color-paper-2);
+  padding: var(--space-xl) var(--page-gutter) var(--space-4xl);
+  background: color-mix(in oklch, var(--color-paper-2) 42%, transparent);
   color: var(--color-ink);
 }
 
+/* confeti: capa 0, debajo de cada lámina (capa 1). Nunca puede taparlas */
+.sofia-confeti {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.sofia-chispa {
+  position: absolute;
+  inset-block-start: calc(var(--y) * 1%);
+  inset-inline-start: calc(var(--x) * 1%);
+  width: calc(var(--s) * 1.6rem);
+  aspect-ratio: 1;
+  rotate: calc(var(--r) * 1deg);
+  background: var(--c);
+  opacity: 0.75;
+  animation: sofia-chispear 5.5s var(--ease-in-out) infinite alternate;
+  animation-delay: calc(var(--d) * -1s);
+}
+
+.sofia-chispa--estrella { clip-path: var(--forma-estrella); }
+.sofia-chispa--rombo { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.sofia-chispa--lenteja {
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, oklch(100% 0 0 / 0.9), transparent 46%), var(--c);
+}
+
+@keyframes sofia-chispear {
+  from { opacity: 0.25; transform: scale(0.8); }
+  to { opacity: 0.95; transform: scale(1.12); }
+}
+
 .sofia-lamina {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  align-self: start;
+  align-content: start;
   gap: var(--space-sm);
+  justify-items: start;
   min-width: 0;
 }
+
+.sofia-marco--lamina {
+  width: 100%;
+  padding: clamp(0.35rem, 0.9vw, 0.7rem);
+  box-shadow:
+    clamp(4px, 0.7vw, 10px) clamp(4px, 0.7vw, 10px) 0 color-mix(in oklch, var(--s-violeta) 88%, transparent),
+    clamp(8px, 1.4vw, 20px) clamp(8px, 1.4vw, 20px) 0 color-mix(in oklch, var(--s-fucsia) 34%, transparent),
+    0 0 clamp(1.5rem, 4vw, 4rem) color-mix(in oklch, var(--s-fucsia) 32%, transparent);
+}
+
+.sofia-marco--lamina .sofia-passe { padding: clamp(0.3rem, 0.8vw, 0.6rem); }
+
+/* la mitad de la estrella cae fuera del marco y la otra mitad sobre el mate:
+   con este tamaño nunca alcanza la imagen, que empieza después del passe */
+.sofia-marco--lamina .sofia-esquina { width: clamp(1rem, 2.2vw, 1.75rem); }
+
+.sofia-lamina:nth-of-type(odd) { rotate: -0.7deg; }
+.sofia-lamina:nth-of-type(even) { rotate: 0.6deg; }
+.sofia-lamina:nth-of-type(3n) { rotate: 1deg; }
 
 .sofia-foto {
   position: relative;
@@ -205,15 +649,13 @@ body:has(.rollo--sofia-max) .colofon {
   text-align: start;
   cursor: zoom-in;
   border-radius: var(--radius-none);
-  background: var(--color-paper-3);
+  background: var(--color-paper);
   color: var(--color-ink);
 }
 
 .sofia-foto img {
   width: 100%;
   height: auto;
-  max-height: 90svh;
-  object-fit: contain;
   filter: saturate(0.98) contrast(1.01);
   transform: translateZ(0);
   transition:
@@ -222,19 +664,21 @@ body:has(.rollo--sofia-max) .colofon {
 }
 
 .sofia-lamina figcaption {
-  display: flex;
+  display: inline-flex;
   justify-content: space-between;
-  gap: var(--space-sm);
-  padding-inline: var(--space-md);
+  gap: var(--space-md);
+  padding: var(--space-3xs) var(--space-sm);
+  rotate: -1.2deg;
+  background-image: linear-gradient(100deg, var(--s-fucsia), var(--s-violeta) 62%, var(--s-turquesa));
+  color: var(--color-accent-ink);
   font-family: var(--font-meta);
   font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
   font-stretch: 68%;
-  letter-spacing: 0.08em;
-  color: var(--color-accent);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
-
-.sofia-lamina figcaption span:last-child { color: var(--color-muted); }
 
 @media (hover: hover) and (pointer: fine) {
   .sofia-foto:hover img,
@@ -284,17 +728,102 @@ body:has(.rollo--sofia-max) .colofon {
 .sofia-foto[data-state="error"]::after,
 .sofia-portada[data-state="error"]::after { content: "imagen no disponible"; border: var(--rule-hair) dashed var(--color-accent); }
 
+/* ─── notas: adorno que vive en las celdas que ninguna lámina ocupa ─── */
+
+.sofia-nota {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  justify-self: center;
+  min-width: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.sofia-nota-texto {
+  display: block;
+  font-family: var(--font-meta);
+  font-size: var(--text-sm);
+  font-stretch: 70%;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.sofia-nota--n1 .sofia-nota-texto {
+  padding: var(--space-2xs) var(--space-sm);
+  background: color-mix(in oklch, var(--s-turquesa) 88%, transparent);
+  color: var(--color-accent-ink);
+  rotate: -1deg;
+}
+
+.sofia-nota--n2,
+.sofia-nota--n3,
+.sofia-nota--n4 {
+  width: min(100%, 14rem);
+  height: clamp(1.1rem, 3vw, 1.6rem);
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+}
+
+.sofia-nota--n2 { background-image: var(--estrella-oro); }
+.sofia-nota--n3 { background-image: var(--estrella-fucsia); }
+.sofia-nota--n4 { background-image: var(--estrella-turquesa); }
+
+.sofia-nota--n5 .sofia-nota-texto {
+  padding: var(--space-xs) var(--space-md);
+  background-image: var(--holo);
+  color: var(--color-accent-ink);
+  rotate: 2.5deg;
+}
+
+.sofia-nota--n6 .sofia-nota-texto {
+  font-family: var(--font-display);
+  font-size: clamp(var(--text-md), 3.4vw, var(--text-2xl));
+  font-stretch: 74%;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--s-chicle);
+  text-align: center;
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .sofia-nota--n6 .sofia-nota-texto {
+    background-image: var(--holo);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0;
+  }
+}
+
+/* ─── paso de rollo ─── */
+
 .rollo--sofia-max > .paso {
+  position: relative;
+  z-index: 1;
   width: min(100%, 88rem);
   margin-inline: auto;
   margin-block-start: 0;
   padding: var(--space-2xl) var(--page-gutter) 0;
-  border-block-start-color: var(--color-rule-2);
-  background: var(--color-paper);
-  color: var(--color-ink);
+  border-block-start: 0;
 }
 
-.rollo--sofia-max .paso-titulo { color: var(--color-ink-2); }
+.rollo--sofia-max > .paso::before {
+  content: "";
+  position: absolute;
+  inset: 0 var(--page-gutter) auto;
+  height: 2px;
+  background-image: var(--holo);
+}
+
+.rollo--sofia-max .paso-titulo { color: var(--s-chicle); }
+.rollo--sofia-max .paso a:hover .paso-titulo,
+.rollo--sofia-max .paso a:focus-visible .paso-titulo { color: var(--s-turquesa); }
+.rollo--sofia-max .paso .edge { color: var(--s-turquesa); }
+
+/* ─── lupa ─── */
 
 body:has(.rollo--sofia-max) .lupa {
   background: color-mix(in oklch, var(--color-paper) 96%, transparent);
@@ -310,6 +839,8 @@ body:has(.rollo--sofia-max) .lupa button:active {
   transform: translateY(var(--space-3xs));
 }
 
+/* ─── retícula grande ─── */
+
 @media (min-width: 40rem) {
   .sofia-ficha {
     grid-template-columns: minmax(0, 1.6fr) minmax(14rem, 0.4fr);
@@ -322,28 +853,61 @@ body:has(.rollo--sofia-max) .lupa button:active {
     padding: var(--space-2xl) var(--page-gutter) var(--space-4xl);
   }
 
-  .sofia-lamina:nth-of-type(1) { grid-column: 1 / 6; }
-  .sofia-lamina:nth-of-type(2) { grid-column: 7 / 13; margin-block-start: var(--space-4xl); }
-  .sofia-lamina:nth-of-type(3) { grid-column: 3 / 11; }
-  .sofia-lamina:nth-of-type(4) { grid-column: 1 / 6; }
-  .sofia-lamina:nth-of-type(5) { grid-column: 6 / 13; margin-block-start: var(--space-3xl); }
-  .sofia-lamina:nth-of-type(6) { grid-column: 2 / 7; }
-  .sofia-lamina:nth-of-type(7) { grid-column: 8 / 13; margin-block-start: var(--space-4xl); }
-  .sofia-lamina:nth-of-type(8) { grid-column: 1 / 6; }
-  .sofia-lamina:nth-of-type(9) { grid-column: 6 / 11; margin-block-start: var(--space-3xl); }
-  .sofia-lamina:nth-of-type(10) { grid-column: 7 / 13; }
-  .sofia-lamina:nth-of-type(11) { grid-column: 1 / 13; }
+  /* filas explícitas: así los huecos son deliberados y el adorno cabe sin
+     empujar ni encimarse con ninguna lámina */
+  .sofia-lamina:nth-of-type(1) { grid-area: 1 / 1 / auto / 6; }
+  .sofia-lamina:nth-of-type(2) { grid-area: 1 / 7 / auto / 13; margin-block-start: var(--space-4xl); }
+  .sofia-lamina:nth-of-type(3) { grid-area: 2 / 3 / auto / 11; }
+  .sofia-lamina:nth-of-type(4) { grid-area: 3 / 1 / auto / 6; }
+  .sofia-lamina:nth-of-type(5) { grid-area: 3 / 6 / auto / 13; margin-block-start: var(--space-3xl); }
+  .sofia-lamina:nth-of-type(6) { grid-area: 4 / 2 / auto / 7; }
+  .sofia-lamina:nth-of-type(7) { grid-area: 4 / 8 / auto / 13; margin-block-start: var(--space-4xl); }
+  .sofia-lamina:nth-of-type(8) { grid-area: 5 / 1 / auto / 6; }
+  .sofia-lamina:nth-of-type(9) { grid-area: 5 / 6 / auto / 11; margin-block-start: var(--space-3xl); }
+  .sofia-lamina:nth-of-type(10) { grid-area: 6 / 7 / auto / 13; }
+  .sofia-lamina:nth-of-type(11) { grid-area: 7 / 1 / auto / 13; }
 
-  .sofia-lamina figcaption { padding-inline: 0; }
+  .sofia-nota--n1 { grid-area: 2 / 1 / auto / 3; }
+  .sofia-nota--n2 { grid-area: 2 / 11 / auto / 13; }
+  .sofia-nota--n3 { grid-area: 4 / 1 / auto / 2; }
+  .sofia-nota--n4 { grid-area: 4 / 7 / auto / 8; }
+  .sofia-nota--n5 { grid-area: 5 / 11 / auto / 13; }
+  .sofia-nota--n6 { grid-area: 6 / 1 / auto / 7; }
+
+  .sofia-nota--n1 .sofia-nota-texto {
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+    letter-spacing: 0.3em;
+  }
+
+  .sofia-nota--n2,
+  .sofia-nota--n3,
+  .sofia-nota--n4 {
+    width: clamp(1.1rem, 2.6vw, 1.7rem);
+    height: min(100%, 22rem);
+    background-repeat: repeat-y;
+    background-size: 100% auto;
+  }
 }
 
 @media (min-width: 80rem) {
   .sofia-secuencia { column-gap: var(--space-xl); }
-  .sofia-lamina:nth-of-type(3) { grid-column: 4 / 10; }
-  .sofia-lamina:nth-of-type(11) { grid-column: 2 / 12; }
+  .sofia-lamina:nth-of-type(3) { grid-area: 2 / 4 / auto / 10; }
+  .sofia-lamina:nth-of-type(11) { grid-area: 7 / 2 / auto / 12; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sofia-capa,
+  .sofia-chispa,
+  .sofia-titulo-cara,
+  .sofia-marquesina-pista {
+    animation: none;
+  }
+
+  .sofia-capa--polvo { opacity: 0.7; }
+  .sofia-capa--lentejuela { opacity: 0.5; }
+  .sofia-chispa { opacity: 0.7; }
+
   .sofia-foto img,
   .sofia-portada img {
     transition-duration: var(--dur-micro);
