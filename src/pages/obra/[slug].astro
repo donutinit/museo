@@ -5,6 +5,7 @@ import { media, srcset, medidaDe, altDe } from '../../lib/media';
 import { oficio } from '../../lib/archivo';
 import Lupa from '../../components/Lupa.astro';
 import { grafo, persona, imagen, migas, ID_PERSONA, SITIO } from '../../lib/seo';
+import '../../styles/sofia-max.css';
 
 export async function getStaticPaths() {
   const proyectos = (await getCollection('projects')).sort(
@@ -30,6 +31,7 @@ interface Props {
 const { proyecto, anterior, siguiente } = Astro.props;
 const { data } = proyecto;
 const { Content } = await render(proyecto);
+const esSofiaMax = proyecto.id === 'sofia-max';
 
 const piezas = Array.from({ length: data.photoCount }, (_, i) => {
   const nn = String(i + 1).padStart(2, '0');
@@ -82,54 +84,133 @@ const esquema = grafo(
   imageAlt={altDe(data.poster, `${data.title} — rollo de ${oficio[data.type]}, ${data.year}`)}
   precargar={piezas[0]?.ruta}
 >
-  <main class="contenedor rollo" id="hoja">
-    <header class="rollo-cab">
-      <div>
-        <h1 class="display rollo-titulo">{data.title}</h1>
-        <div class="voz rollo-texto"><Content /></div>
-      </div>
-
-      <dl class="registro micro">
-        <div><dt>rollo</dt> <dd>{data.photosPrefix}</dd></div>
-        <div><dt>oficio</dt> <dd>{oficio[data.type]}</dd></div>
-        <div><dt>año</dt> <dd>{data.year}</dd></div>
-        {data.location && <div><dt>lugar</dt> <dd>{data.location.toLowerCase()}</dd></div>}
-        {data.client && <div><dt>cliente</dt> <dd>{data.client.toLowerCase()}</dd></div>}
-        <div><dt>piezas</dt> <dd>{data.photoCount}</dd></div>
-      </dl>
-    </header>
-
-    <div class="hoja hoja--intrinseca rollo-hoja">
-      {piezas.map((pieza, i) => (
-        <button
-          type="button"
-          class="cuadro"
-          data-lupa-src={pieza.src}
-          data-lupa-alt={pieza.alt}
-          aria-label={`Abrir ${pieza.alt} a pantalla completa`}
-        >
-          <span class="cuadro-media">
+  <main class:list={['contenedor', 'rollo', { 'rollo--sofia-max': esSofiaMax }]} id="hoja">
+    {esSofiaMax ? (
+      <>
+        <section class="sofia-apertura" aria-labelledby="sofia-titulo">
+          <button
+            type="button"
+            class="sofia-portada"
+            data-lupa-src={piezas[0].src}
+            data-lupa-alt={piezas[0].alt}
+            aria-label={`Abrir ${piezas[0].alt} a pantalla completa`}
+          >
             <img
-              src={pieza.src}
-              srcset={pieza.conjunto}
-              sizes={SIZES}
-              alt={pieza.alt}
-              width={pieza.w}
-              height={pieza.h}
-              loading={i === 0 ? 'eager' : 'lazy'}
+              src={piezas[0].src}
+              srcset={piezas[0].conjunto}
+              sizes="100vw"
+              alt={piezas[0].alt}
+              width={piezas[0].w}
+              height={piezas[0].h}
+              loading="eager"
               decoding="async"
-              fetchpriority={i === 0 ? 'high' : undefined}
+              fetchpriority="high"
             />
-          </span>
-          <span class="cuadro-pie">
-            <span class="cuadro-codigo">
-              <span>{data.photosPrefix} {pieza.nn}</span>
-              <span>de {data.photoCount}</span>
-            </span>
-          </span>
-        </button>
-      ))}
-    </div>
+          </button>
+
+          <div class="sofia-portada-copia">
+            <h1 class="sofia-titulo" id="sofia-titulo">{data.title}</h1>
+            <p class="sofia-portada-registro">retrato · 26.08.2026 · 01/12</p>
+          </div>
+
+          <span class="sofia-brillo" aria-hidden="true"></span>
+          <span class="sofia-brillo" aria-hidden="true"></span>
+          <span class="sofia-brillo" aria-hidden="true"></span>
+          <span class="sofia-brillo" aria-hidden="true"></span>
+        </section>
+
+        <section class="sofia-ficha" aria-label="Ficha del rollo">
+          <div class="voz"><Content /></div>
+
+          <dl class="registro micro">
+            <div><dt>rollo</dt> <dd>{data.photosPrefix}</dd></div>
+            <div><dt>oficio</dt> <dd>{oficio[data.type]}</dd></div>
+            <div><dt>año</dt> <dd>{data.year}</dd></div>
+            <div><dt>piezas</dt> <dd>{data.photoCount}</dd></div>
+          </dl>
+        </section>
+
+        <section class="sofia-secuencia" aria-labelledby="sofia-secuencia-titulo">
+          <h2 class="fuera" id="sofia-secuencia-titulo">Secuencia completa</h2>
+          {piezas.slice(1).map((pieza) => (
+            <figure class="sofia-lamina">
+              <button
+                type="button"
+                class="sofia-foto"
+                data-lupa-src={pieza.src}
+                data-lupa-alt={pieza.alt}
+                aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+              >
+                <img
+                  src={pieza.src}
+                  srcset={pieza.conjunto}
+                  sizes="(max-width: 39.99rem) 100vw, 70vw"
+                  alt={pieza.alt}
+                  width={pieza.w}
+                  height={pieza.h}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </button>
+              <figcaption>
+                <span>{data.photosPrefix} {pieza.nn}</span>
+                <span>{pieza.nn}/{data.photoCount}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </section>
+      </>
+    ) : (
+      <>
+        <header class="rollo-cab">
+          <div>
+            <h1 class="display rollo-titulo">{data.title}</h1>
+            <div class="voz rollo-texto"><Content /></div>
+          </div>
+
+          <dl class="registro micro">
+            <div><dt>rollo</dt> <dd>{data.photosPrefix}</dd></div>
+            <div><dt>oficio</dt> <dd>{oficio[data.type]}</dd></div>
+            <div><dt>año</dt> <dd>{data.year}</dd></div>
+            {data.location && <div><dt>lugar</dt> <dd>{data.location.toLowerCase()}</dd></div>}
+            {data.client && <div><dt>cliente</dt> <dd>{data.client.toLowerCase()}</dd></div>}
+            <div><dt>piezas</dt> <dd>{data.photoCount}</dd></div>
+          </dl>
+        </header>
+
+        <div class="hoja hoja--intrinseca rollo-hoja">
+          {piezas.map((pieza, i) => (
+            <button
+              type="button"
+              class="cuadro"
+              data-lupa-src={pieza.src}
+              data-lupa-alt={pieza.alt}
+              aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+            >
+              <span class="cuadro-media">
+                <img
+                  src={pieza.src}
+                  srcset={pieza.conjunto}
+                  sizes={SIZES}
+                  alt={pieza.alt}
+                  width={pieza.w}
+                  height={pieza.h}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  fetchpriority={i === 0 ? 'high' : undefined}
+                />
+              </span>
+              <span class="cuadro-pie">
+                <span class="cuadro-codigo">
+                  <span>{data.photosPrefix} {pieza.nn}</span>
+                  <span>de {data.photoCount}</span>
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </>
+    )}
 
     <nav class="paso" aria-label="Rollos vecinos">
       {anterior ? (

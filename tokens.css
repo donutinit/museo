@@ -1,0 +1,60 @@
+/* Hallmark · macrostructure: Photographic · theme: custom · token source: Sofía Max */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R4 V5 */
+
+:root {
+  --color-paper: oklch(13% 0.025 345);
+  --color-paper-2: oklch(17% 0.030 345);
+  --color-paper-3: oklch(22% 0.034 345);
+  --color-ink: oklch(95% 0.015 345);
+  --color-ink-2: oklch(82% 0.022 345);
+  --color-rule: oklch(34% 0.030 345);
+  --color-rule-2: oklch(26% 0.028 345);
+  --color-muted: oklch(70% 0.024 345);
+  --color-neutral: oklch(58% 0.028 345);
+  --color-accent: oklch(68% 0.200 350);
+  --color-accent-ink: oklch(15% 0.020 345);
+  --color-focus: oklch(88% 0.150 350);
+
+  --font-display: "Archivo Variable", "Archivo Narrow", sans-serif;
+  --font-body: "Newsreader Variable", serif;
+  --font-meta: "Archivo Variable", "Archivo Narrow", sans-serif;
+
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 9rem;
+
+  --text-xs: 0.64rem;
+  --text-sm: 0.8rem;
+  --text-base: 1rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.5625rem;
+  --text-xl: 1.9531rem;
+  --text-2xl: 2.4414rem;
+  --text-3xl: 3.0518rem;
+  --text-4xl: 3.8147rem;
+  --text-display: clamp(2.75rem, 5vw + 1rem, 5.25rem);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+
+  --rule-hair: 1px;
+  --rule-focus: 3px;
+  --radius-none: 0;
+  --page-gutter: clamp(1rem, 4vw, 4rem);
+
+  --z-base: 1;
+  --z-raised: 10;
+  --z-sticky: 200;
+  --z-modal: 400;
+}

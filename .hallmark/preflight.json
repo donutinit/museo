@@ -1,0 +1,15 @@
+{
+  "date": "2026-09-08",
+  "font_stack": "Archivo Variable + Newsreader Variable",
+  "palette": "dark photographic archive tokens in src/styles/global.css",
+  "motion": "motion-cut; native CSS transitions only",
+  "spacing": "fluid clamp-based spacing; no complete 4pt token scale",
+  "framework": "Astro 7.3.1 static",
+  "preserve": [
+    "existing font stack",
+    "archive palette and global shell",
+    "rail navigation",
+    "lightbox behavior",
+    "media path rewriting and responsive derivatives"
+  ]
+}
