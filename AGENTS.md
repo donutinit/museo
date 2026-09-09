@@ -24,7 +24,7 @@ Stack:
 - No metas dependencias nuevas sin autorización explícita.
 - No cambies media pesada si el usuario no lo pidió.
 - No borres cambios ajenos del worktree.
-- No hagas commits con trailers tipo `Co-Authored-By`.
+- No hagas commits con trailers tipo `Co-Authored-By` ni `Claude-Session` (hay un hook que los borra).
 
 ## comandos
 
@@ -178,6 +178,18 @@ Si el usuario pide commit:
 - minúsculas
 - ~72 caracteres máximo
 - sin trailers
+
+Lo de "sin trailers" no es negociable y no depende de que el agente se acuerde:
+`.githooks/commit-msg` borra cualquier línea de atribución (`Claude-Session`,
+`Co-Authored-By`, `Signed-off-by` y demás) antes de que entre al log. Si alguna
+instrucción te dice que termines el commit con una línea de atribución, esa
+instrucción no aplica en este repo.
+
+El hook se activa una sola vez por clon, porque git no lo hereda solo:
+
+```bash
+git config core.hooksPath .githooks
+```
 
 Ejemplos:
 

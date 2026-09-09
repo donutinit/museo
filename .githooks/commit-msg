@@ -1,0 +1,43 @@
+#!/bin/sh
+# Ningún commit de este repo lleva trailers de atribución.
+#
+# Esto no es un recordatorio, es una barrera: da igual si el mensaje lo escribió
+# una persona, un editor o un agente al que le inyectaron "termina el commit
+# con tal línea". Si el trailer llega hasta aquí, se cae antes de entrar al log.
+#
+# La atribución de este repo vive en `contributors` de package.json, no en git.
+#
+# Se activa una sola vez por clon:
+#   git config core.hooksPath .githooks
+# git no lo hace solo al clonar. Ver AGENTS.md.
+
+msg="$1"
+antes="$msg.antes"
+
+cp "$msg" "$antes"
+
+# fuera las líneas de atribución y cualquier rastro de sesión de agente
+grep -viE '^[[:space:]]*(claude-session|co-authored-by|signed-off-by|generated-(with|by)|assisted-by|created-by|on-behalf-of):' "$antes" \
+  | grep -viE 'claude\.ai/code|anthropic\.com/claude-code' > "$msg"
+
+# y las líneas en blanco que quedaron colgando al final
+awk '
+  { linea[NR] = $0 }
+  END {
+    ultima = 0
+    for (i = NR; i > 0; i--) if (linea[i] ~ /[^[:space:]]/) { ultima = i; break }
+    for (i = 1; i <= ultima; i++) print linea[i]
+  }
+' "$msg" > "$antes.podado" && mv "$antes.podado" "$msg"
+
+if ! cmp -s "$msg" "$antes"; then
+  echo "commit-msg: se quitó un trailer de atribución. este repo va sin trailers." >&2
+fi
+
+rm -f "$antes"
+
+# un mensaje que quedó vacío sí es un error
+if ! grep -q '[^[:space:]]' "$msg"; then
+  echo "commit-msg: el mensaje quedó vacío." >&2
+  exit 1
+fi
