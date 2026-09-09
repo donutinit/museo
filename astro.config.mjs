@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { videos } from './src/data/videos.ts';
 import { media } from './src/lib/media.ts';
-import { duracionSegundos } from './src/lib/seo.ts';
+import { descripcionCinta, duracionSegundos } from './src/lib/seo.ts';
 import altJson from './src/data/alt.json' with { type: 'json' };
 
 const SITIO = 'https://www.vondiego.com';
@@ -39,7 +39,7 @@ for (const v of videos) {
       {
         thumbnail_loc: abs(v.poster),
         title: v.title,
-        description: v.caption ?? `${v.title} — cinta del archivo de Von Diego.`,
+        description: descripcionCinta(v),
         content_loc: abs(v.src),
         duration: duracionSegundos(v.durationLabel),
         family_friendly: 'yes',

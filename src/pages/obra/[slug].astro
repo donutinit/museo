@@ -33,6 +33,22 @@ const { data } = proyecto;
 const { Content } = await render(proyecto);
 const esSofiaMax = proyecto.id === 'sofia-max';
 
+const tipoSeo: Record<typeof data.type, string> = {
+  retrato: 'Retrato fotográfico',
+  evento: 'Fotografía de evento',
+  comercial: 'Fotografía comercial',
+  personal: 'Serie fotográfica',
+  concierto: 'Fotografía de concierto',
+};
+const descripcionTipo: Record<typeof data.type, string> = {
+  retrato: 'retrato fotográfico',
+  evento: 'cobertura fotográfica de evento',
+  comercial: 'fotografía comercial',
+  personal: 'serie de fotografía personal',
+  concierto: 'fotografía de concierto',
+};
+const descripcion = `${data.title}: ${descripcionTipo[data.type]} por Von Diego${data.location ? ` en ${data.location}` : ''}, ${data.year}. Galería completa de ${data.photoCount} fotografías.`;
+
 const piezas = Array.from({ length: data.photoCount }, (_, i) => {
   const nn = String(i + 1).padStart(2, '0');
   const ruta = `${data.photosDir}${data.photosPrefix}-${nn}.jpg`;
@@ -57,7 +73,7 @@ const esquema = grafo(
     '@type': 'ImageGallery',
     '@id': `${SITIO}/obra/${proyecto.id}/#rollo`,
     name: data.title,
-    description: `${data.title} — rollo de ${oficio[data.type]}, ${data.year}.`,
+    description: descripcion,
     datePublished: data.publishedAt.toISOString().slice(0, 10),
     inLanguage: 'es-MX',
     creator: { '@id': ID_PERSONA },
@@ -75,8 +91,8 @@ const esquema = grafo(
 ---
 
 <BaseLayout
-  title={`${data.title} — ${oficio[data.type]}, ${data.year}`}
-  description={`${data.title} — rollo de ${oficio[data.type]}, ${data.year}${data.location ? `, ${data.location}` : ''}. ${data.photoCount} piezas del archivo de Von Diego.`}
+  title={`${data.title} | ${tipoSeo[data.type]}`}
+  description={descripcion}
   esquema={esquema}
   image={data.poster}
   imageWidth={data.posterWidth}
@@ -112,7 +128,7 @@ const esquema = grafo(
 
           <div class="sofia-portada-copia">
             <h1 class="sofia-titulo" id="sofia-titulo">{data.title}</h1>
-            <p class="sofia-portada-registro">retrato · 26.08.2026 · 01/12</p>
+            <p class="sofia-portada-registro"><span data-nosnippet>retrato · 26.08.2026 · 01/12</span></p>
           </div>
 
           <span class="sofia-brillo" aria-hidden="true"></span>
@@ -125,10 +141,10 @@ const esquema = grafo(
           <div class="voz"><Content /></div>
 
           <dl class="registro micro">
-            <div><dt>rollo</dt> <dd>{data.photosPrefix}</dd></div>
-            <div><dt>oficio</dt> <dd>{oficio[data.type]}</dd></div>
-            <div><dt>año</dt> <dd>{data.year}</dd></div>
-            <div><dt>piezas</dt> <dd>{data.photoCount}</dd></div>
+            <div data-nosnippet><dt>rollo</dt> <dd>{data.photosPrefix}</dd></div>
+            <div data-nosnippet><dt>oficio</dt> <dd>{oficio[data.type]}</dd></div>
+            <div data-nosnippet><dt>año</dt> <dd>{data.year}</dd></div>
+            <div data-nosnippet><dt>piezas</dt> <dd>{data.photoCount}</dd></div>
           </dl>
         </section>
 
@@ -155,8 +171,8 @@ const esquema = grafo(
                 />
               </button>
               <figcaption>
-                <span>{data.photosPrefix} {pieza.nn}</span>
-                <span>{pieza.nn}/{data.photoCount}</span>
+                <span data-nosnippet>{data.photosPrefix} {pieza.nn}</span>
+                <span data-nosnippet>{pieza.nn}/{data.photoCount}</span>
               </figcaption>
             </figure>
           ))}
@@ -171,12 +187,12 @@ const esquema = grafo(
           </div>
 
           <dl class="registro micro">
-            <div><dt>rollo</dt> <dd>{data.photosPrefix}</dd></div>
-            <div><dt>oficio</dt> <dd>{oficio[data.type]}</dd></div>
-            <div><dt>año</dt> <dd>{data.year}</dd></div>
-            {data.location && <div><dt>lugar</dt> <dd>{data.location.toLowerCase()}</dd></div>}
-            {data.client && <div><dt>cliente</dt> <dd>{data.client.toLowerCase()}</dd></div>}
-            <div><dt>piezas</dt> <dd>{data.photoCount}</dd></div>
+            <div data-nosnippet><dt>rollo</dt> <dd>{data.photosPrefix}</dd></div>
+            <div data-nosnippet><dt>oficio</dt> <dd>{oficio[data.type]}</dd></div>
+            <div data-nosnippet><dt>año</dt> <dd>{data.year}</dd></div>
+            {data.location && <div data-nosnippet><dt>lugar</dt> <dd>{data.location.toLowerCase()}</dd></div>}
+            {data.client && <div data-nosnippet><dt>cliente</dt> <dd>{data.client.toLowerCase()}</dd></div>}
+            <div data-nosnippet><dt>piezas</dt> <dd>{data.photoCount}</dd></div>
           </dl>
         </header>
 
@@ -204,8 +220,8 @@ const esquema = grafo(
               </span>
               <span class="cuadro-pie">
                 <span class="cuadro-codigo">
-                  <span>{data.photosPrefix} {pieza.nn}</span>
-                  <span>de {data.photoCount}</span>
+                  <span data-nosnippet>{data.photosPrefix} {pieza.nn}</span>
+                  <span data-nosnippet>de {data.photoCount}</span>
                 </span>
               </span>
             </button>
@@ -217,15 +233,15 @@ const esquema = grafo(
     <nav class="paso" aria-label="Rollos vecinos">
       {anterior ? (
         <a href={`/obra/${anterior.id}/`}>
-          <span class="edge">rollo anterior</span>
-          <span class="paso-titulo">{anterior.data.title.toLowerCase()}</span>
+          <span class="edge" data-nosnippet>rollo anterior</span>
+          <span class="paso-titulo" data-nosnippet>{anterior.data.title.toLowerCase()}</span>
         </a>
       ) : <span />}
 
       {siguiente ? (
         <a href={`/obra/${siguiente.id}/`}>
-          <span class="edge">rollo siguiente</span>
-          <span class="paso-titulo">{siguiente.data.title.toLowerCase()}</span>
+          <span class="edge" data-nosnippet>rollo siguiente</span>
+          <span class="paso-titulo" data-nosnippet>{siguiente.data.title.toLowerCase()}</span>
         </a>
       ) : <span />}
     </nav>

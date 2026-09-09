@@ -24,11 +24,11 @@ const esquema = grafo(
 
 <BaseLayout
   desnudo
-  description="Foto y video desde Monterrey. El archivo de Von Diego: obra, encargo y cinta."
+  description="Portafolio de Von Diego, fotógrafo y videasta en Monterrey: retrato, documentación, eventos, obra personal y producción de video."
   precargar={primeraCinta.poster}
   esquema={esquema}
 >
-  <div class="gate" data-gate role="dialog" aria-modal="true" aria-labelledby="gate-titulo">
+  <div class="gate" data-gate data-nosnippet role="dialog" aria-modal="true" aria-labelledby="gate-titulo">
     <div class="gate-in">
       <p class="edge">von diego / archivo</p>
       <a id="gate-titulo" class="gate-boton" data-gate-boton href="/obra/">
@@ -41,9 +41,9 @@ const esquema = grafo(
     </div>
   </div>
 
-  <a href="/obra/" class="saltar-reel edge" data-detras-gate inert>saltar al archivo</a>
+  <a href="/obra/" class="saltar-reel edge" data-detras-gate inert><span data-nosnippet>saltar al archivo</span></a>
 
-  <div class="mandos" data-detras-gate inert>
+  <div class="mandos" data-detras-gate data-nosnippet inert>
     <button type="button" class="mando edge" data-pausa aria-pressed="false">
       <span data-pausa-label>pausa</span>
     </button>
@@ -81,13 +81,13 @@ const esquema = grafo(
         return (
           <section class="placa placa--final" data-placa={i}>
             <div class="placa-copia">
-              <p class="edge">{placa.code}</p>
+              <p class="edge"><span data-nosnippet>{placa.code}</span></p>
               <h2 class="placa-linea">
                 <em>{placa.line}</em> {placa.lineEm}.
               </h2>
               <nav class="placa-salida">
-                <a class="direccion" href="/obra/">revisar la obra completa</a>
-                <a class="edge" href="/contact/">contacto@vondiego.com</a>
+                <a class="direccion" href="/obra/"><span data-nosnippet>revisar la obra completa</span></a>
+                <a class="edge" href="/contact/"><span data-nosnippet>contacto@vondiego.com</span></a>
               </nav>
             </div>
           </section>
@@ -99,9 +99,9 @@ const esquema = grafo(
           <section class="placa placa--carrusel" data-placa={i}>
             <header class="placa-copia">
               <p class="placa-codigo edge">
-                <span>{placa.code}</span>
-                <span>{placa.caption}</span>
-                <span>{placa.photos.length} piezas</span>
+                <span data-nosnippet>{placa.code}</span>
+                <span data-nosnippet>{placa.caption}</span>
+                <span data-nosnippet>{placa.photos.length} piezas</span>
               </p>
               <h2 class="placa-titulo display">
                 {placa.title} <em>{placa.titleEm}</em>.
@@ -172,19 +172,19 @@ const esquema = grafo(
 
           <div class="placa-copia">
             <p class="placa-codigo edge">
-              <span>{placa.code}</span>
-              <span>{placa.where}</span>
-              <span>vd / {String(cinta.year).slice(-2)}</span>
-              <span>cinta {cinta.aspect}</span>
+              <span data-nosnippet>{placa.code}</span>
+              <span data-nosnippet>{placa.where}</span>
+              <span data-nosnippet>vd / {String(cinta.year).slice(-2)}</span>
+              <span data-nosnippet>cinta {cinta.aspect}</span>
             </p>
             <h2 class="placa-linea">
               {placa.line} <em>{placa.lineEm}</em>.
             </h2>
-            <a class="placa-ir edge" href={`/video/${cinta.slug}/`}>ver la cinta</a>
+            <a class="placa-ir edge" href={`/video/${cinta.slug}/`}><span data-nosnippet>ver la cinta</span></a>
           </div>
 
           {i === 0 && (
-            <span class="pista edge" aria-hidden="true">
+            <span class="pista edge" data-nosnippet aria-hidden="true">
               <span>desliza</span>
               <span class="pista-flecha">↓</span>
             </span>

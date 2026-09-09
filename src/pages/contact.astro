@@ -7,7 +7,8 @@ const esquema = grafo(
   {
     '@type': 'ContactPage',
     '@id': `${SITIO}/contact/#contacto`,
-    name: 'Contacto',
+    name: 'Contacto de Von Diego',
+    description: 'Contacto directo para fotografía, retrato, eventos, documentación y producción de video en Monterrey.',
     inLanguage: 'es-MX',
     mainEntity: { '@id': ID_PERSONA },
     significantLink: `mailto:${CORREO}`,
@@ -20,8 +21,8 @@ const esquema = grafo(
 ---
 
 <BaseLayout
-  title="contacto"
-  description="Contacto de Von Diego para foto, video y documentación. Monterrey, MX."
+  title="Contacto para fotografía y video en Monterrey"
+  description="Contacto directo con Von Diego para fotografía de retrato, eventos, documentación y producción de video en Monterrey, Nuevo León."
   esquema={esquema}
 >
   <main class="contenedor nota" id="hoja">
@@ -38,20 +39,20 @@ const esquema = grafo(
       </div>
 
       <dl class="registro micro">
-        <div><dt>base</dt> <dd>monterrey, mx</dd></div>
-        <div><dt>respuesta</dt> <dd>días hábiles</dd></div>
-        <div><dt>salida</dt> <dd>foto, video, archivo</dd></div>
+        <div data-nosnippet><dt>base</dt> <dd>monterrey, mx</dd></div>
+        <div data-nosnippet><dt>respuesta</dt> <dd>días hábiles</dd></div>
+        <div data-nosnippet><dt>salida</dt> <dd>foto, video, archivo</dd></div>
       </dl>
     </div>
 
     <nav class="paso" aria-label="Salida">
       <a href="/obra/">
-        <span class="edge">archivo</span>
-        <span class="paso-titulo">los rollos completos</span>
+        <span class="edge" data-nosnippet>archivo</span>
+        <span class="paso-titulo" data-nosnippet>los rollos completos</span>
       </a>
       <a href="/about/">
-        <span class="edge">manifiesto</span>
-        <span class="paso-titulo">lo que sostiene la obra</span>
+        <span class="edge" data-nosnippet>manifiesto</span>
+        <span class="paso-titulo" data-nosnippet>lo que sostiene la obra</span>
       </a>
     </nav>
   </main>

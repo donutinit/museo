@@ -35,6 +35,18 @@ export const duracionSegundos = (etiqueta: string): number => {
   return m * 60 + s;
 };
 
+/** Términos descriptivos para buscadores; la interfaz conserva “cinta”. */
+export const tipoCintaSeo: Record<VideoEntry['kind'], string> = {
+  entrevista: 'Entrevista en video',
+  comercial: 'Video comercial',
+  corporativo: 'Video corporativo',
+  personal: 'Obra audiovisual',
+};
+
+export const descripcionCinta = (v: VideoEntry): string =>
+  `${tipoCintaSeo[v.kind]}: ${v.title}, ${v.year}, duración ${v.durationLabel}. `
+  + `${v.caption ? `${v.caption} ` : ''}Del archivo audiovisual de ${AUTOR} en Monterrey.`;
+
 const absoluta = (ruta: string) => new URL(media(ruta), SITIO).toString();
 
 export const persona = () => ({
@@ -58,7 +70,9 @@ export const sitio = () => ({
   '@type': 'WebSite',
   '@id': `${SITIO}/#sitio`,
   url: SITIO,
-  name: `${AUTOR} — archivo`,
+  name: AUTOR,
+  alternateName: [`${AUTOR} Archivo`, 'vondiego.com'],
+  description: 'Portafolio de fotografía y video de Von Diego en Monterrey, México.',
   inLanguage: 'es-MX',
   publisher: { '@id': ID_PERSONA },
 });
@@ -78,7 +92,7 @@ export const cinta = (v: VideoEntry) => ({
   '@type': 'VideoObject',
   '@id': `${SITIO}/video/${v.slug}/#cinta`,
   name: v.title,
-  description: v.caption ?? `${v.title} — cinta del archivo de ${AUTOR}.`,
+  description: descripcionCinta(v),
   thumbnailUrl: absoluta(v.poster),
   contentUrl: absoluta(v.src),
   dateCreated: v.recordedAt,

@@ -7,7 +7,8 @@ const esquema = grafo(
   {
     '@type': 'ProfilePage',
     '@id': `${SITIO}/about/#manifiesto`,
-    name: 'Manifiesto',
+    name: 'Von Diego, fotógrafo y videasta en Monterrey',
+    description: 'Perfil y manifiesto de Von Diego: fotografía, video, obra personal y montaje desde Monterrey.',
     inLanguage: 'es-MX',
     mainEntity: { '@id': ID_PERSONA },
   },
@@ -19,8 +20,8 @@ const esquema = grafo(
 ---
 
 <BaseLayout
-  title="manifiesto"
-  description="Manifiesto de Von Diego: foto, video y montaje desde Monterrey, MX."
+  title="Fotógrafo y videasta en Monterrey"
+  description="Von Diego es fotógrafo y videasta en Monterrey. Conoce su trabajo en retrato, documentación, obra personal, video y montaje."
   esquema={esquema}
 >
   <main class="contenedor nota" id="hoja">
@@ -47,21 +48,21 @@ const esquema = grafo(
       </div>
 
       <dl class="registro micro">
-        <div><dt>oficio</dt> <dd>foto, video, montaje</dd></div>
-        <div><dt>base</dt> <dd>monterrey, mx</dd></div>
-        <div><dt>archivo</dt> <dd>obra, encargo, cinta</dd></div>
-        <div><dt>correo</dt> <dd>contacto@vondiego.com</dd></div>
+        <div data-nosnippet><dt>oficio</dt> <dd>foto, video, montaje</dd></div>
+        <div data-nosnippet><dt>base</dt> <dd>monterrey, mx</dd></div>
+        <div data-nosnippet><dt>archivo</dt> <dd>obra, encargo, cinta</dd></div>
+        <div data-nosnippet><dt>correo</dt> <dd>contacto@vondiego.com</dd></div>
       </dl>
     </div>
 
     <nav class="paso" aria-label="Salida">
       <a href="/obra/">
-        <span class="edge">archivo</span>
-        <span class="paso-titulo">los rollos completos</span>
+        <span class="edge" data-nosnippet>archivo</span>
+        <span class="paso-titulo" data-nosnippet>los rollos completos</span>
       </a>
       <a href="/contact/">
-        <span class="edge">contacto</span>
-        <span class="paso-titulo">escribir</span>
+        <span class="edge" data-nosnippet>contacto</span>
+        <span class="paso-titulo" data-nosnippet>escribir</span>
       </a>
     </nav>
   </main>

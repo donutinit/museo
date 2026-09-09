@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { cintasPorFecha, kindLabel, subtitulosDe } from '../../data/videos';
 import { media, medidaDe } from '../../lib/media';
 import { medidaCinta } from '../../lib/archivo';
-import { grafo, persona, cinta as cintaLD, migas } from '../../lib/seo';
+import { descripcionCinta, grafo, persona, cinta as cintaLD, migas, tipoCintaSeo } from '../../lib/seo';
 
 export async function getStaticPaths() {
   // el mismo orden que la hoja de /obra#cintas: si ahí una cinta va después de
@@ -35,8 +35,8 @@ const esquema = grafo(
 ---
 
 <BaseLayout
-  title={`${cinta.title} — ${oficio}, ${cinta.year}`}
-  description={cinta.caption ?? `${cinta.title} — cinta del archivo de Von Diego.`}
+  title={`${cinta.title} | ${tipoCintaSeo[cinta.kind]}`}
+  description={descripcionCinta(cinta)}
   esquema={esquema}
   image={cinta.poster}
   imageWidth={pw}
@@ -65,27 +65,27 @@ const esquema = grafo(
       </div>
 
       <dl class="registro micro">
-        <div><dt>cinta</dt> <dd>{cinta.slug}</dd></div>
-        <div><dt>oficio</dt> <dd>{oficio}</dd></div>
-        <div><dt>año</dt> <dd>{cinta.year}</dd></div>
-        <div><dt>corre</dt> <dd>{cinta.durationLabel}</dd></div>
-        <div><dt>cuadro</dt> <dd>{cinta.aspect}</dd></div>
-        <div><dt>formato</dt> <dd>h.264 aac</dd></div>
+        <div data-nosnippet><dt>cinta</dt> <dd>{cinta.slug}</dd></div>
+        <div data-nosnippet><dt>oficio</dt> <dd>{oficio}</dd></div>
+        <div data-nosnippet><dt>año</dt> <dd>{cinta.year}</dd></div>
+        <div data-nosnippet><dt>corre</dt> <dd>{cinta.durationLabel}</dd></div>
+        <div data-nosnippet><dt>cuadro</dt> <dd>{cinta.aspect}</dd></div>
+        <div data-nosnippet><dt>formato</dt> <dd>h.264 aac</dd></div>
       </dl>
     </header>
 
     <nav class="paso" aria-label="Cintas vecinas">
       {anterior ? (
         <a href={`/video/${anterior.slug}/`}>
-          <span class="edge">cinta anterior</span>
-          <span class="paso-titulo">{anterior.title.toLowerCase().split(/\s+—\s+/)[0]}</span>
+          <span class="edge" data-nosnippet>cinta anterior</span>
+          <span class="paso-titulo" data-nosnippet>{anterior.title.toLowerCase().split(/\s+—\s+/)[0]}</span>
         </a>
       ) : <span />}
 
       {siguiente ? (
         <a href={`/video/${siguiente.slug}/`}>
-          <span class="edge">cinta siguiente</span>
-          <span class="paso-titulo">{siguiente.title.toLowerCase().split(/\s+—\s+/)[0]}</span>
+          <span class="edge" data-nosnippet>cinta siguiente</span>
+          <span class="paso-titulo" data-nosnippet>{siguiente.title.toLowerCase().split(/\s+—\s+/)[0]}</span>
         </a>
       ) : <span />}
     </nav>

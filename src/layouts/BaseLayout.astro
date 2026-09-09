@@ -18,13 +18,15 @@ interface Props {
   precargarSizes?: string;
   /** Grafo JSON-LD de la página. Invisible: sólo lo leen los buscadores. */
   esquema?: object;
+  /** Rutas utilitarias, como 404, no deben entrar al índice. */
+  noindex?: boolean;
   /** El reel va a pantalla completa: sin rail ni colofón encima. */
   desnudo?: boolean;
 }
 
 const {
   title,
-  description = 'Archivo de foto y video de Von Diego. Monterrey, MX.',
+  description = 'Portafolio de Von Diego, fotógrafo y videasta en Monterrey: retrato, documentación, eventos, obra personal y producción de video.',
   // apaisada a propósito: la tarjeta social es 1.91:1 y una vertical se recorta
   image = '/media/video-posters/entrevista-yolanda.jpg',
   imageWidth = 1920,
@@ -34,10 +36,11 @@ const {
   precargarSrcset,
   precargarSizes,
   esquema,
+  noindex = false,
   desnudo = false,
 } = Astro.props;
 
-const fullTitle = title ? `${title} — Von Diego` : 'Von Diego — archivo';
+const fullTitle = title ? `${title} | Von Diego` : 'Von Diego | Fotografía y video en Monterrey';
 const canonicalPath = Astro.url.pathname === '/'
   ? '/'
   : `${Astro.url.pathname.replace(/\/$/, '')}/`;
@@ -66,6 +69,13 @@ const nav = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    <meta name="author" content="Von Diego" />
+    <meta
+      name="robots"
+      content={noindex
+        ? 'noindex, nofollow'
+        : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'}
+    />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#0d0c0f" />
@@ -96,6 +106,8 @@ const nav = [
     <meta property="og:image:alt" content={imageAlt} />
     <meta property="og:locale" content="es_MX" />
     <meta name="twitter:card" content={tarjeta} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
     <meta name="twitter:image:alt" content={imageAlt} />
 
@@ -103,11 +115,11 @@ const nav = [
   </head>
 
   <body>
-    {!desnudo && <a class="saltar edge" href="#hoja">Saltar a la hoja</a>}
+    {!desnudo && <a class="saltar edge" href="#hoja"><span data-nosnippet>Saltar a la hoja</span></a>}
 
     {!desnudo && (
     <header class="rail">
-      <div class="contenedor rail-in">
+      <div class="contenedor rail-in" data-nosnippet>
         {!enPortada && <a class="rail-marca" href="/">von diego</a>}
         <nav class="rail-nav" aria-label="Secciones">
           {nav.map((i) => (
@@ -122,7 +134,7 @@ const nav = [
 
     {!desnudo && (
     <footer class="colofon">
-      <div class="contenedor colofon-in">
+      <div class="contenedor colofon-in" data-nosnippet>
         <p class="edge">von diego — archivo de foto y video</p>
         <p class="edge">monterrey, mx</p>
         <a class="edge" href="mailto:contacto@vondiego.com">contacto@vondiego.com</a>

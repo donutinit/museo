@@ -7,14 +7,15 @@ import { grafo, persona, migas, SITIO, ID_PERSONA } from '../../lib/seo';
 
 const { foto, cinta, piezas } = await archivo();
 const SIZES = '(max-width: 40rem) 45vw, 350px';
+const descripcion = `Portafolio de Von Diego: ${foto.length} series fotográficas y ${cinta.length} videos de retrato, eventos, obra personal y trabajo comercial en Monterrey.`;
 
 const esquema = grafo(
   persona(),
   {
     '@type': 'CollectionPage',
     '@id': `${SITIO}/obra/#archivo`,
-    name: 'Archivo',
-    description: `El archivo completo de Von Diego: ${foto.length} rollos de foto (${piezas} piezas) y ${cinta.length} cintas de video. Monterrey, MX.`,
+    name: 'Portafolio de fotografía y video de Von Diego',
+    description: descripcion,
     inLanguage: 'es-MX',
     about: { '@id': ID_PERSONA },
   },
@@ -26,8 +27,8 @@ const esquema = grafo(
 ---
 
 <BaseLayout
-  title="archivo — foto y video en Monterrey"
-  description={`El archivo completo de Von Diego: ${foto.length} rollos de foto, ${piezas} piezas y ${cinta.length} cintas de video. Monterrey, MX.`}
+  title="Portafolio de fotografía y video en Monterrey"
+  description={descripcion}
   precargar={foto[0]?.src}
   precargarSrcset={foto[0] ? srcset(foto[0].src) : undefined}
   precargarSizes={SIZES}
@@ -38,14 +39,14 @@ const esquema = grafo(
     <p class="voz cabecera-voz">Cada rollo entero, del más nuevo al más viejo.</p>
 
     <dl class="cabecera-linea edge">
-      <div><dt>foto</dt> <dd>{foto.length} rollos</dd></div>
-      <div><dt>piezas</dt> <dd>{piezas}</dd></div>
-      <div><dt>cinta</dt> <dd>{cinta.length} rollos</dd></div>
+      <div data-nosnippet><dt>foto</dt> <dd>{foto.length} rollos</dd></div>
+      <div data-nosnippet><dt>piezas</dt> <dd>{piezas}</dd></div>
+      <div data-nosnippet><dt>cinta</dt> <dd>{cinta.length} rollos</dd></div>
     </dl>
   </section>
 
   <main class="contenedor" id="hoja">
-    <div class="banda">
+    <div class="banda" data-nosnippet>
       <h2 class="banda-nombre">foto</h2>
       <p class="edge">{foto.length} rollos, {piezas} piezas</p>
     </div>
@@ -56,7 +57,7 @@ const esquema = grafo(
       ))}
     </div>
 
-    <div class="banda" id="cintas">
+    <div class="banda" id="cintas" data-nosnippet>
       <h2 class="banda-nombre">cinta</h2>
       <p class="edge">{cinta.length} rollos</p>
     </div>
