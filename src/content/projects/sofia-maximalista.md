@@ -1,11 +1,11 @@
 ---
-title: Sofía Max
+title: Sofía Maximalista
 type: retrato
 year: 2026
 photoCount: 12
-photosDir: /media/projects/sofia-max/
-photosPrefix: sofia-max
-poster: /media/posters/sofia-max.webp
+photosDir: /media/projects/sofia-maximalista/
+photosPrefix: sofia-maximalista
+poster: /media/posters/sofia-maximalista.webp
 posterWidth: 1600
 posterHeight: 1064
 publishedAt: 2026-09-08

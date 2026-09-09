@@ -5,7 +5,7 @@ import { media, srcset, medidaDe, altDe } from '../../lib/media';
 import { oficio } from '../../lib/archivo';
 import Lupa from '../../components/Lupa.astro';
 import { grafo, persona, imagen, migas, ID_PERSONA, SITIO } from '../../lib/seo';
-import '../../styles/sofia-max.css';
+import '../../styles/sofia-maximalista.css';
 
 export async function getStaticPaths() {
   const proyectos = (await getCollection('projects')).sort(
@@ -31,7 +31,7 @@ interface Props {
 const { proyecto, anterior, siguiente } = Astro.props;
 const { data } = proyecto;
 const { Content } = await render(proyecto);
-const esSofiaMax = proyecto.id === 'sofia-max';
+const esSofiaMaximalista = proyecto.id === 'sofia-maximalista';
 
 const tipoSeo: Record<typeof data.type, string> = {
   retrato: 'Retrato fotográfico',
@@ -67,7 +67,7 @@ const piezas = Array.from({ length: data.photoCount }, (_, i) => {
 // en el rollo la pieza llega a ~620 px en escritorio y a la ventana en móvil
 const SIZES = '(max-width: 47.99rem) 100vw, 620px';
 
-// Sofía Max va decorada hasta el tope, así que el reparto de chispas del fondo
+// Sofía Maximalista va decorada hasta el tope, así que el reparto de chispas del fondo
 // se calcula aquí con una semilla fija: el mismo build da siempre el mismo
 // confeti y nada de esto se decide en el cliente.
 const TONOS = ['--s-fucsia', '--s-turquesa', '--s-violeta', '--s-oro', '--s-chicle', '--s-lila'];
@@ -156,10 +156,10 @@ const esquema = grafo(
   imageAlt={altDe(data.poster, `${data.title} — rollo de ${oficio[data.type]}, ${data.year}`)}
   precargar={piezas[0]?.ruta}
   precargarSrcset={piezas[0]?.conjunto}
-  precargarSizes={esSofiaMax ? '(max-width: 47.99rem) 90vw, 66vw' : SIZES}
+  precargarSizes={esSofiaMaximalista ? '(max-width: 47.99rem) 90vw, 66vw' : SIZES}
 >
-  <main class:list={['contenedor', 'rollo', { 'rollo--sofia-max': esSofiaMax }]} id="hoja">
-    {esSofiaMax ? (
+  <main class:list={['contenedor', 'rollo', { 'rollo--sofia-maximalista': esSofiaMaximalista }]} id="hoja">
+    {esSofiaMaximalista ? (
       <>
         {/* El vergo de glitter: capas fijas, detrás de todo. Ninguna toca una foto. */}
         <div class="sofia-fondo" aria-hidden="true">

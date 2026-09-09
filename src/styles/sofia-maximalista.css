@@ -9,7 +9,7 @@
 /* Hallmark · pre-emit critique: P5 H5 E5 S5 R4 V5 */
 
 /* ═════════════════════════════════════════════════════════
-   Sofía Max — la excepción brillante del archivo.
+   Sofía Maximalista — la excepción brillante del archivo.
    Regla dura de esta hoja: el adorno nunca toca la foto.
    Todo lo decorativo vive detrás (z-index menor, capas fijas,
    confeti bajo las láminas) o al lado (marco, passe, celdas
@@ -17,7 +17,7 @@
    imagen, ni siquiera el grano del sitio.
    ═════════════════════════════════════════════════════════ */
 
-body:has(.rollo--sofia-max) {
+body:has(.rollo--sofia-maximalista) {
   --fondo: var(--color-paper);
   --rebate: var(--color-paper-2);
   --papel: var(--color-ink);
@@ -60,7 +60,7 @@ body:has(.rollo--sofia-max) {
 
 /* El grano del sitio es una capa encima de todo, fotos incluidas. En esta hoja
    no hay grano: aquí el ruido va abajo, y la imagen se queda limpia. */
-body:has(.rollo--sofia-max)::after { content: none; }
+body:has(.rollo--sofia-maximalista)::after { content: none; }
 
 /* ─── el vergo de glitter: capas fijas, siempre detrás ─── */
 
@@ -166,14 +166,14 @@ body:has(.rollo--sofia-max)::after { content: none; }
 
 /* ─── rail y colofón, teñidos ─── */
 
-body:has(.rollo--sofia-max) .rail {
+body:has(.rollo--sofia-maximalista) .rail {
   background: color-mix(in oklch, var(--color-paper) 82%, transparent);
   color: var(--color-ink);
   border-block-end: 0;
   box-shadow: inset 0 -2px 0 0 transparent;
 }
 
-body:has(.rollo--sofia-max) .rail::after {
+body:has(.rollo--sofia-maximalista) .rail::after {
   content: "";
   position: absolute;
   inset: auto 0 0 0;
@@ -181,39 +181,39 @@ body:has(.rollo--sofia-max) .rail::after {
   background-image: var(--holo);
 }
 
-body:has(.rollo--sofia-max) .rail-in,
-body:has(.rollo--sofia-max) .rail-nav {
+body:has(.rollo--sofia-maximalista) .rail-in,
+body:has(.rollo--sofia-maximalista) .rail-nav {
   align-items: center;
 }
 
-body:has(.rollo--sofia-max) :is(.rail-nav a, .rail-marca, .colofon a, .paso a) {
+body:has(.rollo--sofia-maximalista) :is(.rail-nav a, .rail-marca, .colofon a, .paso a) {
   white-space: nowrap;
 }
 
-body:has(.rollo--sofia-max) :is(.rail-nav a, .colofon a, .paso-titulo) {
+body:has(.rollo--sofia-maximalista) :is(.rail-nav a, .colofon a, .paso-titulo) {
   transition:
     color var(--dur-micro) var(--ease-out),
     border-color var(--dur-micro) var(--ease-out),
     transform var(--dur-micro) var(--ease-out);
 }
 
-body:has(.rollo--sofia-max) :is(.rail-nav a, .colofon a, .paso a):active {
+body:has(.rollo--sofia-maximalista) :is(.rail-nav a, .colofon a, .paso a):active {
   transform: translateY(var(--space-3xs));
 }
 
-body:has(.rollo--sofia-max) :is(.rail-nav a, .colofon a, .paso a)[aria-disabled="true"] {
+body:has(.rollo--sofia-maximalista) :is(.rail-nav a, .colofon a, .paso a)[aria-disabled="true"] {
   cursor: not-allowed;
   opacity: 0.5;
   pointer-events: none;
 }
 
-body:has(.rollo--sofia-max) .colofon {
+body:has(.rollo--sofia-maximalista) .colofon {
   position: relative;
   border-block-start: 0;
   background: color-mix(in oklch, var(--color-paper) 72%, transparent);
 }
 
-body:has(.rollo--sofia-max) .colofon::before {
+body:has(.rollo--sofia-maximalista) .colofon::before {
   content: "";
   position: absolute;
   inset: 0 0 auto 0;
@@ -224,7 +224,7 @@ body:has(.rollo--sofia-max) .colofon::before {
   opacity: 0.7;
 }
 
-.rollo--sofia-max {
+.rollo--sofia-maximalista {
   width: 100%;
   max-width: none;
   padding: 0;
@@ -296,14 +296,17 @@ body:has(.rollo--sofia-max) .colofon::before {
   display: grid;
   min-width: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.75rem, 13vw, 11rem);
+  /* "maximalista" es larga: a 13vw se partía a media palabra. Con esto el
+     nombre cae en dos renglones parejos y ninguna palabra se rompe. */
+  font-size: clamp(2.25rem, 9.5vw, 8rem);
   font-style: normal;
   font-stretch: 105%;
   font-weight: 900;
-  line-height: 0.86;
+  line-height: 0.88;
   letter-spacing: -0.035em;
   text-transform: uppercase;
-  overflow-wrap: anywhere;
+  text-wrap: balance;
+  overflow-wrap: break-word;
 }
 
 .sofia-titulo > * { grid-area: 1 / 1; }
@@ -339,7 +342,7 @@ body:has(.rollo--sofia-max) .colofon::before {
 }
 
 .sofia-lema {
-  margin-block-start: clamp(var(--space-2xs), 1.4vw, var(--space-md));
+  margin-block-start: clamp(var(--space-xs), 2vw, var(--space-lg));
   font-family: var(--font-body);
   font-size: clamp(var(--text-base), 2.2vw, var(--text-md));
   font-style: italic;
@@ -801,7 +804,7 @@ body:has(.rollo--sofia-max) .colofon::before {
 
 /* ─── paso de rollo ─── */
 
-.rollo--sofia-max > .paso {
+.rollo--sofia-maximalista > .paso {
   position: relative;
   z-index: 1;
   width: min(100%, 88rem);
@@ -811,7 +814,7 @@ body:has(.rollo--sofia-max) .colofon::before {
   border-block-start: 0;
 }
 
-.rollo--sofia-max > .paso::before {
+.rollo--sofia-maximalista > .paso::before {
   content: "";
   position: absolute;
   inset: 0 var(--page-gutter) auto;
@@ -819,24 +822,24 @@ body:has(.rollo--sofia-max) .colofon::before {
   background-image: var(--holo);
 }
 
-.rollo--sofia-max .paso-titulo { color: var(--s-chicle); }
-.rollo--sofia-max .paso a:hover .paso-titulo,
-.rollo--sofia-max .paso a:focus-visible .paso-titulo { color: var(--s-turquesa); }
-.rollo--sofia-max .paso .edge { color: var(--s-turquesa); }
+.rollo--sofia-maximalista .paso-titulo { color: var(--s-chicle); }
+.rollo--sofia-maximalista .paso a:hover .paso-titulo,
+.rollo--sofia-maximalista .paso a:focus-visible .paso-titulo { color: var(--s-turquesa); }
+.rollo--sofia-maximalista .paso .edge { color: var(--s-turquesa); }
 
 /* ─── lupa ─── */
 
-body:has(.rollo--sofia-max) .lupa {
+body:has(.rollo--sofia-maximalista) .lupa {
   background: color-mix(in oklch, var(--color-paper) 96%, transparent);
   color: var(--color-ink);
 }
 
-body:has(.rollo--sofia-max) .lupa :is(button:disabled, [aria-disabled="true"]) {
+body:has(.rollo--sofia-maximalista) .lupa :is(button:disabled, [aria-disabled="true"]) {
   cursor: not-allowed;
   opacity: 0.5;
 }
 
-body:has(.rollo--sofia-max) .lupa button:active {
+body:has(.rollo--sofia-maximalista) .lupa button:active {
   transform: translateY(var(--space-3xs));
 }
 

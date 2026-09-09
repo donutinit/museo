@@ -10,6 +10,10 @@
 /obra/poasadas  /obra/posadas/      301
 /obra/poasadas/ /obra/posadas/      301
 
+# El rollo se renombro a sofia-maximalista; la ruta vieja ya se publico.
+/obra/sofia-max  /obra/sofia-maximalista/   301
+/obra/sofia-max/ /obra/sofia-maximalista/   301
+
 # /video (indice viejo) -> ancla de cintas en el indice nuevo.
 # OJO: solo las rutas exactas. /video/<slug> son paginas reales.
 /video          /obra/#cintas       301
