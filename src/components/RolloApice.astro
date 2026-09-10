@@ -1,0 +1,196 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import { oficio } from '../lib/archivo';
+import '../styles/apice.css';
+
+/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+interface Pieza {
+  nn: string;
+  src: string;
+  conjunto: string | undefined;
+  w?: number;
+  h?: number;
+  alt: string;
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  piezas: Pieza[];
+  /** La medida de la placa de portada; la misma que precarga la página. */
+  sizesCabeza: string;
+}
+
+const { proyecto, piezas, sizesCabeza } = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+// Clasificación del sujeto: son gatos de casa, y el expediente los ficha como
+// lo haría uno de fauna. Ahí está el chiste del rollo, dicho con los datos
+// correctos — taxonomía real, nada inventado. "amenaza mínima" sale del texto.
+const BINOMIO = 'felis catus';
+const CLASIFICACION = ['carnivora', 'felidae', 'doméstico', 'amenaza mínima'];
+
+// En esta pieza el animal ve a la cámara: la placa se abre más y se marca al
+// canto. Es la única excepción de la secuencia.
+const PIEZA_CLAVE = '06';
+
+const portada = piezas[0];
+const secuencia = piezas.slice(1);
+
+// Todo el texto suelto sale del frontmatter: código, oficio, lugar, año, cuenta.
+// Las palabras del rollo se dicen una sola vez, en el markdown.
+const campos = [
+  ['rollo', data.photosPrefix],
+  ['oficio', oficio[data.type]],
+  ...(data.location ? [['territorio', data.location.toLowerCase()]] : []),
+  ['año', String(data.year)],
+  ['observaciones', String(data.photoCount)],
+];
+
+/** El tramo que queda después de la portada: `02 — 07`. */
+const tramo = `${secuencia[0]?.nn ?? portada.nn} — ${piezas.at(-1)?.nn ?? portada.nn}`;
+---
+
+{/* el plano del aparato: capas fijas, detrás de todo, ninguna sobre una foto */}
+<div class="apice-plano" aria-hidden="true">
+  <span class="apice-capa apice-capa--malla"></span>
+  <span class="apice-capa apice-capa--rayas"></span>
+  <span class="apice-capa apice-capa--barrido"></span>
+</div>
+
+<section class="apice-expediente" aria-labelledby="apice-titulo">
+  <header class="apice-cabecera">
+    <p class="apice-sello apice-rotulo" data-nosnippet>expediente {data.photosPrefix}</p>
+
+    <h1 class="apice-titulo" id="apice-titulo">
+      <span class="apice-titulo-eco" aria-hidden="true">{data.title}</span>
+      <span>{data.title}</span>
+    </h1>
+
+    <p class="apice-binomio" data-nosnippet>{BINOMIO}</p>
+
+    <ul class="apice-clasificacion apice-rotulo" data-nosnippet>
+      {CLASIFICACION.map((termino) => <li>{termino}</li>)}
+    </ul>
+
+    <dl class="registro micro apice-registro">
+      {campos.map(([campo, valor]) => (
+        <div data-nosnippet><dt>{campo}</dt> <dd>{valor}</dd></div>
+      ))}
+    </dl>
+  </header>
+
+  <figure class="apice-placa apice-placa--cabeza">
+    <div class="apice-mate">
+      <span class="apice-escuadra" aria-hidden="true"></span>
+      <button
+        type="button"
+        class="apice-captura"
+        data-lupa-src={portada.src}
+        data-lupa-alt={portada.alt}
+        aria-label={`Abrir ${portada.alt} a pantalla completa`}
+      >
+        <img
+          src={portada.src}
+          srcset={portada.conjunto}
+          sizes={sizesCabeza}
+          alt={portada.alt}
+          width={portada.w}
+          height={portada.h}
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </button>
+    </div>
+
+    <figcaption class="apice-telemetria apice-rotulo">
+      <span class="apice-dato" data-nosnippet>{data.photosPrefix} {portada.nn}</span>
+      <span data-nosnippet>obs {portada.nn}/{data.photoCount}</span>
+    </figcaption>
+  </figure>
+</section>
+
+<section class="apice-ficha" aria-label="Nota de campo">
+  <p class="apice-rotulo" data-nosnippet>nota de campo</p>
+  <div class="voz"><Content /></div>
+</section>
+
+{/* la banda abre la secuencia: regla de medición y el tramo que viene */}
+<div class="apice-banda apice-rotulo" aria-hidden="true" data-nosnippet>
+  <span class="apice-regla"></span>
+  <div class="apice-banda-linea">
+    <span>secuencia</span>
+    <span class="apice-dato">{data.photosPrefix} {tramo}</span>
+  </div>
+</div>
+
+<section class="apice-secuencia" aria-labelledby="apice-secuencia-titulo">
+  <h2 class="fuera" id="apice-secuencia-titulo">Secuencia completa</h2>
+
+  {secuencia.map((pieza) => (
+    <figure class:list={['apice-placa', 'apice-lamina', { 'apice-lamina--clave': pieza.nn === PIEZA_CLAVE }]}>
+      <div class="apice-mate">
+        <span class="apice-escuadra" aria-hidden="true"></span>
+        <button
+          type="button"
+          class="apice-captura"
+          data-lupa-src={pieza.src}
+          data-lupa-alt={pieza.alt}
+          aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+        >
+          <img
+            src={pieza.src}
+            srcset={pieza.conjunto}
+            sizes="(max-width: 55.99rem) 92vw, 56vw"
+            alt={pieza.alt}
+            width={pieza.w}
+            height={pieza.h}
+            loading="lazy"
+            decoding="async"
+          />
+        </button>
+      </div>
+
+      <figcaption class="apice-telemetria apice-rotulo">
+        <span class="apice-dato" data-nosnippet>{data.photosPrefix} {pieza.nn}</span>
+        {pieza.nn === PIEZA_CLAVE && <span class="apice-aviso" data-nosnippet>contacto visual</span>}
+        <span data-nosnippet>obs {pieza.nn}/{data.photoCount}</span>
+      </figcaption>
+    </figure>
+  ))}
+
+  {/* El aparato alrededor de las placas. En la retícula cada marca cae en una
+      celda que ninguna lámina ocupa; en el teléfono se junta todo y cierra el
+      expediente como una tira de créditos. */}
+  <div class="apice-cierre" aria-hidden="true" data-nosnippet>
+    <div class="apice-marca apice-marca--escala">
+      <span class="apice-escala"></span>
+      <span class="apice-rotulo">{data.photosPrefix} · {data.year}</span>
+    </div>
+
+    <div class="apice-marca apice-marca--mira">
+      <svg class="apice-mira" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+        <circle cx="24" cy="24" r="15" fill="none" stroke="currentColor" stroke-width="1" />
+        <circle cx="24" cy="24" r="1.6" fill="currentColor" />
+        <path
+          d="M24 1v13M24 34v13M1 24h13M34 24h13"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1"
+        />
+      </svg>
+      <span class="apice-rotulo">encuadre</span>
+    </div>
+
+    <div class="apice-marca apice-marca--cuenta">
+      <span class="apice-cuenta">{String(data.photoCount).padStart(2, '0')}</span>
+      <span class="apice-rotulo">observaciones</span>
+    </div>
+
+    <div class="apice-marca apice-marca--cierre">
+      <span class="apice-rotulo">fin de expediente</span>
+      <span class="apice-escala"></span>
+    </div>
+  </div>
+</section>

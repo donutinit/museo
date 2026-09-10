@@ -4,6 +4,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import { media, srcset, medidaDe, altDe } from '../../lib/media';
 import { oficio } from '../../lib/archivo';
 import Lupa from '../../components/Lupa.astro';
+import RolloApice from '../../components/RolloApice.astro';
 import { grafo, persona, imagen, migas, ID_PERSONA, SITIO } from '../../lib/seo';
 import '../../styles/sofia-maximalista.css';
 
@@ -32,6 +33,7 @@ const { proyecto, anterior, siguiente } = Astro.props;
 const { data } = proyecto;
 const { Content } = await render(proyecto);
 const esSofiaMaximalista = proyecto.id === 'sofia-maximalista';
+const esApice = proyecto.id === 'apice';
 
 const tipoSeo: Record<typeof data.type, string> = {
   retrato: 'Retrato fotográfico',
@@ -66,6 +68,9 @@ const piezas = Array.from({ length: data.photoCount }, (_, i) => {
 
 // en el rollo la pieza llega a ~620 px en escritorio y a la ventana en móvil
 const SIZES = '(max-width: 47.99rem) 100vw, 620px';
+
+// en el expediente de ápice la placa de portada se topa en 28rem (ver apice.css)
+const SIZES_APICE_CABEZA = '(max-width: 55.99rem) 92vw, 28rem';
 
 // Sofía Maximalista va decorada hasta el tope, así que el reparto de chispas del fondo
 // se calcula aquí con una semilla fija: el mismo build da siempre el mismo
@@ -156,10 +161,25 @@ const esquema = grafo(
   imageAlt={altDe(data.poster, `${data.title} — rollo de ${oficio[data.type]}, ${data.year}`)}
   precargar={piezas[0]?.ruta}
   precargarSrcset={piezas[0]?.conjunto}
-  precargarSizes={esSofiaMaximalista ? '(max-width: 47.99rem) 90vw, 66vw' : SIZES}
+  precargarSizes={
+    esSofiaMaximalista
+      ? '(max-width: 47.99rem) 90vw, 66vw'
+      : esApice
+        ? SIZES_APICE_CABEZA
+        : SIZES
+  }
 >
-  <main class:list={['contenedor', 'rollo', { 'rollo--sofia-maximalista': esSofiaMaximalista }]} id="hoja">
-    {esSofiaMaximalista ? (
+  <main
+    class:list={[
+      'contenedor',
+      'rollo',
+      { 'rollo--sofia-maximalista': esSofiaMaximalista, 'rollo--apice': esApice },
+    ]}
+    id="hoja"
+  >
+    {esApice ? (
+      <RolloApice proyecto={proyecto} piezas={piezas} sizesCabeza={SIZES_APICE_CABEZA} />
+    ) : esSofiaMaximalista ? (
       <>
         {/* El vergo de glitter: capas fijas, detrás de todo. Ninguna toca una foto. */}
         <div class="sofia-fondo" aria-hidden="true">
