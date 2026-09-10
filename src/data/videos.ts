@@ -11,6 +11,7 @@ export interface VideoEntry {
   src: string;
   poster: string;
   aspect: '9/16' | '16/9' | '4/3';
+  captionsBurned?: boolean;
   caption?: string;
 }
 
@@ -85,6 +86,7 @@ export const videos: VideoEntry[] = [
     src: '/media/videos/aria-lk-web-20260907.mp4',
     poster: '/media/video-posters/aria-lk.jpg',
     aspect: '9/16',
+    captionsBurned: true,
     caption: 'Cuando en un proyecto surge una necesidad específica de climatización, ahí entramos nosotros.',
   },
   {
@@ -97,6 +99,7 @@ export const videos: VideoEntry[] = [
     src: '/media/videos/aria-wavtech-web-20260907.mp4',
     poster: '/media/video-posters/aria-wavtech.jpg',
     aspect: '9/16',
+    captionsBurned: true,
     caption: 'Climatización industrial para ARIA, en planta de Wavtech.',
   },
   {
@@ -109,6 +112,7 @@ export const videos: VideoEntry[] = [
     src: '/media/videos/cuvisa-joselin-web-20260907.mp4',
     poster: '/media/video-posters/cuvisa-joselin.jpg',
     aspect: '9/16',
+    captionsBurned: true,
     caption: 'Volumen de refrigerante variable, control independiente por zonas.',
   },
   {
@@ -133,6 +137,7 @@ export const videos: VideoEntry[] = [
     src: '/media/videos/presentacion-nave-web-20260907.mp4',
     poster: '/media/video-posters/presentacion-nave.jpg',
     aspect: '9/16',
+    captionsBurned: true,
     caption: '31,168 m² de nave, 18 andenes, corredor Monterrey–Laredo.',
   },
   {

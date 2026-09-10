@@ -470,6 +470,173 @@ main { flex: 1 0 auto; width: 100%; min-width: 0; }
 .paso a:hover .paso-titulo,
 .paso a:focus-visible .paso-titulo { color: var(--papel); }
 
+/* Hallmark · page: sala de proyección · genre: atmospheric · theme: museo
+   una sola ventana; el documento no necesita bloquear el scroll porque no desborda */
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 */
+body:has(.video-page) {
+  block-size: 100dvh;
+  min-block-size: 0;
+}
+
+body:has(.video-page) > .rail,
+body:has(.video-page) > .colofon {
+  flex: 0 0 auto;
+}
+
+.video-page {
+  flex: 1 1 0;
+  min-block-size: 0;
+  display: grid;
+  padding-block: 0;
+}
+
+.video-page__escena {
+  position: relative;
+  display: grid;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  place-items: center;
+  container-type: size;
+}
+
+.video-page__escena .cinta-player {
+  --video-alto: max(0px, calc(100cqb - var(--space-2xl)));
+  --cinta-ancho: min(100cqi, calc(var(--video-alto) * var(--cinta-razon)));
+  --cinta-alto-max: var(--video-alto);
+  --cinta-margen-arriba: 0;
+}
+
+.video-page__abrir,
+.video-ficha__cerrar {
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
+  padding: var(--space-xs) var(--space-sm);
+  color: var(--polvo);
+  white-space: nowrap;
+  transition:
+    color var(--dur-micro) var(--ease-out),
+    opacity var(--dur-short) var(--ease-out),
+    transform var(--dur-micro) var(--ease-out);
+}
+
+.video-page__abrir {
+  position: absolute;
+  z-index: var(--z-raised);
+  inset: auto 0 var(--space-xs) auto;
+}
+
+.video-page__abrir:focus-visible,
+.video-ficha__cerrar:focus-visible {
+  color: var(--papel);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .video-page__abrir:hover,
+  .video-ficha__cerrar:hover {
+    color: var(--papel);
+  }
+}
+
+.video-page__abrir:focus-visible,
+.video-ficha__cerrar:focus-visible {
+  outline: var(--rule-focus) solid var(--ambar);
+  outline-offset: calc(var(--rule-focus) * -1);
+}
+
+.video-page__abrir:active,
+.video-ficha__cerrar:active {
+  transform: translateY(1px);
+}
+
+.video-page__abrir:disabled,
+.video-ficha__cerrar:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.cinta-player[data-state="playing"][data-controls="hidden"] ~ .video-page__abrir {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(var(--space-xs));
+}
+
+.video-ficha {
+  position: fixed;
+  inset: 0;
+  width: min(calc(100% - (var(--margen) * 2)), 68rem);
+  height: fit-content;
+  max-height: calc(100dvh - (var(--space-lg) * 2));
+  margin: auto;
+  padding: 0;
+  overflow: visible;
+  color: var(--papel);
+  background: transparent;
+  border: 0;
+}
+
+.video-ficha::backdrop {
+  background: color-mix(in oklab, var(--fondo) 92%, transparent);
+}
+
+.video-ficha__hoja {
+  position: relative;
+  max-height: calc(100dvh - (var(--space-lg) * 2));
+  padding: clamp(var(--space-lg), 5vw, var(--space-2xl));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  color: var(--papel);
+  background: var(--rebate);
+  border: var(--rule-hair) solid var(--linea);
+}
+
+.video-ficha__cerrar {
+  position: absolute;
+  z-index: var(--z-base);
+  inset: var(--space-xs) var(--space-xs) auto auto;
+}
+
+.video-ficha .rollo-cab {
+  padding-block: var(--space-sm) var(--space-xl);
+}
+
+.video-ficha .rollo-titulo {
+  max-width: calc(100% - var(--space-2xl));
+}
+
+.video-ficha [tabindex="-1"]:focus {
+  outline: none;
+}
+
+.video-ficha .paso {
+  margin-top: var(--space-xl);
+}
+
+body:has(.video-page) .colofon {
+  display: none;
+}
+
+@media (min-width: 62rem) {
+  body:has(.video-page) .colofon {
+    display: block;
+    margin-top: 0;
+  }
+
+  body:has(.video-page) .colofon-in {
+    flex-wrap: nowrap;
+    gap: var(--space-xs) var(--space-lg);
+    padding-block: var(--space-xs) var(--space-sm);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-page__abrir,
+  .video-ficha__cerrar,
+  .cinta-player[data-state="playing"][data-controls="hidden"] ~ .video-page__abrir {
+    transform: none;
+  }
+}
+
 /* ═════ notas: manifiesto, contacto, 404 ═════ */
 
 .nota { padding-top: clamp(3rem, 12vh, 7rem); }

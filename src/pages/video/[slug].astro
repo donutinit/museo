@@ -45,48 +45,76 @@ const esquema = grafo(
   imageAlt={`${cinta.title} — ${oficio}, ${cinta.year}`}
   precargar={cinta.poster}
 >
-  <main class="contenedor rollo" id="hoja">
-    <CintaPlayer
-      slug={cinta.slug}
-      title={cinta.title}
-      src={media(cinta.src)}
-      poster={media(cinta.poster)}
-      captions={subtitulosDe(cinta.slug)}
-      durationLabel={cinta.durationLabel}
-      aspect={cinta.aspect}
-    />
+  <main class="contenedor video-page" id="hoja">
+    <h1 class="fuera">{titulo}</h1>
 
-    <header class="rollo-cab rollo-cab--cinta">
-      <div>
-        <h1 class="display rollo-titulo">{titulo}</h1>
-        {cinta.caption && <p class="voz cita">{cinta.caption}</p>}
+    <section class="video-page__escena" aria-label={`Proyección: ${cinta.title}`}>
+      <CintaPlayer
+        slug={cinta.slug}
+        title={cinta.title}
+        src={media(cinta.src)}
+        poster={media(cinta.poster)}
+        captions={subtitulosDe(cinta.slug)}
+        durationLabel={cinta.durationLabel}
+        aspect={cinta.aspect}
+        captionsBurned={cinta.captionsBurned}
+      />
+
+      <button
+        class="video-page__abrir edge"
+        type="button"
+        aria-haspopup="dialog"
+        aria-controls="ficha-cinta"
+        data-abrir-ficha
+      >
+        ficha
+      </button>
+    </section>
+
+    <dialog
+      class="video-ficha"
+      id="ficha-cinta"
+      aria-labelledby="ficha-titulo"
+      data-ficha-cinta
+    >
+      <div class="video-ficha__hoja">
+        <header class="rollo-cab rollo-cab--cinta">
+          <div>
+            <h2 class="display rollo-titulo" id="ficha-titulo" tabindex="-1">{titulo}</h2>
+            {cinta.caption && <p class="voz cita">{cinta.caption}</p>}
+          </div>
+
+          <dl class="registro micro">
+            <div data-nosnippet><dt>cinta</dt> <dd>{cinta.slug}</dd></div>
+            <div data-nosnippet><dt>oficio</dt> <dd>{oficio}</dd></div>
+            <div data-nosnippet><dt>año</dt> <dd>{cinta.year}</dd></div>
+            <div data-nosnippet><dt>corre</dt> <dd>{cinta.durationLabel}</dd></div>
+            <div data-nosnippet><dt>cuadro</dt> <dd>{cinta.aspect}</dd></div>
+            <div data-nosnippet><dt>formato</dt> <dd>h.264 aac</dd></div>
+          </dl>
+        </header>
+
+        <nav class="paso" aria-label="Cintas vecinas">
+          {anterior ? (
+            <a href={`/video/${anterior.slug}/`}>
+              <span class="edge" data-nosnippet>cinta anterior</span>
+              <span class="paso-titulo" data-nosnippet>{anterior.title.toLowerCase().split(/\s+—\s+/)[0]}</span>
+            </a>
+          ) : <span />}
+
+          {siguiente ? (
+            <a href={`/video/${siguiente.slug}/`}>
+              <span class="edge" data-nosnippet>cinta siguiente</span>
+              <span class="paso-titulo" data-nosnippet>{siguiente.title.toLowerCase().split(/\s+—\s+/)[0]}</span>
+            </a>
+          ) : <span />}
+        </nav>
+
+        <button class="video-ficha__cerrar edge" type="button" data-cerrar-ficha>
+          cerrar
+        </button>
       </div>
-
-      <dl class="registro micro">
-        <div data-nosnippet><dt>cinta</dt> <dd>{cinta.slug}</dd></div>
-        <div data-nosnippet><dt>oficio</dt> <dd>{oficio}</dd></div>
-        <div data-nosnippet><dt>año</dt> <dd>{cinta.year}</dd></div>
-        <div data-nosnippet><dt>corre</dt> <dd>{cinta.durationLabel}</dd></div>
-        <div data-nosnippet><dt>cuadro</dt> <dd>{cinta.aspect}</dd></div>
-        <div data-nosnippet><dt>formato</dt> <dd>h.264 aac</dd></div>
-      </dl>
-    </header>
-
-    <nav class="paso" aria-label="Cintas vecinas">
-      {anterior ? (
-        <a href={`/video/${anterior.slug}/`}>
-          <span class="edge" data-nosnippet>cinta anterior</span>
-          <span class="paso-titulo" data-nosnippet>{anterior.title.toLowerCase().split(/\s+—\s+/)[0]}</span>
-        </a>
-      ) : <span />}
-
-      {siguiente ? (
-        <a href={`/video/${siguiente.slug}/`}>
-          <span class="edge" data-nosnippet>cinta siguiente</span>
-          <span class="paso-titulo" data-nosnippet>{siguiente.title.toLowerCase().split(/\s+—\s+/)[0]}</span>
-        </a>
-      ) : <span />}
-    </nav>
+    </dialog>
   </main>
 
   <script>
@@ -97,5 +125,26 @@ const esquema = grafo(
     cinta?.addEventListener('play', velar);
     cinta?.addEventListener('pause', dormir);
     cinta?.addEventListener('ended', dormir);
+
+    const ficha = document.querySelector<HTMLDialogElement>('[data-ficha-cinta]');
+    const abrirFicha = document.querySelector<HTMLButtonElement>('[data-abrir-ficha]');
+    const cerrarFicha = document.querySelector<HTMLButtonElement>('[data-cerrar-ficha]');
+    const tituloFicha = document.querySelector<HTMLElement>('#ficha-titulo');
+
+    const abrir = () => {
+      if (!ficha || ficha.open) return;
+      cinta?.pause();
+      ficha.showModal();
+      window.requestAnimationFrame(() => tituloFicha?.focus({ preventScroll: true }));
+    };
+
+    abrirFicha?.addEventListener('click', abrir);
+    cerrarFicha?.addEventListener('click', () => ficha?.close());
+    ficha?.addEventListener('click', (evento) => {
+      if (evento.target === ficha) ficha.close();
+    });
+    ficha?.addEventListener('close', () => abrirFicha?.focus({ preventScroll: true }));
+
+    if (window.location.hash === '#ficha') abrir();
   </script>
 </BaseLayout>

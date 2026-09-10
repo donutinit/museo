@@ -18,7 +18,9 @@ interface Props {
   captions: string;
   durationLabel: string;
   aspect: Aspecto;
+  captionsBurned?: boolean;
   previewState?: EstadoPreview;
+  previewCaption?: string;
 }
 
 const {
@@ -29,7 +31,9 @@ const {
   captions,
   durationLabel,
   aspect,
+  captionsBurned = false,
   previewState,
+  previewCaption,
 } = Astro.props;
 
 const razones: Record<Aspecto, number> = {
@@ -75,7 +79,7 @@ const controlId = `cinta-avance-${slug}`;
   data-state={estado}
   data-controls="visible"
   data-sonido="on"
-  data-texto="on"
+  data-texto={captionsBurned ? 'burned' : 'on'}
   data-preview={previewState ? 'true' : undefined}
   data-enhanced={previewState ? 'true' : undefined}
   style={`--cinta-aspect: ${aspect}; --cinta-razon: ${razones[aspect]}; --visto: ${visto}; --cargado: ${visto};`}
@@ -94,10 +98,12 @@ const controlId = `cinta-avance-${slug}`;
       src={captions}
       srclang="es"
       label="Español"
-      default
+      default={!captionsBurned}
     />
     Tu navegador no puede reproducir esta cinta.
   </video>
+
+  <p class="cinta-player__subtitulo" aria-hidden="true" data-player-subtitulo>{previewCaption}</p>
 
   <button
     class="cinta-player__lienzo"
@@ -184,6 +190,7 @@ const controlId = `cinta-avance-${slug}`;
           aria-label="Ocultar subtítulos"
           aria-pressed="true"
           disabled={desactivado}
+          hidden={captionsBurned}
         >
           <span class="cinta-player__cc" aria-hidden="true">cc</span>
           <span class="cinta-player__mando-palabra">texto</span>
@@ -245,27 +252,43 @@ const controlId = `cinta-avance-${slug}`;
     const pantalla = player.querySelector<HTMLButtonElement>('[data-player-pantalla]');
     const pantallaLabel = player.querySelector<HTMLElement>('[data-player-pantalla-label]');
     const mandos = player.querySelector<HTMLElement>('.cinta-player__mandos');
+    const subtitulo = player.querySelector<HTMLElement>('[data-player-subtitulo]');
     const vivo = player.querySelector<HTMLElement>('[data-player-live]');
     const pista = video?.textTracks[0];
+    const textoQuemado = player.dataset.texto === 'burned';
 
     if (
       !video || !lienzo || !toggle || !toggleLabel || !rango || !actual ||
       !duracion || !llamada || !detalle || !sonido || !texto || !pantalla ||
-      !pantallaLabel || !mandos || !vivo
+      !pantallaLabel || !mandos || !subtitulo || !vivo
     ) return;
 
     let ocultarMandos = 0;
     let cuadro = 0;
     let segundoPintado = -1;
+    let sobreMandos = false;
+    let arrastrando = false;
+    let pantallaNativa = false;
 
     const anunciar = (mensaje: string) => { vivo.textContent = mensaje; };
 
     const mostrarMandos = (ocultarDespues = false) => {
       window.clearTimeout(ocultarMandos);
       player.dataset.controls = 'visible';
-      if (ocultarDespues && player.dataset.state === 'playing') {
+      if (
+        ocultarDespues &&
+        player.dataset.state === 'playing' &&
+        !sobreMandos &&
+        !arrastrando &&
+        !player.matches(':focus-within')
+      ) {
         ocultarMandos = window.setTimeout(() => {
-          if (!player.matches(':focus-within')) player.dataset.controls = 'hidden';
+          if (
+            player.dataset.state === 'playing' &&
+            !sobreMandos &&
+            !arrastrando &&
+            !player.matches(':focus-within')
+          ) player.dataset.controls = 'hidden';
         }, CONTROL_IDLE_MS);
       }
     };
@@ -277,16 +300,33 @@ const controlId = `cinta-avance-${slug}`;
       sonido.ariaLabel = prendido ? 'Silenciar' : 'Activar sonido';
     };
 
+    const pintarSubtitulo = () => {
+      const prendido = pista?.mode === 'hidden';
+      const cues = prendido ? Array.from(pista?.activeCues ?? []) : [];
+      subtitulo.textContent = cues
+        .map((cue) => (cue as VTTCue).text.replace(/\s+/g, ' ').trim())
+        .filter(Boolean)
+        .join('\n');
+    };
+
     const pintarTexto = () => {
-      const prendido = pista?.mode === 'showing';
+      if (textoQuemado) {
+        player.dataset.texto = 'burned';
+        texto.hidden = true;
+        texto.disabled = true;
+        subtitulo.textContent = '';
+        return;
+      }
+      const prendido = Boolean(pista && pista.mode !== 'disabled');
       player.dataset.texto = prendido ? 'on' : 'off';
       texto.ariaPressed = String(prendido);
       texto.ariaLabel = prendido ? 'Ocultar subtítulos' : 'Mostrar subtítulos';
       texto.disabled = !pista;
+      pintarSubtitulo();
     };
 
     const pintarPantalla = () => {
-      const prendida = document.fullscreenElement === player;
+      const prendida = document.fullscreenElement === player || pantallaNativa;
       pantalla.ariaPressed = String(prendida);
       pantalla.ariaLabel = prendida ? 'Salir de pantalla completa' : 'Abrir pantalla completa';
       pantallaLabel.textContent = prendida ? 'salir' : 'pantalla';
@@ -408,10 +448,10 @@ const controlId = `cinta-avance-${slug}`;
     };
 
     const alternarTexto = () => {
-      if (!pista) return;
-      pista.mode = pista.mode === 'showing' ? 'disabled' : 'showing';
+      if (!pista || textoQuemado) return;
+      pista.mode = pista.mode === 'disabled' ? 'hidden' : 'disabled';
       pintarTexto();
-      anunciar(pista.mode === 'showing' ? 'Subtítulos encendidos.' : 'Subtítulos apagados.');
+      anunciar(pista.mode === 'hidden' ? 'Subtítulos encendidos.' : 'Subtítulos apagados.');
       mostrarMandos(true);
     };
 
@@ -472,13 +512,23 @@ const controlId = `cinta-avance-${slug}`;
       pintarTiempo();
       mostrarMandos(true);
     });
-    rango.addEventListener('pointerdown', () => mostrarMandos());
-    rango.addEventListener('pointerup', () => mostrarMandos(true));
+    rango.addEventListener('pointerdown', () => {
+      arrastrando = true;
+      mostrarMandos();
+    });
+    rango.addEventListener('pointerup', () => {
+      arrastrando = false;
+      mostrarMandos(true);
+    });
+    rango.addEventListener('pointercancel', () => {
+      arrastrando = false;
+      mostrarMandos(true);
+    });
 
     video.addEventListener('loadedmetadata', () => {
       rango.disabled = false;
       duracion.textContent = formatoTiempo(video.duration);
-      pista && (pista.mode = 'showing');
+      pista && (pista.mode = textoQuemado || player.dataset.texto === 'off' ? 'disabled' : 'hidden');
       pintarTiempo();
       pintarCarga();
       pintarTexto();
@@ -501,10 +551,17 @@ const controlId = `cinta-avance-${slug}`;
     video.addEventListener('progress', pintarCarga);
     video.addEventListener('volumechange', pintarSonido);
     video.addEventListener('seeking', pintarTiempo);
+    pista?.addEventListener('cuechange', pintarSubtitulo);
 
     player.addEventListener('pointermove', () => mostrarMandos(true));
-    mandos.addEventListener('pointerenter', () => mostrarMandos());
-    mandos.addEventListener('pointerleave', () => mostrarMandos(true));
+    mandos.addEventListener('pointerenter', () => {
+      sobreMandos = true;
+      mostrarMandos();
+    });
+    mandos.addEventListener('pointerleave', () => {
+      sobreMandos = false;
+      mostrarMandos(true);
+    });
     player.addEventListener('focusin', () => mostrarMandos());
     player.addEventListener('focusout', (evento) => {
       if (!(evento.relatedTarget instanceof Node) || !player.contains(evento.relatedTarget)) {
@@ -513,10 +570,20 @@ const controlId = `cinta-avance-${slug}`;
     });
 
     document.addEventListener('fullscreenchange', pintarPantalla);
-    video.addEventListener('webkitbeginfullscreen', pintarPantalla);
-    video.addEventListener('webkitendfullscreen', pintarPantalla);
+    video.addEventListener('webkitbeginfullscreen', () => {
+      pantallaNativa = true;
+      if (pista?.mode === 'hidden') pista.mode = 'showing';
+      pintarPantalla();
+      pintarTexto();
+    });
+    video.addEventListener('webkitendfullscreen', () => {
+      pantallaNativa = false;
+      if (pista?.mode === 'showing') pista.mode = 'hidden';
+      pintarPantalla();
+      pintarTexto();
+    });
 
-    pista && (pista.mode = 'showing');
+    pista && (pista.mode = textoQuemado ? 'disabled' : 'hidden');
     video.controls = false;
     player.dataset.iniciado = 'true';
     player.dataset.enhanced = 'true';
@@ -536,10 +603,10 @@ const controlId = `cinta-avance-${slug}`;
   .cinta-player {
     position: relative;
     isolation: isolate;
-    width: min(100%, calc(82svh * var(--cinta-razon)));
+    width: var(--cinta-ancho, min(100%, calc(82svh * var(--cinta-razon))));
     aspect-ratio: var(--cinta-aspect);
-    max-height: 82svh;
-    margin-block-start: clamp(var(--space-lg), 6vh, var(--space-2xl));
+    max-height: var(--cinta-alto-max, 82svh);
+    margin-block-start: var(--cinta-margen-arriba, clamp(var(--space-lg), 6vh, var(--space-2xl)));
     margin-inline: auto;
     overflow: clip;
     container-type: inline-size;
@@ -561,8 +628,30 @@ const controlId = `cinta-avance-${slug}`;
   .cinta-player__video::cue {
     color: var(--papel);
     background: color-mix(in oklab, var(--fondo) 88%, transparent);
-    font-family: var(--f-edge);
+    font-family: var(--f-voz);
   }
+
+  .cinta-player__subtitulo {
+    position: absolute;
+    z-index: var(--z-raised);
+    inset: auto 50% clamp(5rem, 10cqi, 7rem) auto;
+    width: max-content;
+    max-width: min(42ch, calc(100% - (var(--space-lg) * 2)));
+    padding: var(--space-2xs) var(--space-xs);
+    transform: translateX(50%);
+    color: var(--papel);
+    background: color-mix(in oklab, var(--fondo) 86%, transparent);
+    font-family: var(--f-voz);
+    font-size: clamp(0.875rem, 2.4cqi, 1.125rem);
+    font-weight: 400;
+    line-height: 1.34;
+    text-align: center;
+    text-wrap: balance;
+    white-space: pre-line;
+    pointer-events: none;
+  }
+
+  .cinta-player__subtitulo:empty { display: none; }
 
   .cinta-player__lienzo {
     position: absolute;
@@ -680,6 +769,13 @@ const controlId = `cinta-avance-${slug}`;
     transform: translateY(var(--space-xs));
   }
 
+  @media (hover: hover) and (pointer: fine) {
+    .cinta-player[data-state="playing"][data-controls="hidden"],
+    .cinta-player[data-state="playing"][data-controls="hidden"] .cinta-player__lienzo {
+      cursor: none;
+    }
+  }
+
   .cinta-player__avance {
     position: relative;
     height: 2.75rem;
@@ -787,6 +883,8 @@ const controlId = `cinta-avance-${slug}`;
       color var(--dur-micro) var(--ease-out),
       transform var(--dur-micro) var(--ease-out);
   }
+
+  .cinta-player__mando[hidden] { display: none; }
 
   .cinta-player__mando--principal {
     color: var(--papel);
