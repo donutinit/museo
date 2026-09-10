@@ -39,14 +39,12 @@ const campos = [
 /** El marcador sobre la línea: el tramo completo, `ebikecamp 01 — 31`. */
 const tramo = `${piezas[0]?.nn ?? ''} — ${piezas.at(-1)?.nn ?? ''}`;
 
-// En la tira todas las láminas miden lo mismo de alto (ver --e-tira-alto en
-// ebikecamp.css) y lo suyo de ancho. El `sizes` se estima por orientación
-// para que el navegador pida el derivado correcto del srcset: con la tira
-// alta, una vertical pide ~28rem en escritorio y una apaisada ~62rem.
-const sizesTira = (pieza: Pieza) =>
-  (pieza.w ?? 0) > (pieza.h ?? 0)
-    ? '(max-width: 47.99rem) 165vw, 62rem'
-    : '(max-width: 47.99rem) 74vw, 28rem';
+/** Apaisada: en la galería abre a 64rem; la vertical se queda en 40rem. */
+const ancha = (pieza: Pieza) => (pieza.w ?? 0) > (pieza.h ?? 0);
+
+/** El `sizes` sale del tope de ancho de cada pieza (ver ebikecamp.css). */
+const sizesPieza = (pieza: Pieza) =>
+  ancha(pieza) ? '(max-width: 69.99rem) 92vw, 64rem' : '(max-width: 45.99rem) 92vw, 40rem';
 ---
 
 {/* el plano del paisaje: sol fijo, detrás de todo, nunca sobre una foto */}
@@ -71,7 +69,7 @@ const sizesTira = (pieza: Pieza) =>
   </div>
 </section>
 
-{/* la línea cruza la hoja de lado a lado y la tira cuelga de ella */}
+{/* la línea cruza la hoja de lado a lado y la galería cuelga de ella */}
 <section class="ebikecamp-tramo" aria-labelledby="ebikecamp-secuencia-titulo">
   <h2 class="fuera" id="ebikecamp-secuencia-titulo">Secuencia completa</h2>
 
@@ -79,16 +77,9 @@ const sizesTira = (pieza: Pieza) =>
     {data.photosPrefix} {tramo}
   </span>
 
-  {/* el carril: el único scroll horizontal de la página. Enfocable para
-      recorrerlo con teclado; el scroll sigue al botón que recibe el foco. */}
-  <div
-    class="ebikecamp-tira"
-    role="region"
-    aria-labelledby="ebikecamp-secuencia-titulo"
-    tabindex="0"
-  >
-    {/* la pieza 01 no pasa: es el contraluz del sol, abre colgada de la línea */}
-    <figure class="ebikecamp-pieza">
+  <div class="ebikecamp-galeria">
+    {/* la pieza 01 abre: el contraluz del sol, colgado de la línea */}
+    <figure class:list={['ebikecamp-pieza', { 'ebikecamp-pieza--ancha': ancha(portada) }]}>
       <div class="ebikecamp-mate">
         <button
           type="button"
@@ -118,7 +109,7 @@ const sizesTira = (pieza: Pieza) =>
     </figure>
 
     {secuencia.map((pieza) => (
-      <figure class="ebikecamp-pieza">
+      <figure class:list={['ebikecamp-pieza', { 'ebikecamp-pieza--ancha': ancha(pieza) }]}>
         <div class="ebikecamp-mate">
           <button
             type="button"
@@ -130,7 +121,7 @@ const sizesTira = (pieza: Pieza) =>
             <img
               src={pieza.src}
               srcset={pieza.conjunto}
-              sizes={sizesTira(pieza)}
+              sizes={sizesPieza(pieza)}
               alt={pieza.alt}
               width={pieza.w}
               height={pieza.h}
@@ -147,7 +138,7 @@ const sizesTira = (pieza: Pieza) =>
       </figure>
     ))}
 
-    {/* el fin de tira: una pieza que no es foto. Adorno y datos repetidos. */}
+    {/* el cierre: un bloque que no es foto. Adorno y datos repetidos. */}
     <div class="ebikecamp-fin" aria-hidden="true" data-nosnippet>
       <span class="ebikecamp-fin-cuenta">{String(data.photoCount).padStart(2, '0')}</span>
       <span class="ebikecamp-rotulo">fin del rollo</span>

@@ -65,8 +65,6 @@ body:has(.rollo--ebikecamp) {
      come la mayor parte de la ventana; una foto que pasa tiene
      que ser un acontecimiento, no un índice en miniatura.
      De aquí salen los `sizes` de la tira (ver RolloEbikecamp). */
-  --e-tira-alto: clamp(19rem, 58vh, 36rem);
-  --e-tira-gap: clamp(0.9rem, 2vw, 1.6rem);
 
   background: var(--e-caliza);
   color: var(--e-tinta);
@@ -225,76 +223,33 @@ body:has(.rollo--ebikecamp) .lupa {
   color: var(--e-cielo);
 }
 
-.ebikecamp-tira {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--e-tira-gap);
+/* ─── la galería: las piezas bajan por la hoja, una tras otra ─── */
+
+.ebikecamp-galeria {
+  display: grid;
+  /* una sola columna, declarada: la retícula implícita se prestaba a que el
+     navegador repartiera las piezas en varias. Aquí bajan de una en una. */
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: clamp(var(--space-2xl), 6vw, var(--space-4xl));
   width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scroll-padding-inline: var(--page-gutter);
-  overscroll-behavior-x: contain;
-  padding-block: var(--space-md) var(--space-lg);
-  padding-inline: var(--page-gutter);
-  /* el avance se declara, no se esconde: scrollbar propia,
-     delgada, en tinta de horizonte sobre un riel apenas
-     presentado. Con ratón nadie tiene que adivinar que la
-     tira corre. */
-  scrollbar-width: thin;
-  scrollbar-color: var(--e-horizonte)
-    color-mix(in oklch, var(--e-horizonte) 22%, transparent);
+  padding: clamp(var(--space-xl), 5vw, var(--space-3xl)) var(--page-gutter) 0;
 }
 
-.ebikecamp-tira::-webkit-scrollbar {
-  height: 0.5rem;
-}
-
-.ebikecamp-tira::-webkit-scrollbar-track {
-  background: color-mix(in oklch, var(--e-horizonte) 22%, transparent);
-}
-
-.ebikecamp-tira::-webkit-scrollbar-thumb {
-  background: var(--e-horizonte);
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-
-.ebikecamp-tira:focus-visible {
-  outline: var(--rule-focus) solid var(--e-horizonte);
-  outline-offset: calc(var(--space-2xs) * -1);
-}
-
+/* cada pieza a su medida: la apaisada abre más que la vertical, y ninguna
+   se recorta nunca. El tope va en ancho, no en alto, para que el `sizes`
+   del `<img>` pueda decir la verdad. */
 .ebikecamp-pieza {
   position: relative;
-  flex: 0 0 auto;
+  width: min(100%, 40rem);
   min-width: 0;
-  scroll-snap-align: center;
-  scroll-snap-stop: always;
 }
 
-/* la lámina: alto parejo, ancho según su aspect; sin mate, el
-   terreno corre pegado. El fondo del mate carga mientras llega */
-.ebikecamp-pieza .ebikecamp-mate { height: var(--e-tira-alto); }
-
-.ebikecamp-pieza .ebikecamp-captura { height: var(--e-tira-alto); }
+.ebikecamp-pieza--ancha { width: min(100%, 64rem); }
 
 .ebikecamp-pieza .ebikecamp-captura img {
-  width: auto;
-  height: 100%;
-}
-
-/* la línea de piso: un segmento por pieza, tendido sobre el
-   hueco del paso, de modo que la línea corre toda la tira */
-.ebikecamp-pieza::after {
-  content: "";
-  position: absolute;
-  top: var(--e-tira-alto);
-  left: 0;
-  right: calc(var(--e-tira-gap) * -1);
-  height: var(--rule-hair);
-  background: var(--e-horizonte);
-  pointer-events: none;
+  width: 100%;
+  height: auto;
 }
 
 .ebikecamp-mate {
@@ -350,36 +305,22 @@ body:has(.rollo--ebikecamp) .lupa {
 
 .ebikecamp-pie .ebikecamp-dato { color: var(--e-cielo); }
 
-/* ─── el fin de tira: una pieza que no es foto ─── */
+/* ─── el cierre del rollo: un bloque que no es foto ─── */
 
 .ebikecamp-fin {
-  position: relative;
-  flex: 0 0 auto;
-  min-width: 13rem;
   display: grid;
   gap: var(--space-2xs);
-  align-content: start;
-  padding-inline: var(--space-md);
-  padding-block-end: var(--space-xs);
+  align-content: end;
+  justify-items: start;
+  width: min(100%, 40rem);
+  min-width: 0;
+  padding-block-start: var(--space-lg);
+  border-block-start: var(--rule-hair) solid var(--e-horizonte);
   color: var(--e-polvo);
-}
-
-.ebikecamp-fin::after {
-  content: "";
-  position: absolute;
-  top: var(--e-tira-alto);
-  left: 0;
-  right: 0;
-  height: var(--rule-hair);
-  background: var(--e-horizonte);
-  pointer-events: none;
 }
 
 /* la cuenta, en tinta llena: el único número grande del rollo */
 .ebikecamp-fin-cuenta {
-  height: var(--e-tira-alto);
-  display: grid;
-  align-content: end;
   font-family: var(--f-edge);
   font-size: clamp(3.25rem, 8vw, 6rem);
   font-stretch: 58%;
@@ -426,12 +367,6 @@ body:has(.rollo--ebikecamp) .lupa {
 /* ─── escritorio: la cabecera en banda, la tira más alta ─── */
 
 @media (min-width: 56rem) {
-  body:has(.rollo--ebikecamp) {
-    /* escritorio: la tira ocupa la mayor parte de la ventana;
-       el tope de rem sólo corta en pantallas desproporcionadas */
-    --e-tira-alto: clamp(24rem, 66vh, 52rem);
-  }
-
   .ebikecamp-titular {
     grid-template-columns: minmax(0, 1fr) auto;
     column-gap: var(--space-2xl);
@@ -441,12 +376,6 @@ body:has(.rollo--ebikecamp) .lupa {
   .ebikecamp-registro { justify-self: end; }
 }
 
-/* ─── movimiento reducido: el carril deja de encajar fuerte ─── */
-
 @media (prefers-reduced-motion: reduce) {
-  .ebikecamp-tira {
-    scroll-snap-type: x proximity;
-    scroll-behavior: auto;
-  }
   .ebikecamp-captura img { transition: none; }
 }
