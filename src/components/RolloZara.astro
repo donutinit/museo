@@ -1,0 +1,142 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import { oficio } from '../lib/archivo';
+import '../styles/zara.css';
+
+/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+interface Pieza {
+  nn: string;
+  src: string;
+  conjunto: string | undefined;
+  w?: number;
+  h?: number;
+  alt: string;
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  piezas: Pieza[];
+  /** La medida de la placa de portada; la misma que precarga la página. */
+  sizesCabeza: string;
+}
+
+const { proyecto, piezas, sizesCabeza } = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+const portada = piezas[0];
+const secuencia = piezas.slice(1);
+
+// Todo el texto suelto sale del frontmatter: código, oficio, lugar, año,
+// cuenta. La hoja no inventa un solo dato.
+const campos = [
+  ['rollo', data.photosPrefix],
+  ['oficio', oficio[data.type]],
+  ...(data.location ? [['lugar', data.location.toLowerCase()]] : []),
+  ['año', String(data.year)],
+  ['piezas', String(data.photoCount)],
+];
+
+const cuentaTotal = String(data.photoCount).padStart(2, '0');
+
+// En escritorio la 02 va en una columna angosta y la 03 se abre: cada una
+// anuncia su propia medida al navegador.
+const SIZES_LAMINA = [
+  '(max-width: 55.99rem) 92vw, 46vw',
+  '(max-width: 55.99rem) 92vw, 69vw',
+];
+---
+
+{/* los hilos de retícula: capa fija, detrás de todo, tapados por las fotos */}
+<div class="zara-plano" aria-hidden="true">
+  <span class="zara-hilo zara-hilo--a"></span>
+  <span class="zara-hilo zara-hilo--b"></span>
+  <span class="zara-hilo zara-hilo--c"></span>
+</div>
+
+<header class="zara-cabecera">
+  {/* apilado: rótulo arriba, título debajo, misma columna */}
+  <p class="zara-rotulo" data-nosnippet>rollo {data.photosPrefix}</p>
+
+  <h1 class="zara-titulo">{data.title}</h1>
+
+  <dl class="zara-registro">
+    {campos.map(([campo, valor]) => (
+      <div data-nosnippet><dt>{campo}</dt> <dd>{valor}</dd></div>
+    ))}
+  </dl>
+</header>
+
+<section class="zara-apertura" aria-label="Lámina de apertura">
+  <figure class="zara-lamina">
+    <button
+      type="button"
+      class="zara-captura"
+      data-lupa-src={portada.src}
+      data-lupa-alt={portada.alt}
+      aria-label={`Abrir ${portada.alt} a pantalla completa`}
+    >
+      <img
+        src={portada.src}
+        srcset={portada.conjunto}
+        sizes={sizesCabeza}
+        alt={portada.alt}
+        width={portada.w}
+        height={portada.h}
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
+      />
+    </button>
+
+    <figcaption class="zara-pie">
+      <span class="zara-codigo" data-nosnippet>{data.photosPrefix} {portada.nn}</span>
+      <span class="zara-cuenta" data-nosnippet>{portada.nn} / {cuentaTotal}</span>
+    </figcaption>
+  </figure>
+</section>
+
+<section class="zara-nota" aria-label="Nota del rollo">
+  <div class="zara-voz"><Content /></div>
+</section>
+
+<section class="zara-secuencia" aria-labelledby="zara-secuencia-titulo">
+  <h2 class="fuera" id="zara-secuencia-titulo">Secuencia completa</h2>
+
+  {secuencia.map((pieza, i) => (
+    <figure class="zara-lamina">
+      <button
+        type="button"
+        class="zara-captura"
+        data-lupa-src={pieza.src}
+        data-lupa-alt={pieza.alt}
+        aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+      >
+        <img
+          src={pieza.src}
+          srcset={pieza.conjunto}
+          sizes={SIZES_LAMINA[i] ?? SIZES_LAMINA.at(-1)}
+          alt={pieza.alt}
+          width={pieza.w}
+          height={pieza.h}
+          loading="lazy"
+          decoding="async"
+        />
+      </button>
+
+      <figcaption class="zara-pie">
+        <span class="zara-codigo" data-nosnippet>{data.photosPrefix} {pieza.nn}</span>
+        <span class="zara-cuenta" data-nosnippet>{pieza.nn} / {cuentaTotal}</span>
+      </figcaption>
+    </figure>
+  ))}
+</section>
+
+<p class="zara-cierre">
+  <span data-nosnippet>
+    {data.title.toLowerCase()}
+    {data.location && ` · ${data.location.toLowerCase()}`}
+    {` · ${data.year}`}
+  </span>
+  <span data-nosnippet>{data.photoCount} piezas</span>
+</p>

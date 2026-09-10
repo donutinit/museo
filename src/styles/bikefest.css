@@ -1,0 +1,401 @@
+/* ═════════════════════════════════════════════════════════
+   Bikefest — el panel que no se mueve mientras todo pasa.
+
+   Dieciséis verticales de downhill: la vereda pasa rápido,
+   la ficha se queda quieta. De ahí sale la hoja: un panel
+   pegado (position: sticky) a la izquierda sostiene el
+   código del rollo, la cuenta y la voz, mientras las piezas
+   desfilan por la derecha. En escritorio ancho van en fila
+   india de a dos —01 a la izquierda, 02 a la derecha— para
+   aprovechar la hoja y partir a la mitad el largo de la
+   bajada. En móvil el panel se desprende y se vuelve una
+   banda normal arriba de la secuencia.
+
+   Paleta: papel medio — polvo de tierra, ni claro ni oscuro.
+   Es el único rollo del archivo en tono medio y ese tono es
+   su diferenciador: no se aclara hasta volverlo papel ni se
+   oscurece hasta volverlo noche. El acento es ocre de polvo,
+   el mismo tono que la malla naranja de las piezas 12 a 14.
+
+   Reglas duras de esta hoja:
+   1. el adorno NUNCA toca la foto — el polvo vive en la capa
+      fija detrás (z-index -1), los hitos de la vereda son
+      guiones que cruzan la línea y se detentan antes del
+      mate; nada se pinta encima de una imagen.
+   2. el orden del rollo es intocable — la fila india se lee
+      de izquierda a derecha y hacia abajo: 01, 02, 03… en el
+      DOM y en pantalla, sin auto-flow dense ni grid-area que
+      reordene; el foco de teclado sigue el mismo camino.
+   3. ninguna foto se recorta — el ancho sale del aspect real
+      (4:5), width: 100% y height: auto.
+   4. cero datos inventados — todo el texto suelto sale del
+      frontmatter, de alt.json o del markdown del rollo.
+   ═════════════════════════════════════════════════════════ */
+
+body:has(.rollo--bikefest) {
+  /* polvo de tierra: adobe, kraft, vereda seca. Tono medio de
+     verdad — los otros seis roles son claros (marchas, caliza,
+     cielo) o negros (sofía, ápice, concreto). */
+
+  /* contraste medido (WCAG, oklch → sRGB → luminancia):
+      sobre tierra — tinta 5.15:1, polvo 4.89:1 (rótulos de
+      12 px pasan 4.5:1), ocre 4.11:1 (sólo texto grande,
+      ≥3:1). Sobre el mate — tinta 3.15:1: es el anillo de
+      foco, que vive en el margen del mate, nunca sobre la
+      foto. Sobre tierra-2, el piso del degradado — polvo
+      4.61:1 y tinta 4.85:1: los rótulos del paso y las
+      leyendas bajas aguantan en la zona más clara del aire.
+      --bf-ocre-vivo rinde 1.53:1 contra tierra: es trazo
+      decorativo aria-hidden (sello, hitos), jamás texto. La
+      selección va en ocre claro sobre tinta: 6.93:1. */
+
+  --bf-tierra: oklch(64% 0.032 82);
+  --bf-tierra-2: oklch(62.5% 0.03 82);
+  --bf-mate: oklch(52% 0.028 84);
+  --bf-tinta: oklch(22% 0.02 70);
+  --bf-polvo: oklch(24% 0.022 76);
+  --bf-linea: oklch(43% 0.024 80);
+  --bf-ocre: oklch(30% 0.095 68);
+  --bf-ocre-vivo: oklch(54% 0.12 76);
+  --bf-ocre-claro: oklch(72% 0.11 82);
+
+  /* el armazón viejo, retinteado: rail, colofón y lupa se van solos */
+  --fondo: var(--bf-tierra);
+  --rebate: var(--bf-mate);
+  --papel: var(--bf-tinta);
+  --polvo: var(--bf-polvo);
+  --grasa: var(--bf-ocre);
+  --ambar: var(--bf-ocre-vivo);
+  --linea: var(--bf-linea);
+
+  background: var(--bf-tierra);
+  color: var(--bf-tinta);
+}
+
+/* el grano del sitio se queda: sobre tono medio es polvo en
+   el aire, no ISO de sensor ni diente de papel */
+body:has(.rollo--bikefest)::after { opacity: 0.07; }
+
+body:has(.rollo--bikefest) ::selection {
+  background: var(--bf-ocre-claro);
+  color: var(--bf-tinta);
+}
+
+/* ─── el plano: polvo quieto, siempre detrás de todo ─── */
+
+.bikefest-plano {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      70rem 44rem at 118% 22%,
+      color-mix(in oklch, var(--bf-ocre-vivo) 14%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      56rem 40rem at -12% 78%,
+      color-mix(in oklch, var(--bf-mate) 40%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(180deg, var(--bf-tierra) 62%, var(--bf-tierra-2) 100%);
+}
+
+/* ─── armazón del sitio, teñido ─── */
+
+body:has(.rollo--bikefest) .rail {
+  background: color-mix(in oklch, var(--bf-tierra) 86%, transparent);
+  border-bottom-color: color-mix(in oklch, var(--bf-ocre-vivo) 30%, var(--bf-linea));
+}
+
+body:has(.rollo--bikefest) .colofon {
+  border-top-color: color-mix(in oklch, var(--bf-ocre-vivo) 25%, var(--bf-linea));
+}
+
+body:has(.rollo--bikefest) .lupa {
+  background: color-mix(in oklch, var(--bf-tierra) 96%, transparent);
+}
+
+.rollo--bikefest {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* ─── tipografía compartida de la hoja ─── */
+
+/* el lettering del polvo: 12 px medidos a 4.62:1 sobre tierra */
+.bikefest-rotulo {
+  font-family: var(--f-edge);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-stretch: 76%;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.16em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: var(--bf-polvo);
+}
+
+/* ─── la pila: panel a un lado, desfile del otro ───
+   En el teléfono es una columna: banda de ficha arriba y
+   piezas abajo. De 56rem para arriba, el panel se pega. */
+
+.bikefest-stack {
+  display: grid;
+  /* sin esto el panel estira a la altura de la fila y el sticky no tiene
+     recorrido: la ficha tiene que poder quedarse quieta */
+  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: clamp(var(--space-xl), 6vw, var(--space-3xl)) var(--page-gutter)
+    clamp(var(--space-2xl), 6vw, var(--space-3xl));
+}
+
+/* ─── el panel: el código y la cuenta, quietos ─── */
+
+.bikefest-panel {
+  display: grid;
+  gap: var(--space-lg);
+  justify-items: start;
+  align-content: start;
+  min-width: 0;
+  padding-block-end: clamp(var(--space-lg), 4vw, var(--space-2xl));
+  border-block-end: var(--rule-hair) solid var(--bf-linea);
+}
+
+/* el sello: el código del rollo, en caja de malla */
+.bikefest-sello {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2xs) var(--space-sm);
+  border: var(--rule-hair) solid color-mix(in oklch, var(--bf-ocre-vivo) 55%, transparent);
+}
+
+.bikefest-titulo {
+  min-width: 0;
+  font-family: var(--f-edge);
+  font-style: normal;
+  font-size: clamp(3rem, 7vw, 6rem);
+  font-stretch: 62%;
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: 0.002em;
+  text-transform: uppercase;
+  color: var(--bf-tinta);
+  overflow-wrap: anywhere;
+}
+
+/* la cuenta: el número que se queda mientras las piezas pasan */
+.bikefest-cuenta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.bikefest-cuenta-num {
+  font-family: var(--f-edge);
+  font-size: clamp(2.75rem, 4.5vw, 4rem);
+  font-stretch: 62%;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.85;
+  color: var(--bf-ocre);
+}
+
+/* registro y voz heredan del armazón; la voz va tinta llena:
+   a 88% sobre tierra no llegaba a 4.5:1 */
+.bikefest-registro { width: min(100%, 22rem); }
+
+.bikefest-voz {
+  max-width: 100%;
+  color: var(--bf-tinta);
+  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+}
+
+/* ─── el desfile: una línea y las piezas en fila ─── */
+
+.bikefest-desfile {
+  display: grid;
+  gap: clamp(var(--space-lg), 5vh, var(--space-2xl));
+  width: 100%;
+  min-width: 0;
+  /* aire entre la banda de la ficha y la primera pieza */
+  padding-block-start: clamp(1.25rem, 4vw, 2rem);
+}
+
+.bikefest-pieza {
+  position: relative;
+  min-width: 0;
+}
+
+/* el hito: guión que cruza la línea y se detenta ANTES del
+   mate. Vive en el aire del margen, jamás sobre la foto.
+   Sólo escritorio: en móvil la banda se desprende y el
+   desfile va limpio, sin línea. */
+.bikefest-hito { display: none; }
+
+.bikefest-mate {
+  position: relative;
+  min-width: 0;
+  padding: clamp(0.5rem, 1.4vw, 0.9rem);
+  background: var(--bf-mate);
+}
+
+.bikefest-captura {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  text-align: start;
+  cursor: zoom-in;
+  border-radius: var(--radius-none);
+  background: var(--bf-mate);
+}
+
+/* el ancho sale del aspect real: nada de object-fit ni cajas
+   que encajonen. La foto nunca se recorta. */
+.bikefest-captura img {
+  width: 100%;
+  height: auto;
+  transition: filter var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bikefest-pieza:hover .bikefest-captura img {
+    filter: brightness(1.04) contrast(1.03);
+  }
+}
+
+/* el anillo vive en el margen del mate, no sobre la imagen:
+   tinta contra mate = 3.15:1, arriba del 3:1 que pide el foco */
+.bikefest-captura:focus-visible {
+  outline: var(--rule-focus) solid var(--bf-tinta);
+  outline-offset: 0.25rem;
+}
+
+.bikefest-captura:active img { filter: brightness(0.97); }
+
+.bikefest-captura:is(:disabled, [aria-disabled="true"]) { cursor: not-allowed; opacity: 0.5; }
+
+/* el pie: código y cuenta al canto, nunca el alt */
+.bikefest-pie {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+  margin-block-start: var(--space-2xs);
+}
+
+.bikefest-pie .bikefest-dato { color: var(--bf-tinta); }
+
+/* ─── el cierre del desfile: un rótulo, no una foto ─── */
+
+.bikefest-cierre {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+  min-width: 0;
+  padding-block-start: var(--space-sm);
+  border-block-start: var(--rule-hair) solid color-mix(in oklch, var(--bf-ocre-vivo) 30%, transparent);
+}
+
+/* ─── paso de rollo ─── */
+
+.rollo--bikefest > .paso {
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  margin-block-start: 0;
+  padding: var(--space-xl) var(--page-gutter) 0;
+  border-block-start-color: color-mix(in oklch, var(--bf-ocre-vivo) 25%, var(--bf-linea));
+}
+
+.rollo--bikefest .paso .edge { color: var(--bf-polvo); }
+/* el título del paso va tinta llena: al 82%, sobre tierra-2
+   (el piso del degradado) no llega a 4.5:1. El ida y vuelta
+   del hover se resuelve con subrayado, no con color. */
+.rollo--bikefest .paso-titulo { color: var(--bf-tinta); }
+.rollo--bikefest .paso a:hover .paso-titulo,
+.rollo--bikefest .paso a:focus-visible .paso-titulo {
+  color: var(--bf-tinta);
+  text-decoration: underline;
+  text-decoration-thickness: var(--rule-hair);
+  text-underline-offset: 0.3em;
+}
+
+/* ─── escritorio: el panel se pega, el desfile pasa ─── */
+
+@media (min-width: 56rem) {
+  .bikefest-stack {
+    grid-template-columns: minmax(0, 24rem) minmax(0, 1fr);
+    column-gap: clamp(2rem, 5vw, 4rem);
+  }
+
+  /* la línea de la vereda y sus hitos: sólo donde hay panel.
+     De 56 a 80rem el desfile va en una columna ancha; a
+     partir de 80rem pasa a fila india de a dos (ver abajo). */
+  .bikefest-desfile {
+    --bf-aire: clamp(1.25rem, 2.5vw, 2rem);
+    width: 100%;
+    padding-block-start: 0;
+    padding-inline-start: var(--bf-aire);
+    border-inline-start: var(--rule-hair) solid
+      color-mix(in oklch, var(--bf-ocre-vivo) 45%, var(--bf-linea));
+  }
+
+  .bikefest-hito {
+    display: block;
+    position: absolute;
+    inset-inline-start: calc(-1 * var(--bf-aire) - 0.4rem);
+    inset-block-start: 50%;
+    width: 0.8rem;
+    height: var(--rule-hair);
+    background: var(--bf-ocre-vivo);
+    pointer-events: none;
+  }
+
+  .bikefest-panel {
+    /* la ficha se queda a la vista mientras el desfile baja */
+    position: sticky;
+    top: 4.5rem;
+    max-height: calc(100dvh - 6rem);
+    overflow: auto;
+    padding-block-end: 0;
+    border-block-end: 0;
+  }
+}
+
+/* ─── fila india: dos carriles junto al panel ───
+   A partir de 80rem sobra hoja para una sola columna: en
+   vez de capar la cinta y dejar cuarto y medio muerto, las
+   piezas van de a dos. El orden es el del DOM: 01 arriba a
+   la izquierda, 02 a su derecha, y hacia abajo. Los hitos
+   de la línea de vereda sólo quedan en el carril izquierdo;
+   el derecho va aparejado, sin adorno en el aire entre
+   fotos. 16 piezas hacen ocho pares exactos: ninguna queda
+   suelta, así que nada cruza a lo ancho. */
+@media (min-width: 80rem) {
+  .bikefest-desfile {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(2rem, 2.5vw, 4rem);
+  }
+
+  .bikefest-hito { display: none; }
+
+  .bikefest-pieza--linea .bikefest-hito { display: block; }
+
+  .bikefest-cierre { grid-column: 1 / -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bikefest-captura img { transition: none; }
+}

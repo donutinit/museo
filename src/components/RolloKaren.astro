@@ -1,0 +1,118 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import { oficio } from '../lib/archivo';
+import '../styles/karen.css';
+
+/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+interface Pieza {
+  nn: string;
+  src: string;
+  conjunto: string | undefined;
+  w?: number;
+  h?: number;
+  alt: string;
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  piezas: Pieza[];
+  /** La medida de la placa de portada; la misma que precarga la página. */
+  sizesCabeza: string;
+}
+
+const { proyecto, piezas, sizesCabeza } = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+// Todo el texto suelto sale del frontmatter: código, oficio, lugar, año, cuenta.
+// Aquí la cuenta se llama láminas porque el rollo son cuatro láminas, no una
+// secuencia; el lugar se llama lugar.
+const campos = [
+  ['rollo', data.photosPrefix],
+  ['oficio', oficio[data.type]],
+  ...(data.location ? [['lugar', data.location.toLowerCase()]] : []),
+  ['año', String(data.year)],
+  ['láminas', String(data.photoCount)],
+];
+
+/** En escritorio las piezas 02–04 quedan entre 5 y 6 columnas de 12. */
+const SIZES_PIEZA = '(max-width: 55.99rem) 92vw, 26rem';
+
+/** El tramo completo del rollo, para el folio de pie: `01 — 04`. */
+const tramo = `${piezas[0]?.nn ?? ''} — ${piezas.at(-1)?.nn ?? ''}`;
+---
+
+{/* el plano de la hoja: luz nublada y veladura verde, detrás de todo */}
+<div class="karen-plano" aria-hidden="true">
+  <span class="karen-capa karen-capa--verde"></span>
+</div>
+
+{/* la cita abre la hoja: la voz del rollo, no un adorno */}
+<section class="karen-apertura" aria-labelledby="karen-titulo">
+  <header class="karen-cabecera">
+    <p class="karen-folio karen-rotulo" data-nosnippet>sesión {data.photosPrefix}</p>
+    <h1 class="karen-titulo" id="karen-titulo">{data.title}</h1>
+  </header>
+
+  <div class="karen-pliego">
+    <div class="karen-cita">
+      <div class="karen-voz">
+        <Content />
+      </div>
+    </div>
+
+    <dl class="registro micro karen-registro">
+      {campos.map(([campo, valor]) => (
+        <div data-nosnippet><dt>{campo}</dt> <dd>{valor}</dd></div>
+      ))}
+    </dl>
+  </div>
+</section>
+
+{/* las cuatro láminas: una por renglón, el orden del rollo al pie de la letra */}
+<section class="karen-laminas" aria-labelledby="karen-secuencia-titulo">
+  <h2 class="fuera" id="karen-secuencia-titulo">Secuencia completa</h2>
+
+  {piezas.map((pieza, i) => (
+    <figure class:list={['karen-lamina', `karen-lamina--${pieza.nn}`]}>
+      <div class="karen-mate">
+        <button
+          type="button"
+          class="karen-captura"
+          data-lupa-src={pieza.src}
+          data-lupa-alt={pieza.alt}
+          aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+        >
+          <img
+            src={pieza.src}
+            srcset={pieza.conjunto}
+            sizes={i === 0 ? sizesCabeza : SIZES_PIEZA}
+            alt={pieza.alt}
+            width={pieza.w}
+            height={pieza.h}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchpriority={i === 0 ? 'high' : undefined}
+          />
+        </button>
+      </div>
+
+      <figcaption class="karen-pie karen-rotulo">
+        <span class="karen-dato" data-nosnippet>lámina {pieza.nn}</span>
+        <span data-nosnippet>{pieza.nn} / {data.photoCount}</span>
+      </figcaption>
+    </figure>
+  ))}
+
+  {/* adornos de margen: caen en celdas que ninguna lámina ocupa */}
+  <span class="karen-hilo" aria-hidden="true" data-nosnippet></span>
+  <span class="karen-folio-vertical karen-rotulo" aria-hidden="true" data-nosnippet>
+    {data.photosPrefix} {tramo}
+  </span>
+
+  {/* el cierre: una línea y el rombo; la cuenta ya se dijo en la ficha */}
+  <div class="karen-cierre" aria-hidden="true" data-nosnippet>
+    <span class="karen-rombo"></span>
+    <span class="karen-rotulo">{data.photosPrefix} · {data.year}</span>
+  </div>
+</section>

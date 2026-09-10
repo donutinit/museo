@@ -10,6 +10,12 @@ import RolloMarchas from '../../components/RolloMarchas.astro';
 import RolloEbikecamp from '../../components/RolloEbikecamp.astro';
 import RolloCerrandociclos from '../../components/RolloCerrandociclos.astro';
 import RolloBikeparkesfera from '../../components/RolloBikeparkesfera.astro';
+import RolloZara from '../../components/RolloZara.astro';
+import RolloPosadas from '../../components/RolloPosadas.astro';
+import RolloAria from '../../components/RolloAria.astro';
+import RolloBikefest from '../../components/RolloBikefest.astro';
+import RolloRaulalcala from '../../components/RolloRaulalcala.astro';
+import RolloKaren from '../../components/RolloKaren.astro';
 import { grafo, persona, imagen, migas, ID_PERSONA, SITIO } from '../../lib/seo';
 
 export async function getStaticPaths() {
@@ -82,6 +88,12 @@ const PIELES = {
   ebikecamp: { piel: RolloEbikecamp, sizes: '(max-width: 55.99rem) 92vw, 22vw' },
   cerrandociclos: { piel: RolloCerrandociclos, sizes: '(max-width: 55.99rem) 92vw, 34rem' },
   bikeparkesfera: { piel: RolloBikeparkesfera, sizes: '(max-width: 55.99rem) 92vw, 42rem' },
+  zara: { piel: RolloZara, sizes: '(max-width: 55.99rem) 92vw, 53vw' },
+  posadas: { piel: RolloPosadas, sizes: '(max-width: 47.99rem) 45vw, 14vw' },
+  aria: { piel: RolloAria, sizes: '(max-width: 55.99rem) 92vw, 66vw' },
+  bikefest: { piel: RolloBikefest, sizes: '(max-width: 55.99rem) 92vw, (max-width: 79.99rem) calc(84.5vw - 24rem), calc(50vw - 20rem)' },
+  raulalcala: { piel: RolloRaulalcala, sizes: '(max-width: 55.99rem) 80vw, 32rem' },
+  karen: { piel: RolloKaren, sizes: '(max-width: 55.99rem) 92vw, 32rem' },
 } as const;
 
 const piel = PIELES[proyecto.id as keyof typeof PIELES];

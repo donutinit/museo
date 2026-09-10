@@ -1,0 +1,182 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import { oficio } from '../lib/archivo';
+import '../styles/posadas.css';
+
+/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+interface Pieza {
+  nn: string;
+  src: string;
+  conjunto: string | undefined;
+  w?: number;
+  h?: number;
+  alt: string;
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  piezas: Pieza[];
+  /** La medida de la placa de portada; la misma que precarga la página. */
+  sizesCabeza: string;
+}
+
+const { proyecto, piezas, sizesCabeza } = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+// Todo el texto suelto sale del frontmatter: código, oficio, lugar, año, cuenta.
+const campos = [
+  ['rollo', data.photosPrefix],
+  ['oficio', oficio[data.type]],
+  ...(data.location ? [['lugar', data.location.toLowerCase()]] : []),
+  ['año', String(data.year)],
+  ['piezas', String(data.photoCount)],
+];
+
+/* ── el reparto en filas justificadas ──────────────────────────────────
+   La pared se calcula aquí, en el build, porque las medidas nativas de
+   cada pieza ya las tenemos (medidas.json). Cada fila lleva sus piezas a
+   una misma altura y reparte el ancho en proporción al aspect de cada
+   una: así la fila cierra exacta contra los DOS márgenes —el muro no
+   queda rasgado—, nadie se recorta y la 01 va antes que la 02 en el DOM
+   y en pantalla. Sin JavaScript.
+
+   El muro va compacto: filas BAJAS, muchas piezas por fila y altura
+   corta. Con 3.6 las 38 piezas caen en nueve filas de tres a seis
+   piezas, de un cuarto a un tercio del ancho de la hoja de alto. La
+   variación del bento no se va: sale del aspect de cada pieza y de
+   cuántas caigan por fila. */
+const SUMA_FILA = 3.6;
+
+const aspect = (pieza: Pieza) => (pieza.w ?? 3) / (pieza.h ?? 2);
+
+const filas: Pieza[][] = [];
+{
+  let fila: Pieza[] = [];
+  let suma = 0;
+  for (const pieza of piezas) {
+    fila.push(pieza);
+    suma += aspect(pieza);
+    if (suma >= SUMA_FILA) {
+      filas.push(fila);
+      fila = [];
+      suma = 0;
+    }
+  }
+  if (fila.length) filas.push(fila);
+}
+
+/**
+ * Lo que le toca a una pieza del ancho de su fila. En la última fila las
+ * piezas se miden contra `SUMA_FILA` —no se estiran— y lo que falta para
+ * cerrar lo ocupa el colofón: el muro acaba a ras por los dos lados.
+ */
+const reparto = (fila: Pieza[], pieza: Pieza, ultima: boolean) =>
+  aspect(pieza) / (ultima ? SUMA_FILA : fila.reduce((n, p) => n + aspect(p), 0));
+
+/** La parte que le falta a la última fila para cerrar contra la derecha. */
+const resta = (() => {
+  const ultima = filas.at(-1);
+  if (!ultima) return 0;
+  const suma = ultima.reduce((n, p) => n + aspect(p), 0);
+  return Math.max(0, 1 - suma / SUMA_FILA);
+})();
+
+/** El `sizes` sale de esa misma parte: la hoja ocupa ~92vw hasta su tope.
+    En la hoja angosta el apilado va denso: media pieza la vertical, la
+    apaisada entera. */
+const sizesPieza = (parte: number, pieza: Pieza) =>
+  `(max-width: 47.99rem) ${aspect(pieza) >= 1.2 ? '92vw' : '45vw'}, ${Math.max(1, Math.round(parte * 92))}vw`;
+---
+
+{/* el plano de la sala: focos fijos, detrás de todo, nunca sobre una foto */}
+<div class="posadas-plano" aria-hidden="true">
+  <span class="posadas-capa posadas-capa--foco-alto"></span>
+  <span class="posadas-capa posadas-capa--foco-bajo"></span>
+</div>
+
+{/* la cabecera: compacta, toda en banda, sin hero */}
+<section class="posadas-cabecera" aria-labelledby="posadas-titulo">
+  <p class="posadas-sello posadas-rotulo" data-nosnippet>rollo {data.photosPrefix}</p>
+
+  <h1 class="posadas-titulo" id="posadas-titulo">{data.title}</h1>
+
+  <div class="posadas-cabecera-pie">
+    <div class="voz posadas-voz"><Content /></div>
+
+    <dl class="registro micro posadas-registro">
+      {campos.map(([campo, valor]) => (
+        <div data-nosnippet><dt>{campo}</dt> <dd>{valor}</dd></div>
+      ))}
+    </dl>
+  </div>
+</section>
+
+{/* la pared: 38 piezas amontonadas, el orden del rollo intacto */}
+<section class="posadas-pared" aria-labelledby="posadas-pared-titulo">
+  <h2 class="fuera" id="posadas-pared-titulo">La pared completa</h2>
+
+  {filas.map((fila, f) => {
+    const ultima = f === filas.length - 1;
+    return (
+      <div class="posadas-fila" style={`--piezas:${fila.length}`}>
+        {fila.map((pieza) => {
+          const parte = reparto(fila, pieza, ultima);
+          const ancha = aspect(pieza) >= 1.2;
+          const primera = pieza.nn === piezas[0].nn;
+          return (
+            <figure
+              class:list={['posadas-cuadro', { 'posadas-cuadro--ancha': ancha }]}
+              style={`--parte:${parte.toFixed(5)}`}
+            >
+              <button
+                type="button"
+                class="posadas-foto"
+                data-lupa-src={pieza.src}
+                data-lupa-alt={pieza.alt}
+                aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+              >
+                <img
+                  src={pieza.src}
+                  srcset={pieza.conjunto}
+                  sizes={primera ? sizesCabeza : sizesPieza(parte, pieza)}
+                  alt={pieza.alt}
+                  width={pieza.w}
+                  height={pieza.h}
+                  loading={primera ? 'eager' : 'lazy'}
+                  decoding="async"
+                  fetchpriority={primera ? 'high' : undefined}
+                />
+              </button>
+
+              <figcaption class="posadas-cuenta posadas-rotulo">
+                <span data-nosnippet>{pieza.nn}/{data.photoCount}</span>
+              </figcaption>
+            </figure>
+          );
+        })}
+
+        {/* el colofón cierra la última fila a ras, en el hueco que sobra */}
+        {ultima && resta >= 0.12 && (
+          <div
+            class="posadas-cierre"
+            aria-hidden="true"
+            data-nosnippet
+            style={`--parte:${resta.toFixed(5)}`}
+          >
+            <span class="posadas-cierre-cuenta">{String(data.photoCount).padStart(2, '0')}</span>
+            <span class="posadas-rotulo">{data.photosPrefix} · {data.year}</span>
+          </div>
+        )}
+      </div>
+    );
+  })}
+
+  {/* si el sobrante de la última fila no da pieza, el colofón baja a bloque */}
+  {resta > 0 && resta < 0.12 && (
+    <div class="posadas-cierre posadas-cierre--solo" aria-hidden="true" data-nosnippet>
+      <span class="posadas-cierre-cuenta">{String(data.photoCount).padStart(2, '0')}</span>
+      <span class="posadas-rotulo">{data.photosPrefix} · {data.year}</span>
+    </div>
+  )}
+</section>

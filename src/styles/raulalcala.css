@@ -1,0 +1,465 @@
+/* ═════════════════════════════════════════════════════════
+   Raúl Alcalá Challenge — la lista de salida.
+
+   Veintiséis fotos de un reto ciclista en Monterrey. La hoja
+   se comporta como el registro de la carrera: cada pieza es
+   una entrada numerada, con su numeral grande a la izquierda
+   y la foto colgada de esa entrada. No es una retícula con
+   números encima: es una LISTA que resulta traer imagen. Y
+   como toda parrilla de salida, se lee en DOS COLUMNAS: dos
+   entradas por renglón, número + foto, número + foto. Papel
+   claro de cartel, tinta negra de uniforme, y el amarillo de
+   los jerseys entrando como plano de color (renglón 01, chips
+   de dorsal, banda de cierre) — nunca como filete. Marchas ya
+   es papel claro con una ruta que baja por la hoja; esta NO
+   es un recorrido: es un registro.
+
+   Reglas duras de esta hoja:
+   1. el adorno NUNCA toca la foto — el plano es capa fija
+      (z-index -1), los filetes de renglón son borde de la
+      entrada y el amarillo vive en celdas que la imagen no
+      ocupa (columna de numeral, chips, banda de cierre).
+   2. el orden del rollo es intocable — las entradas se leen
+      01, 02, 03… en el DOM y en pantalla; la parrilla de dos
+      columnas se recorre de izquierda a derecha y hacia abajo
+      (colocación automática, sin reorder, sin dense, sin
+      grid-area). El foco de teclado sigue el mismo camino.
+   3. ninguna foto se recorta — el ancho sale del aspect real
+      (`min(columna, alto tope × razon)`): las apaisadas llenan
+      el ancho de su celda y las verticales mandan la altura.
+      Sin object-fit cover ni alturas que encajonen la imagen.
+   4. cero datos inventados — todo sale del frontmatter, de
+      alt.json o del markdown. Los únicos números ajenos al
+      conteo son los dorsales 75 y 456, que nombran los alts
+      de las piezas 04, 05 y 06.
+   5. no hay tiempos, posiciones ni cronómetros: la lista
+      enumera fotos, no resultados.
+
+   Contraste medido (oklch → luminancia lineal sRGB, WCAG):
+   tinta/papel 18.05:1 · tinta/papel-2 16.26:1 (anillo de
+   foco, min 3:1) · polvo 44%/papel 7.13:1 y /papel-2 6.42:1
+   (rótulos de 12 px, min 4.5:1) · tinta/amarillo 12.06:1
+   (texto sobre el plano). El amarillo contra papel rinde
+   1.50:1: por eso jamás es texto ni indicador de foco —
+   sólo plano, y el foco va en tinta.
+   ═════════════════════════════════════════════════════════ */
+
+body:has(.rollo--raulalcala) {
+  /* papel de cartel: blanco tibio, casi sin crema — marchas
+     ya tiene el hueso de carta; éste es papel de pegar */
+  --r-papel: oklch(97% 0.007 95);
+  --r-papel-2: oklch(93.5% 0.012 92);
+  --r-tinta: oklch(15% 0.008 80);
+  --r-tinta-2: oklch(29% 0.014 80);
+  --r-polvo: oklch(44% 0.02 85);
+  --r-amarillo: oklch(84% 0.165 95);
+  --r-linea: oklch(84% 0.014 90);
+
+  /* el armazón viejo, retinteado: rail, colofón y lupa se van solos.
+     El amarillo no entra al armazón: contra papel rinde 1.5:1 y un
+     foco amarillo no se ve — el foco de esta hoja va en tinta. */
+  --fondo: var(--r-papel);
+  --rebate: var(--r-papel-2);
+  --papel: var(--r-tinta);
+  --polvo: var(--r-polvo);
+  --grasa: var(--r-tinta);
+  --ambar: var(--r-tinta);
+  --linea: var(--r-linea);
+
+  background: var(--r-papel);
+  color: var(--r-tinta);
+}
+
+/* el grano se queda: sobre papel claro se re-tinta a multiply
+   y se lee como diente del cartón, no como ISO de sensor */
+body:has(.rollo--raulalcala)::after {
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+}
+
+/* la selección: plano amarillo, tinta encima */
+body:has(.rollo--raulalcala) ::selection {
+  background: var(--r-amarillo);
+  color: var(--r-tinta);
+}
+
+/* ─── el plano: capas fijas, siempre detrás de todo ─── */
+
+.raulalcala-plano {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  background: var(--r-papel);
+}
+
+.raulalcala-capa {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* guías de formulario: los márgenes del pliego, a la vista */
+.raulalcala-capa--margenes {
+  background-image:
+    linear-gradient(90deg, color-mix(in oklch, var(--r-tinta) 14%, transparent) 0 1px, transparent 1px),
+    linear-gradient(270deg, color-mix(in oklch, var(--r-tinta) 14%, transparent) 0 1px, transparent 1px);
+  background-position:
+    left var(--page-gutter) top 0,
+    right var(--page-gutter) top 0;
+  background-size: 1px 100%, 1px 100%;
+  background-repeat: no-repeat;
+}
+
+/* la cinta de color del cartel: plano amarillo al canto derecho */
+.raulalcala-capa--tinta {
+  background-image: linear-gradient(
+    270deg,
+    var(--r-amarillo) 0 clamp(0.3rem, 0.55vw, 0.6rem),
+    transparent clamp(0.3rem, 0.55vw, 0.6rem)
+  );
+}
+
+/* ─── armazón del sitio, teñido ─── */
+
+body:has(.rollo--raulalcala) .rail {
+  background: color-mix(in oklch, var(--r-papel) 90%, transparent);
+  border-bottom-color: color-mix(in oklch, var(--r-tinta) 22%, transparent);
+}
+
+body:has(.rollo--raulalcala) .colofon {
+  border-top-color: color-mix(in oklch, var(--r-tinta) 22%, transparent);
+}
+
+body:has(.rollo--raulalcala) .lupa {
+  background: color-mix(in oklch, var(--r-papel) 97%, transparent);
+}
+
+.rollo--raulalcala {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* ─── tipografía compartida de la hoja ─── */
+
+/* la rotulación del registro: 12 px, condensada, cifra de tabla.
+   Medida: 7.13:1 sobre papel, 6.42:1 sobre el mate */
+.raulalcala-rotulo {
+  font-family: var(--f-edge);
+  font-size: 0.75rem;
+  font-stretch: 70%;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--r-polvo);
+}
+
+/* ─── cabeza de la hoja: sello, titular y renglón 01 ─── */
+
+.raulalcala-cabeza {
+  display: grid;
+  justify-items: start;
+  gap: clamp(var(--space-md), 2.5vw, var(--space-lg));
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: clamp(var(--space-xl), 6vw, var(--space-3xl)) var(--page-gutter) 0;
+}
+
+/* el sello: chip amarillo y el nombre de la hoja */
+.raulalcala-sello {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  white-space: nowrap;
+}
+
+.raulalcala-sello::before {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  flex: 0 0 auto;
+  background: var(--r-amarillo);
+}
+
+.raulalcala-titular {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+  width: 100%;
+  min-width: 0;
+}
+
+/* el titular: negra de cartel, redonda, jamás cursiva */
+.raulalcala-titulo {
+  min-width: 0;
+  font-family: var(--f-edge);
+  font-size: clamp(2.6rem, 10vw, 7.5rem);
+  font-stretch: 62%;
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--r-tinta);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.raulalcala-registro {
+  width: min(100%, 24rem);
+}
+
+.raulalcala-registro > div {
+  border-bottom-color: color-mix(in oklch, var(--r-tinta) 16%, transparent);
+}
+.raulalcala-registro dt { color: var(--r-polvo); }
+.raulalcala-registro dd { color: var(--r-tinta); }
+
+/* ─── la lista: renglones rayados, numeral a la izquierda ─── */
+
+.raulalcala-entrada {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(0.9rem, 2vw, 1.5rem);
+  width: 100%;
+  min-width: 0;
+  padding-block: clamp(var(--space-lg), 3vw, var(--space-2xl));
+  border-block-start: var(--rule-hair) solid var(--r-linea);
+}
+
+/* el numeral: el renglón numerado de la lista. Cifras de tabla
+   para que 01…26 repitan el mismo ancho de columna */
+.raulalcala-numeral {
+  display: flex;
+  align-items: flex-start;
+  align-self: stretch;
+  min-width: clamp(2.9rem, 6.5vw, 5.5rem);
+  padding-inline-end: clamp(0.75rem, 1.5vw, 1.25rem);
+  border-inline-end: var(--rule-hair) solid var(--r-linea);
+  font-family: var(--f-edge);
+  font-size: clamp(2.25rem, 4.5vw, 4.25rem);
+  font-stretch: 62%;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.82;
+  letter-spacing: 0.01em;
+  color: var(--r-tinta);
+}
+
+/* el renglón de cabeza: su columna completa es el plano amarillo.
+   La foto vive en la columna vecina: el plano nunca la toca */
+.raulalcala-numeral--plano {
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+  border-inline-end: 0;
+  font-size: clamp(3.5rem, 9vw, 8.5rem);
+  background: var(--r-amarillo);
+}
+
+/* el cuerpo del renglón: foto colgada del numeral, pie debajo */
+.raulalcala-cuerpo {
+  display: grid;
+  gap: var(--space-2xs);
+  min-width: 0;
+}
+
+/* el renglón de cabeza abre la lista con regla fuerte de cartel */
+.raulalcala-entrada--cabeza {
+  border-block-start: 2px solid var(--r-tinta);
+}
+
+/* el ancho sale del aspect real: alto tope × razón, sin pasar la celda.
+   Las apaisadas llenan el ancho; las verticales quedan más angostas y más
+   altas. Nada se recorta */
+.raulalcala-mate {
+  position: relative;
+  min-width: 0;
+  width: min(100%, calc(var(--ra-alto, 30rem) * var(--razon, 1.5)));
+  padding: clamp(0.5rem, 1.4vw, 0.9rem);
+  background: var(--r-papel-2);
+  box-shadow: inset 0 0 0 var(--rule-hair) color-mix(in oklch, var(--r-tinta) 14%, transparent);
+}
+
+.raulalcala-captura {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  text-align: start;
+  cursor: zoom-in;
+  border-radius: var(--radius-none);
+  background: var(--r-papel-2);
+}
+
+.raulalcala-captura img {
+  width: 100%;
+  height: auto;
+  transition: filter var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .raulalcala-entrada:hover .raulalcala-captura img {
+    filter: contrast(1.03) brightness(1.02);
+  }
+}
+
+/* el foco va en tinta: contra el mate rinde 16.26:1, muy arriba del 3:1 */
+.raulalcala-captura:focus-visible {
+  outline: var(--rule-focus) solid var(--r-tinta);
+  outline-offset: var(--space-2xs);
+}
+
+.raulalcala-captura:active img { filter: brightness(0.97); }
+
+.raulalcala-captura:is(:disabled, [aria-disabled="true"]) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* la cabeza va a su ancho fijo: así el `sizes` de la precarga es exacto */
+.raulalcala-entrada--cabeza .raulalcala-mate {
+  width: min(100%, 32rem);
+}
+
+/* el pie de renglón: código y cuenta, nunca el alt de la foto */
+.raulalcala-pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  padding-block-start: var(--space-3xs);
+}
+
+.raulalcala-pie > span { white-space: nowrap; }
+
+.raulalcala-pie .raulalcala-dato { color: var(--r-tinta); }
+
+/* el dorsal existe: es plano amarillo con tinta, como el pecho del jersey.
+   12.06:1 medidos. Sólo en las piezas cuyo alt lo nombra */
+.raulalcala-dorsal {
+  padding: 0.1rem 0.4rem 0.12rem;
+  background: var(--r-amarillo);
+  color: var(--r-tinta);
+}
+
+/* ─── el texto del rollo, entre renglones ─── */
+
+.raulalcala-voz-zona {
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: clamp(var(--space-lg), 4vw, var(--space-2xl)) var(--page-gutter)
+    clamp(var(--space-xl), 5vw, var(--space-3xl));
+}
+
+.raulalcala-voz-zona .voz {
+  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+  color: var(--r-tinta-2);
+}
+
+/* ─── la lista: parrilla de salida, dos entradas por renglón ─── */
+
+.raulalcala-lista {
+  /* alto tope de la foto dentro de una celda: las verticales llegan a él y
+     su ancho sale de la razón; las apaisadas llegan al ancho de la celda */
+  --ra-alto: clamp(19rem, 55vh, 30rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: 0 var(--page-gutter) clamp(var(--space-2xl), 6vw, var(--space-3xl));
+}
+
+@media (min-width: 56rem) {
+  .raulalcala-lista {
+    /* la parrilla se lee en dos columnas: izquierda a derecha y hacia abajo,
+       igual que el DOM — colocación automática, sin reorder */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1.5rem, 3.5vw, 3rem);
+  }
+}
+
+/* ─── el cierre: banda amarilla en celda que ninguna entrada ocupa ─── */
+
+.raulalcala-cierre {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: clamp(var(--space-md), 3vw, var(--space-lg));
+  margin-block-start: clamp(var(--space-lg), 4vw, var(--space-2xl));
+  padding: clamp(var(--space-md), 2.5vw, var(--space-xl)) clamp(var(--space-md), 2.5vw, var(--space-lg));
+  background: var(--r-amarillo);
+  color: var(--r-tinta);
+}
+
+.raulalcala-cierre-cuenta {
+  font-family: var(--f-edge);
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  font-stretch: 62%;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.8;
+  white-space: nowrap;
+}
+
+.raulalcala-cierre-col {
+  display: grid;
+  gap: var(--space-3xs);
+  justify-items: start;
+  min-width: 0;
+}
+
+.raulalcala-cierre-rotulo,
+.raulalcala-cierre-codigo {
+  font-family: var(--f-edge);
+  font-size: 0.75rem;
+  font-stretch: 70%;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--r-tinta);
+}
+
+/* ─── paso de rollo ─── */
+
+.rollo--raulalcala > .paso {
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  margin-block-start: 0;
+  padding: var(--space-xl) var(--page-gutter) 0;
+  border-block-start-color: color-mix(in oklch, var(--r-tinta) 25%, transparent);
+}
+
+.rollo--raulalcala .paso .edge { color: var(--r-polvo); }
+.rollo--raulalcala .paso-titulo { color: var(--r-tinta-2); }
+.rollo--raulalcala .paso a:hover .paso-titulo,
+.rollo--raulalcala .paso a:focus-visible .paso-titulo { color: var(--r-tinta); }
+
+/* ─── escritorio: titular y registro comparten banda ─── */
+
+@media (min-width: 56rem) {
+  .raulalcala-titular {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+    align-items: end;
+    column-gap: var(--space-2xl);
+  }
+
+  .raulalcala-registro { justify-self: end; width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .raulalcala-captura img { transition: none; }
+}

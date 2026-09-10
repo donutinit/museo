@@ -1,0 +1,404 @@
+/* ═════════════════════════════════════════════════════════
+   Káren — la cita y cuatro láminas.
+
+   Retrato bajo llovizna. Con cuatro piezas no hay secuencia
+   que armar: hay que sostener el gesto. La hoja abre con el
+   texto del rollo puesto en grande, como cita —la voz del
+   autor, no un adorno— y debajo las cuatro láminas colgadas
+   con muchísimo aire, una por renglón, alternando la orilla.
+
+   El papel es claro pero húmedo: gris cálido altísimo, luz
+   de día nublado — no blanco de oficina. La serif va en
+   redonda, a tamaño óptico grande, con interlínea suelta:
+   quieta, no dramática. El acento es el rosa de la
+   buganvilla que enmarca la pieza 01; fuera de ahí, tinta
+   verdosa ("verde alrededor") y nada más.
+
+   Contraste medido (WCAG, oklch → sRGB → luminancia):
+   sobre papel — tinta 12.76:1, tinta suave 10.10:1, polvo
+   5.70:1, buganvilla de texto 5.34:1. Los rótulos de 12 px
+   (polvo y buganvilla de texto) pasan 4.5:1 con holgura,
+   también sobre el mate (polvo 4.88:1, buganvilla 4.57:1),
+    que es donde cae el anillo de foco: 4.57:1, arriba del
+    3:1 que pide un indicador de foco. El rosa pleno de la
+    buganvilla rinde 3.80:1: no lleva texto chico, sólo los
+    rombos del folio y la selección.
+
+   Reglas duras de esta hoja:
+   1. el adorno nunca toca la foto: la luz y la veladura
+      verde viven en la capa fija (z-index -1) y los rombos
+      en el folio, el margen y las celdas que ninguna
+      lámina ocupa.
+   2. el orden es intocable: una lámina por renglón, 01
+      antes que 02 antes que 03 antes que 04, en el DOM y
+      en pantalla. Nada de reordenar.
+   3. ninguna foto se recorta: el alto sale del aspect real
+      de cada pieza; width y height nativos, height: auto.
+   4. cero datos inventados: todo el texto suelto sale del
+      frontmatter, de alt.json o del markdown del rollo.
+   ═════════════════════════════════════════════════════════ */
+
+body:has(.rollo--karen) {
+  /* papel húmedo: día nublado sobre fibonacci grueso */
+  --k-papel: oklch(92.5% 0.014 95);
+  --k-papel-2: oklch(87.5% 0.016 98);
+  /* tinta verdosa: el verde alrededor de la sesión */
+  --k-tinta: oklch(25% 0.018 155);
+  --k-tinta-2: oklch(32% 0.018 152);
+  --k-polvo: oklch(46% 0.022 100);
+  /* buganvilla: plena para el remate, bajada para el texto */
+  --k-buganvilla: oklch(58% 0.185 2);
+  --k-buganvilla-tinta: oklch(50% 0.185 5);
+  --k-linea: oklch(80% 0.014 95);
+  /* la veladura del plano, nunca texto */
+  --k-verde: oklch(80% 0.045 150);
+
+  /* el armazón viejo, retinteado: rail, colofón y lupa se van solos */
+  --fondo: var(--k-papel);
+  --rebate: var(--k-papel-2);
+  --papel: var(--k-tinta);
+  --polvo: var(--k-polvo);
+  --grasa: var(--k-buganvilla-tinta);
+  --ambar: var(--k-buganvilla-tinta);
+  --linea: var(--k-linea);
+
+  background: var(--k-papel);
+  color: var(--k-tinta);
+}
+
+/* el grano se queda: diente del papel, un punto bajo */
+body:has(.rollo--karen)::after { opacity: 0.045; }
+
+body:has(.rollo--karen) ::selection {
+  background: var(--k-buganvilla);
+  color: var(--k-papel);
+}
+
+/* ─── armazón del sitio, teñido ─── */
+
+body:has(.rollo--karen) .rail {
+  background: color-mix(in oklch, var(--k-papel) 86%, transparent);
+  border-bottom-color: color-mix(in oklch, var(--k-polvo) 38%, transparent);
+}
+
+body:has(.rollo--karen) .colofon {
+  border-top-color: color-mix(in oklch, var(--k-polvo) 38%, transparent);
+}
+
+body:has(.rollo--karen) .lupa {
+  background: color-mix(in oklch, var(--k-papel) 96%, transparent);
+}
+
+.rollo--karen {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* ─── el plano: luz nublada, siempre detrás de todo ─── */
+
+.karen-plano {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  background: linear-gradient(
+    178deg,
+    oklch(94% 0.011 100) 0%,
+    var(--k-papel) 44%,
+    oklch(90.5% 0.016 115) 100%
+  );
+}
+
+.karen-capa {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* la veladura verde: el alrededor de la sesión, mojando el pie de la hoja */
+.karen-capa--verde {
+  background: radial-gradient(
+    130% 58% at 50% 112%,
+    color-mix(in oklch, var(--k-verde) 24%, transparent),
+    transparent 68%
+  );
+}
+
+/* ─── tipografía compartida ─── */
+
+/* el lettering del rollo: 12 px, polvo medido a 5.70:1 sobre papel */
+.karen-rotulo {
+  font-family: var(--f-edge);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-stretch: 72%;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.18em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: var(--k-polvo);
+}
+
+/* ─── apertura: folio, nombre y la cita ─── */
+
+.karen-apertura {
+  display: grid;
+  gap: clamp(2.25rem, 6vh, 4rem);
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: clamp(3rem, 9vh, 6rem) var(--page-gutter) clamp(3.5rem, 9vh, 6rem);
+}
+
+.karen-cabecera {
+  display: grid;
+  justify-items: start;
+  gap: clamp(0.9rem, 2vh, 1.4rem);
+  min-width: 0;
+}
+
+/* el folio: rombo buganvilla y el código de la sesión */
+.karen-folio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--k-buganvilla-tinta);
+}
+
+.karen-folio::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: 0 0 auto;
+  background: var(--k-buganvilla);
+  rotate: 45deg;
+}
+
+/* el nombre: redonda, mediana — el display de esta hoja es la cita */
+.karen-titulo {
+  min-width: 0;
+  font-family: var(--f-voz);
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-size: clamp(1.75rem, 3.4vw, 2.6rem);
+  font-weight: 540;
+  line-height: 1.05;
+  letter-spacing: -0.005em;
+  color: var(--k-tinta);
+  overflow-wrap: anywhere;
+}
+
+/* el pliego: la cita a la izquierda, la ficha cierra a la derecha */
+.karen-pliego {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3.5rem);
+  min-width: 0;
+  align-items: start;
+}
+
+/* la cita: sin adorno. Se lee como cita por tamaño, serif, aire y max-width;
+   alineada al borde del título, no sangrada contra nada */
+.karen-cita {
+  min-width: 0;
+  max-width: 36rem;
+}
+
+.karen-voz {
+  min-width: 0;
+  font-family: var(--f-voz);
+  font-optical-sizing: auto;
+  overflow-wrap: anywhere;
+}
+
+/* el primer renglón del markdown: la pie, en voz baja */
+.karen-voz p:first-of-type {
+  font-size: 1.0625rem;
+  font-weight: 480;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  color: var(--k-polvo);
+}
+
+/* la cita de verdad: redonda, tamaño óptico grande, interlínea suelta */
+.karen-voz p:last-of-type {
+  margin-block-start: clamp(1rem, 2.5vh, 1.6rem);
+  font-size: clamp(1.9375rem, 1rem + 3.5vw, 3.375rem);
+  font-weight: 420;
+  line-height: 1.34;
+  letter-spacing: -0.002em;
+  color: var(--k-tinta);
+  text-wrap: pretty;
+}
+
+.karen-registro { width: min(100%, 17rem); }
+
+/* ─── láminas: una por renglón, muchísimo aire ─── */
+
+.karen-laminas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: clamp(4.5rem, 12vh, 8rem);
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 0 var(--page-gutter) clamp(4rem, 10vh, 7rem);
+}
+
+.karen-lamina {
+  min-width: 0;
+  align-self: start;
+}
+
+/* el mate: papel un punto más mojado, sin sombra */
+.karen-mate {
+  min-width: 0;
+  padding: clamp(0.75rem, 1.8vw, 1.4rem);
+  background: var(--k-papel-2);
+  box-shadow: inset 0 0 0 var(--rule-hair) color-mix(in oklch, var(--k-polvo) 30%, transparent);
+}
+
+.karen-captura {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  text-align: start;
+  cursor: zoom-in;
+  border-radius: var(--radius-none);
+  background: var(--k-papel-2);
+}
+
+.karen-captura img {
+  width: 100%;
+  height: auto;
+  transition: filter var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .karen-lamina:hover .karen-captura img { filter: brightness(1.04) contrast(1.02); }
+}
+
+/* el anillo cae sobre el mate: buganvilla bajada, 4.57:1 contra papel-2 */
+.karen-captura:focus-visible {
+  outline: var(--rule-focus) solid var(--k-buganvilla-tinta);
+  outline-offset: var(--space-2xs);
+}
+
+.karen-captura:active img { filter: brightness(0.97); }
+
+/* el pie de lámina: folio a la izquierda, cuenta a la derecha */
+.karen-pie {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+  min-width: 0;
+  padding: 0.6rem 0.2rem 0;
+}
+
+.karen-pie .karen-dato { color: var(--k-tinta-2); }
+
+/* ─── adornos de margen: viven en celdas que ninguna lámina ocupa ─── */
+
+/* el hilo a plomo, acompañando a la lámina 02 */
+.karen-hilo {
+  display: none;
+  grid-row: 2;
+  grid-column: 2 / 4;
+  justify-self: start;
+  width: 1px;
+  height: 100%;
+  min-height: 6rem;
+  background: color-mix(in oklch, var(--k-polvo) 42%, transparent);
+}
+
+/* el folio de pie, acompañando a la lámina 03 */
+.karen-folio-vertical {
+  display: none;
+  grid-row: 3;
+  grid-column: 9 / 12;
+  justify-self: start;
+  align-self: center;
+  writing-mode: vertical-rl;
+  letter-spacing: 0.26em;
+}
+
+/* ─── cierre: una línea y el rombo ─── */
+
+.karen-cierre {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.9rem, 2.5vw, 1.4rem);
+  min-width: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.karen-cierre::before,
+.karen-cierre::after {
+  content: "";
+  flex: 1 1 auto;
+  height: var(--rule-hair);
+  background: color-mix(in oklch, var(--k-polvo) 40%, transparent);
+}
+
+.karen-rombo {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: 0 0 auto;
+  background: var(--k-buganvilla);
+  rotate: 45deg;
+}
+
+/* ─── paso de rollo ─── */
+
+.rollo--karen > .paso {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  margin-block-start: 0;
+  padding: var(--space-xl) var(--page-gutter) clamp(2.5rem, 6vh, 4rem);
+  border-block-start-color: color-mix(in oklch, var(--k-polvo) 45%, transparent);
+}
+
+.rollo--karen .paso .edge { color: var(--k-polvo); }
+.rollo--karen .paso-titulo { color: var(--k-tinta-2); }
+.rollo--karen .paso a:hover .paso-titulo,
+.rollo--karen .paso a:focus-visible .paso-titulo { color: var(--k-buganvilla-tinta); }
+
+/* ─── retícula grande ─── */
+
+@media (min-width: 56rem) {
+  .karen-laminas {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(1rem, 2vw, 2rem);
+    row-gap: clamp(6rem, 14vh, 10rem);
+  }
+
+  /* una lámina por renglón: el orden de lectura es el del foco */
+  .karen-lamina--01 { grid-row: 1; grid-column: 2 / 8; }
+  .karen-lamina--02 { grid-row: 2; grid-column: 7 / 12; }
+  .karen-lamina--03 { grid-row: 3; grid-column: 2 / 7; }
+  .karen-lamina--04 { grid-row: 4; grid-column: 6 / 12; }
+
+  .karen-hilo { display: block; }
+  .karen-folio-vertical { display: block; }
+
+  .karen-cierre { grid-row: 5; grid-column: 1 / -1; }
+
+  .karen-pliego {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 17rem);
+    column-gap: clamp(3rem, 6vw, 5rem);
+  }
+
+  .karen-registro { justify-self: end; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .karen-captura img { transition: none; }
+}

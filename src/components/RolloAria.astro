@@ -1,0 +1,146 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import { oficio } from '../lib/archivo';
+import '../styles/aria.css';
+
+/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+interface Pieza {
+  nn: string;
+  src: string;
+  conjunto: string | undefined;
+  w?: number;
+  h?: number;
+  alt: string;
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  piezas: Pieza[];
+  /** La medida de la placa de portada; la misma que precarga la página. */
+  sizesCabeza: string;
+}
+
+const { proyecto, piezas, sizesCabeza } = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+// La hoja de instalación: los datos duros del encargo. El cliente va aquí
+// porque es el único rollo que lo tiene; la cuenta se nombra como en obra:
+// puntos.
+const campos = [
+  ['rollo', data.photosPrefix],
+  ['oficio', oficio[data.type]],
+  ...(data.client ? [['cliente', data.client.toLowerCase()]] : []),
+  ...(data.location ? [['lugar', data.location.toLowerCase()]] : []),
+  ['año', String(data.year)],
+  ['puntos', String(data.photoCount)],
+];
+
+/** El recorrido completo de la hoja: `01 — 06`. */
+const tramo = `${piezas[0]?.nn} — ${piezas.at(-1)?.nn}`;
+
+// Los dos detalles cierran el recorrido cruzando la hoja de lado a lado:
+// el sellador fresco —apaisada— y el rotomartillo —vertical, contenida por
+// alto—. Sigue siendo 05 y 06 en el mismo orden de siempre.
+const DE_ANCHO = new Set(['05', '06']);
+
+/** La medida a la que se pinta cada pieza, según su puesto en la hoja. */
+const sizesDe = (pieza: Pieza) =>
+  pieza.nn === '05'
+    ? '(max-width: 55.99rem) 92vw, 90vw'
+    : pieza.nn === '06'
+      ? '(max-width: 55.99rem) 92vw, 32rem'
+      : sizesCabeza;
+---
+
+{/* el plano del galván: capas fijas, detrás de todo, ninguna sobre una foto */}
+<div class="aria-plano" aria-hidden="true">
+  <span class="aria-capa aria-capa--veta"></span>
+  <span class="aria-capa aria-capa--juntas"></span>
+</div>
+
+<section class="aria-cabecera-zona" aria-labelledby="aria-titulo">
+  <header class="aria-cabecera">
+    <p class="aria-sello aria-rotulo" data-nosnippet>obra {data.photosPrefix}</p>
+
+    <h1 class="aria-titulo" id="aria-titulo">
+      <span class="aria-titulo-eco" aria-hidden="true">{data.title}</span>
+      <span>{data.title}</span>
+    </h1>
+
+    <dl class="registro micro aria-registro">
+      {campos.map(([campo, valor]) => (
+        <div data-nosnippet><dt>{campo}</dt> <dd>{valor}</dd></div>
+      ))}
+    </dl>
+  </header>
+</section>
+
+{/* la voz llega antes que las fotos: el encargo abre la hoja */}
+<section class="aria-encargo" aria-label="El encargo">
+  <p class="aria-rotulo" data-nosnippet>el encargo</p>
+  <div class="voz"><Content /></div>
+</section>
+
+{/* la hoja de puntos: la foto lleva dos tercios de la lámina y el rótulo
+    vive en un carril angosto al canto — número, código y filete. El par
+    alterna de lado al bajar; 05 y 06 cruzan a todo lo ancho. */}
+<section class="aria-hoja" aria-labelledby="aria-hoja-titulo">
+  <h2 class="fuera" id="aria-hoja-titulo">Recorrido completo {data.photosPrefix} {tramo}</h2>
+
+  {piezas.map((pieza, i) => {
+    const ancho = DE_ANCHO.has(pieza.nn);
+    const alta = (pieza.w ?? 0) < (pieza.h ?? 0);
+    return (
+      <figure
+        class:list={[
+          'aria-diptico',
+          {
+            'aria-diptico--vuelta': i % 2 === 1 && !ancho,
+            'aria-diptico--ancho': ancho,
+            'aria-diptico--alta': alta,
+          },
+        ]}
+      >
+        <div class="aria-mitad aria-mitad--foto">
+          <button
+            type="button"
+            class="aria-captura"
+            data-lupa-src={pieza.src}
+            data-lupa-alt={pieza.alt}
+            aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+          >
+            <img
+              src={pieza.src}
+              srcset={pieza.conjunto}
+              sizes={sizesDe(pieza)}
+              alt={pieza.alt}
+              width={pieza.w}
+              height={pieza.h}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchpriority={i === 0 ? 'high' : undefined}
+            />
+          </button>
+        </div>
+
+        <figcaption class="aria-mitad aria-mitad--dato">
+          <span class="aria-folio" data-nosnippet>{pieza.nn}</span>
+          <span class="aria-rotulo" data-nosnippet>{data.photosPrefix} · {pieza.nn}</span>
+          <span class="aria-rotulo" data-nosnippet>punto {Number(pieza.nn)}/{data.photoCount}</span>
+        </figcaption>
+      </figure>
+    );
+  })}
+
+  {/* el cierre: la hoja se cierra y la partida se disuelve — el sistema
+      quedó instalado y el trazo queda en hueco. Adorno puro. */}
+  <div class="aria-cierre" aria-hidden="true" data-nosnippet>
+    <span class="aria-cinta"></span>
+    <div class="aria-cierre-linea">
+      <span class="aria-rotulo">{data.photosPrefix} · {data.year}</span>
+      <span class="aria-cuenta">{String(data.photoCount).padStart(2, '0')}</span>
+      <span class="aria-rotulo">fin de la hoja</span>
+    </div>
+  </div>
+</section>

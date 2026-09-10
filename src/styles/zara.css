@@ -1,0 +1,374 @@
+/* ═════════════════════════════════════════════════════════
+   Zara — specimen.
+
+   El rollo más corto del archivo, el más callado. La idea
+   rectora es sostener el gesto: tres láminas verticales sobre
+   papel claro, columnas asimétricas, filetes finos y una
+   cantidad de aire que en otra hoja sería un error. La voz
+   tipográfica es Newsreader de alto contraste — peso ligero,
+   tamaño grande, presencia sin gritar.
+
+   La firma de la hoja es una renuncia: NO lleva acento
+   cromático. Ni un color de señal. Tinta, papel y filete; el
+   único color de la página es el que traen las tres fotos.
+
+   Reglas duras de esta hoja:
+   1. no hay adorno sobre las fotos: los hilos de retícula
+      viven en la capa fija (z-index -1) y la fotos los tapan.
+   2. el orden 01, 02, 03 es intocable: cada lámina ocupa su
+      propio renglón de la retícula; nada se reordena.
+   3. ninguna foto se recorta: el ancho sale del aspect real
+      (width/height + width: 100%; height: auto).
+   4. rótulos apilados — arriba el rótulo, debajo el título,
+      en la misma columna. Nada colgado en el margen.
+   ═════════════════════════════════════════════════════════ */
+
+body:has(.rollo--zara) {
+  /* papel claro neutro; tinta de imprenta, nunca negro puro */
+  --z-papel: oklch(97.4% 0.005 95);
+  --z-papel-2: oklch(95.8% 0.006 95);
+  --z-tinta: oklch(25% 0.008 90);
+  --z-tinta-suave: oklch(37% 0.009 92);
+  --z-polvo: oklch(49% 0.01 95);
+  --z-linea: oklch(89.5% 0.006 95);
+
+  /* hueco entre columnas de la retícula */
+  --z-hueco: clamp(0.75rem, 1.6vw, 1.5rem);
+
+  /* contraste medido (WCAG, oklch → sRGB → luminancia):
+     sobre papel — tinta 14.84:1, tinta-suave 9.68:1,
+     polvo 5.81:1. Los rótulos de 12 px pasan 4.5:1 con
+     holgura. El anillo de foco va en tinta: 14.84:1 contra
+     el papel, muy por encima del 3:1 que pide un indicador.
+     --z-linea y --z-papel-2 son no-texto: filete y mate. */
+
+  /* el armazón viejo, retinteado: rail, colofón, lupa y paso
+     se van solos. Sin acento: grasa y ámbar caen a tinta. */
+  --fondo: var(--z-papel);
+  --rebate: var(--z-papel-2);
+  --papel: var(--z-tinta);
+  --polvo: var(--z-polvo);
+  --grasa: var(--z-tinta);
+  --ambar: var(--z-tinta);
+  --linea: var(--z-linea);
+
+  background: var(--z-papel);
+  color: var(--z-tinta);
+}
+
+/* el grano se queda: diente de papel, un punto más bajo */
+body:has(.rollo--zara)::after { opacity: 0.05; }
+
+/* selección a la imprenta: tinta llena, papel adentro */
+body:has(.rollo--zara) ::selection {
+  background: var(--z-tinta);
+  color: var(--z-papel);
+}
+
+.rollo--zara {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* ─── el plano: hilos de retícula, fijos, detrás de todo ───
+    Las columnas asimétricas se insinúan: tres hilos de 1 px
+    al 8% de tinta marcan los quiebres de la hoja. Ninguna
+    foto los deja ver: viven detrás y la lámina los tapa. */
+
+.zara-plano {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.zara-hilo {
+  position: absolute;
+  inset-block: 0;
+  width: 1px;
+  background: color-mix(in oklch, var(--z-tinta) 8%, transparent);
+}
+
+.zara-hilo--a { inset-inline-start: 31%; }
+.zara-hilo--b { inset-inline-start: 58%; }
+.zara-hilo--c { inset-inline-start: 84%; }
+
+@media (max-width: 55.99rem) {
+  .zara-hilo { display: none; }
+}
+
+/* ─── tipografía compartida de la hoja ───
+    Los rótulos NO van en Archivo condensado como en el resto
+    del sitio: aquí la etiqueta es serif, versalitas espaciadas,
+    12 px — la inscripción de una lámina de museo. */
+
+.zara-rotulo {
+  min-width: 0;
+  font-family: var(--f-voz);
+  font-optical-sizing: auto;
+  font-size: 0.75rem;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--z-polvo);
+}
+
+/* ─── cabecera: rótulo arriba, título debajo, misma columna ─── */
+
+.zara-cabecera {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: clamp(var(--space-xl), 6vw, var(--space-3xl)) var(--page-gutter)
+    clamp(var(--space-lg), 4vw, var(--space-2xl));
+  border-block-end: var(--rule-hair) solid var(--z-linea);
+}
+
+.zara-cabecera > * { grid-column: 1 / -1; min-width: 0; }
+
+.zara-titulo {
+  font-family: var(--f-voz);
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-size: clamp(4.25rem, 13vw, 11rem);
+  line-height: 0.98;
+  letter-spacing: -0.015em;
+  text-transform: lowercase;
+  color: var(--z-tinta);
+  overflow-wrap: anywhere;
+}
+
+/* el registro: los datos duros, en dos voces — la etiqueta en
+   versalitas, el dato en serif de libro */
+.zara-registro {
+  display: grid;
+  gap: 0.55rem;
+  width: min(100%, 22rem);
+  min-width: 0;
+  margin-block-start: var(--space-sm);
+}
+
+.zara-registro > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
+  padding-block-end: 0.45rem;
+  border-block-end: var(--rule-hair) solid var(--z-linea);
+}
+
+.zara-registro dt {
+  flex: 0 0 auto;
+  font-family: var(--f-voz);
+  font-optical-sizing: auto;
+  font-size: 0.6875rem;
+  font-weight: 550;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--z-polvo);
+}
+
+.zara-registro dd {
+  min-width: 0;
+  font-family: var(--f-voz);
+  font-optical-sizing: auto;
+  font-size: 0.875rem;
+  font-weight: 460;
+  color: var(--z-tinta);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* ─── láminas: la foto entera, pie de placa abajo ─── */
+
+.zara-lamina {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.zara-captura {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  text-align: start;
+  cursor: zoom-in;
+  border-radius: var(--radius-none);
+  background: var(--z-papel-2);
+}
+
+.zara-captura img {
+  width: 100%;
+  height: auto;
+  transition: filter var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .zara-lamina:hover .zara-captura img { filter: contrast(1.03); }
+}
+
+.zara-captura:focus-visible {
+  outline: var(--rule-focus) solid var(--z-tinta);
+  outline-offset: var(--space-2xs);
+}
+
+.zara-captura:active img { filter: brightness(0.98); }
+
+.zara-captura:is(:disabled, [aria-disabled="true"]) { cursor: not-allowed; opacity: 0.5; }
+
+/* pie de placa: filete arriba, código a la izquierda, cuenta
+   a la derecha. Nunca imprime el alt. */
+.zara-pie {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+  min-width: 0;
+  margin-block-start: var(--space-sm);
+  padding-block-start: var(--space-2xs);
+  border-block-start: var(--rule-hair) solid var(--z-linea);
+}
+
+.zara-pie > span {
+  white-space: nowrap;
+  font-family: var(--f-voz);
+  font-optical-sizing: auto;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+}
+
+.zara-pie .zara-codigo { color: var(--z-tinta); }
+.zara-pie .zara-cuenta { color: var(--z-polvo); }
+
+/* ─── secciones: una columna en el teléfono ─── */
+
+.zara-apertura,
+.zara-nota,
+.zara-secuencia {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+}
+
+.zara-apertura {
+  padding: clamp(var(--space-2xl), 7vw, var(--space-4xl)) var(--page-gutter) 0;
+}
+
+.zara-nota {
+  padding: clamp(var(--space-3xl), 9vw, var(--space-4xl)) var(--page-gutter);
+}
+
+.zara-secuencia {
+  row-gap: clamp(var(--space-3xl), 9vw, var(--space-4xl));
+  padding: 0 var(--page-gutter) clamp(var(--space-2xl), 6vw, var(--space-3xl));
+}
+
+/* ─── la nota: la voz del rollo, grande y ligera ─── */
+
+.zara-voz {
+  min-width: 0;
+  max-width: 38ch;
+  font-family: var(--f-voz);
+  font-optical-sizing: auto;
+  font-weight: 340;
+  font-size: clamp(1.3125rem, 2.1vw, 1.8rem);
+  line-height: 1.5;
+  color: var(--z-tinta);
+  overflow-wrap: break-word;
+}
+
+.zara-voz p + p { margin-block-start: 1.1em; }
+
+.zara-voz em { font-style: italic; }
+
+/* ─── cierre: el último filete y los datos de la placa ─── */
+
+.zara-cierre {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.3rem 1.5rem;
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: var(--space-sm) var(--page-gutter) clamp(var(--space-2xl), 5vw, var(--space-3xl));
+  border-block-start: var(--rule-hair) solid var(--z-linea);
+}
+
+.zara-cierre > span {
+  white-space: nowrap;
+  font-family: var(--f-voz);
+  font-optical-sizing: auto;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+  color: var(--z-polvo);
+}
+
+/* ─── paso de rollo ─── */
+
+.rollo--zara > .paso {
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  margin-block-start: 0;
+  padding: var(--space-xl) var(--page-gutter) 0;
+  border-block-start-color: color-mix(in oklch, var(--z-tinta) 22%, transparent);
+}
+
+.rollo--zara .paso .edge { color: var(--z-polvo); }
+.rollo--zara .paso-titulo { color: var(--z-tinta-suave); }
+.rollo--zara .paso a:hover .paso-titulo,
+.rollo--zara .paso a:focus-visible .paso-titulo { color: var(--z-tinta); }
+
+/* ─── escritorio: la retícula asimétrica ───
+    Doce columnas; cada lámina su propio renglón, así 01, 02 y
+    03 se leen en ese orden en pantalla y en el foco. El aire
+    de las celdas vacías es parte de la hoja. */
+
+@media (min-width: 56rem) {
+  .zara-cabecera,
+  .zara-apertura,
+  .zara-nota,
+  .zara-secuencia {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--z-hueco);
+  }
+
+  /* cabecera apilada en la columna izquierda; la derecha,
+     vacía, es aire y deja ver el hilo de retícula */
+  .zara-rotulo { grid-column: 1 / 7; }
+  .zara-titulo { grid-column: 1 / 11; }
+  .zara-registro { grid-column: 1 / 6; }
+
+  .zara-apertura .zara-lamina { grid-column: 1 / 8; grid-row: 1; }
+
+  .zara-voz { grid-column: 4 / 11; }
+
+  .zara-secuencia .zara-lamina:nth-of-type(1) { grid-column: 7 / 13; grid-row: 1; }
+  .zara-secuencia .zara-lamina:nth-of-type(2) { grid-column: 2 / 11; grid-row: 2; }
+
+  .zara-cierre { padding-inline: var(--page-gutter); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zara-captura img { transition: none; }
+}

@@ -1,0 +1,115 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import { oficio } from '../lib/archivo';
+import '../styles/bikefest.css';
+
+/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+interface Pieza {
+  nn: string;
+  src: string;
+  conjunto: string | undefined;
+  w?: number;
+  h?: number;
+  alt: string;
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  piezas: Pieza[];
+  /** La medida de la placa de portada; la misma que precarga la página. */
+  sizesCabeza: string;
+}
+
+const { proyecto, piezas, sizesCabeza } = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+// Todo el texto suelto sale del frontmatter: código, oficio, lugar, año.
+// La cuenta no va aquí: es el número grande del panel — los golpes que
+// se quedan, dicha con la palabra del propio texto del rollo.
+const campos = [
+  ['rollo', data.photosPrefix],
+  ['oficio', oficio[data.type]],
+  ...(data.location ? [['lugar', data.location.toLowerCase()]] : []),
+  ['año', String(data.year)],
+];
+
+/** El desfile completo: `01 — 16`. */
+const tramo = `${piezas[0]?.nn ?? ''} — ${piezas.at(-1)?.nn ?? ''}`;
+---
+
+{/* el plano del polvo: capa fija, detrás de todo, nunca sobre una foto */}
+<div class="bikefest-plano" aria-hidden="true">
+  <span class="bikefest-capa"></span>
+</div>
+
+{/* el panel que no se mueve sostiene el código y la cuenta;
+    el desfile pasa por el otro lado, en orden, sin brincarse nada */}
+<section class="bikefest-stack" aria-labelledby="bikefest-titulo">
+  <header class="bikefest-panel">
+    <p class="bikefest-sello bikefest-rotulo" data-nosnippet>{data.photosPrefix}</p>
+
+    <h1 class="bikefest-titulo" id="bikefest-titulo">{data.title}</h1>
+
+    <p class="bikefest-cuenta">
+      <span class="bikefest-cuenta-num">{String(data.photoCount).padStart(2, '0')}</span>
+      <span class="bikefest-rotulo">golpes</span>
+    </p>
+
+    <dl class="registro micro bikefest-registro">
+      {campos.map(([campo, valor]) => (
+        <div data-nosnippet><dt>{campo}</dt> <dd>{valor}</dd></div>
+      ))}
+    </dl>
+
+    <div class="voz bikefest-voz"><Content /></div>
+  </header>
+
+  <div class="bikefest-desfile">
+    <h2 class="fuera" id="bikefest-secuencia-titulo">
+      Secuencia completa {data.photosPrefix} {tramo}
+    </h2>
+
+    {/* en fila india: las piezas de la izquierda cuelgan de la línea
+        de la vereda; las de la derecha van aparejadas, sin hito */}
+    {piezas.map((pieza, i) => (
+      <figure
+        class:list={['bikefest-pieza', i % 2 === 0 && 'bikefest-pieza--linea']}
+      >
+        <span class="bikefest-hito" aria-hidden="true"></span>
+        <div class="bikefest-mate">
+          <button
+            type="button"
+            class="bikefest-captura"
+            data-lupa-src={pieza.src}
+            data-lupa-alt={pieza.alt}
+            aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+          >
+            <img
+              src={pieza.src}
+              srcset={pieza.conjunto}
+              sizes={sizesCabeza}
+              alt={pieza.alt}
+              width={pieza.w}
+              height={pieza.h}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchpriority={i === 0 ? 'high' : undefined}
+            />
+          </button>
+        </div>
+
+        <figcaption class="bikefest-pie bikefest-rotulo">
+          <span class="bikefest-dato" data-nosnippet>{data.photosPrefix} {pieza.nn}</span>
+          <span data-nosnippet>{pieza.nn}/{data.photoCount}</span>
+        </figcaption>
+      </figure>
+    ))}
+
+    {/* el fin de la vereda: un rótulo y el código, nada más */}
+    <div class="bikefest-cierre" aria-hidden="true" data-nosnippet>
+      <span class="bikefest-rotulo">fin de la línea</span>
+      <span class="bikefest-rotulo bikefest-dato">{data.photosPrefix} · {data.year}</span>
+    </div>
+  </div>
+</section>

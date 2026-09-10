@@ -1,0 +1,381 @@
+/* ═════════════════════════════════════════════════════════
+   Posadas — la pared de la fiesta, y va compacta.
+
+   38 piezas de una casa que aguanta hasta tarde: la hoja se
+   lee como la pared donde acabaron pegadas. La pared es una
+   galería justificada calculada en el build —cada fila lleva
+   sus piezas a una misma altura y reparte el ancho según el
+   aspect real—, así que cierra a ras por los DOS márgenes:
+   nada de columna de huecos a la derecha. Filas BAJAS, de
+   tres a seis piezas, para que el muro se sienta amontonado.
+   La variación del bento sale del aspect de cada pieza y de
+   cuántas caigan por fila. Negro de sala y ámbar de foco
+   casero. La voz va en REDONDA —la cursiva no viste bloques
+   enteros— y sale del ancho NORMAL de Archivo con peso alto,
+   caja baja y tracking apretado.
+
+   Reglas duras de esta hoja:
+   1. el orden manda: el reparto en filas respeta el orden
+      del rollo. La 01 va antes que la 02 en el DOM y en
+      pantalla, y el foco de teclado sigue el mismo camino.
+      El tamaño nunca reordena.
+   2. nadie se recorta: sin object-fit: cover ni alturas
+      fijas. El ancho de cada pieza sale de su aspect real;
+      la altura es consecuencia.
+   3. el adorno nunca toca la foto: los focos de ámbar viven
+      en el plano fijo (z-index -1) y se asoman por los huecos
+      de la retícula; la cuenta va debajo de cada pieza, nunca
+      encima.
+   4. cero datos inventados: todo rótulo sale del
+      frontmatter, de alt.json o del markdown del rollo.
+   5. compacta porque el dueño lo pidió: hueco chico, piezas
+      modestas, filas que cierran a ras y pies de foto
+      reducidos a la cuenta (01/38) en 12 px.
+
+   Contraste medido (WCAG, oklch → sRGB lineal → luminancia):
+   sobre negra — hueso 15.39:1, ámbar 10.63:1, polvo 10.04:1;
+   sobre negra-2 (el fondo de bloque) — ámbar 9.47:1,
+   polvo 8.95:1. Los rótulos de 12 px pasan 4.5:1 con
+   holgura. El anillo de foco rinde 10.63:1 sobre la negra,
+   muy arriba del 3:1 que pide un indicador de foco.
+   --posadas-foco sólo vive en el plano fijo: jamás texto.
+   ═════════════════════════════════════════════════════════ */
+
+body:has(.rollo--posadas) {
+  /* papel negro de sala y ámbar de foco casero */
+  --posadas-negra: oklch(13% 0.012 75);
+  --posadas-negra-2: oklch(20.5% 0.018 75);
+  --posadas-hueso: oklch(91% 0.02 80);
+  --posadas-polvo: oklch(78% 0.022 78); /* 10.04:1 sobre negra */
+  --posadas-ambar: oklch(80% 0.14 80);  /* 10.63:1 sobre negra */
+  --posadas-linea: oklch(34% 0.022 75);
+  --posadas-foco: oklch(84% 0.15 78);   /* sólo luz, nunca texto */
+
+  --posadas-hueco: clamp(0.25rem, 0.5vw, 0.4rem);
+
+  /* el armazón viejo, retinteado: rail, colofón y lupa se van solos */
+  --fondo: var(--posadas-negra);
+  --rebate: var(--posadas-negra-2);
+  --papel: var(--posadas-hueso);
+  --polvo: var(--posadas-polvo);
+  --grasa: var(--posadas-ambar);
+  --ambar: var(--posadas-ambar);
+  --linea: var(--posadas-linea);
+
+  background: var(--posadas-negra);
+  color: var(--posadas-hueso);
+}
+
+/* el grano sube un punto: flash directo sobre pared negra */
+body:has(.rollo--posadas)::after { opacity: 0.08; }
+
+body:has(.rollo--posadas) ::selection {
+  background: var(--posadas-ambar);
+  color: var(--posadas-negra);
+}
+
+/* ─── el plano: focos fijos, siempre detrás de todo ─── */
+
+.posadas-plano {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  background: var(--posadas-negra);
+}
+
+.posadas-capa {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* dos focos caseros: uno por la cabecera, otro a media pared */
+.posadas-capa--foco-alto {
+  background:
+    radial-gradient(
+      42rem 30rem at 16% 6%,
+      color-mix(in oklch, var(--posadas-foco) 13%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      56rem 44rem at 86% 26%,
+      color-mix(in oklch, var(--posadas-foco) 8%, transparent),
+      transparent 72%
+    );
+}
+
+.posadas-capa--foco-bajo {
+  background: radial-gradient(
+    48rem 38rem at 52% 80%,
+    color-mix(in oklch, var(--posadas-foco) 7%, transparent),
+    transparent 70%
+  );
+}
+
+/* ─── armazón del sitio, teñido ─── */
+
+body:has(.rollo--posadas) .rail {
+  background: color-mix(in oklch, var(--posadas-negra) 86%, transparent);
+  border-bottom-color: color-mix(in oklch, var(--posadas-ambar) 32%, transparent);
+}
+
+body:has(.rollo--posadas) .colofon {
+  border-top-color: color-mix(in oklch, var(--posadas-ambar) 28%, transparent);
+}
+
+body:has(.rollo--posadas) .lupa {
+  background: color-mix(in oklch, var(--posadas-negra) 96%, transparent);
+}
+
+.rollo--posadas {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* ─── tipografía de la hoja: ancho normal, peso alto,
+       caja baja, tracking apretado ─── */
+
+.posadas-rotulo {
+  font-family: var(--f-edge);
+  font-size: 0.75rem; /* 12 px, 10.04:1 sobre la negra */
+  font-weight: 700;
+  font-stretch: 100%;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+  text-transform: lowercase;
+  color: var(--posadas-polvo);
+}
+
+/* ─── cabecera: compacta, toda en banda ─── */
+
+.posadas-cabecera {
+  display: grid;
+  gap: clamp(0.9rem, 2.2vw, 1.5rem);
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: clamp(1.5rem, 4vw, 3rem) var(--page-gutter) clamp(1rem, 2.5vw, 1.75rem);
+}
+
+.posadas-sello {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  justify-self: start;
+  color: var(--posadas-ambar);
+}
+
+.posadas-sello::before {
+  content: "";
+  width: 0.42rem;
+  height: 0.42rem;
+  flex: 0 0 auto;
+  background: var(--posadas-ambar);
+}
+
+.posadas-titulo {
+  min-width: 0;
+  font-family: var(--f-edge);
+  font-size: clamp(3rem, 8.5vw, 6.75rem);
+  font-stretch: 100%;
+  font-weight: 800;
+  font-style: normal;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: lowercase;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  color: var(--posadas-hueso);
+}
+
+.posadas-cabecera-pie {
+  display: grid;
+  gap: clamp(0.9rem, 2.2vw, 1.5rem);
+  min-width: 0;
+}
+
+/* la voz, en redonda: la cursiva no viste un bloque entero.
+   El arranque se marca con peso, no con itálica. */
+.posadas-voz {
+  max-width: 42rem;
+  font-size: clamp(1.0625rem, 1.4vw, 1.2rem);
+  color: color-mix(in oklch, var(--posadas-hueso) 88%, transparent);
+}
+
+.posadas-voz p:first-child {
+  font-weight: 560;
+  color: var(--posadas-hueso);
+}
+
+.posadas-registro { width: min(100%, 22rem); }
+
+/* ─── la pared: filas justificadas, apretadas ───
+   El ancho de cada pieza lo calcula el componente en el build
+   (--parte, en proporción al aspect real) y la fila cierra
+   exacta contra los dos márgenes. Nadie se recorta: la altura
+   es consecuencia del ancho y del aspect. */
+
+.posadas-pared {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--posadas-hueco);
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: var(--posadas-hueco) var(--page-gutter) clamp(2rem, 5vw, 3.5rem);
+}
+
+.posadas-fila {
+  display: flex;
+  flex-wrap: wrap;
+  /* en la hoja angosta el apilado va denso: la fila envuelve y
+     lleva dos verticales por renglón; el aire entre piezas es el
+     mismo por dentro que por fuera */
+  gap: var(--posadas-hueco);
+  min-width: 0;
+}
+
+.posadas-cuadro {
+  position: relative;
+  display: grid;
+  /* en la hoja angosta el apilado va denso: media pieza la
+     vertical, la apaisada entera */
+  width: calc(50% - var(--posadas-hueco) / 2);
+  min-width: 0;
+  margin: 0;
+  padding: var(--posadas-hueco) var(--posadas-hueco) 0;
+  background: color-mix(in oklch, var(--posadas-negra-2) 85%, transparent);
+  border: var(--rule-hair) solid color-mix(in oklch, var(--posadas-linea) 55%, transparent);
+}
+
+.posadas-cuadro--ancha { width: 100%; }
+
+.posadas-foto {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  text-align: start;
+  cursor: zoom-in;
+  border-radius: var(--radius-none);
+  background: var(--posadas-negra);
+}
+
+.posadas-foto img {
+  width: 100%;
+  height: auto;
+  transition: filter var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .posadas-cuadro:hover .posadas-foto img { filter: brightness(1.06) contrast(1.02); }
+}
+
+.posadas-foto:focus-visible {
+  /* anillo ámbar: 10.63:1 contra la negra, arriba del 3:1 pedido */
+  outline: var(--rule-focus) solid var(--posadas-ambar);
+  outline-offset: 1px;
+}
+
+.posadas-foto:active img { filter: brightness(0.97); }
+
+.posadas-foto:is(:disabled, [aria-disabled="true"]) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* el pie más chico que se puede: la cuenta, y ya */
+.posadas-cuenta {
+  padding: 0.22rem 0.1rem 0.24rem;
+  color: var(--posadas-polvo);
+}
+
+.posadas-cuadro:hover .posadas-cuenta,
+.posadas-cuadro:focus-within .posadas-cuenta { color: var(--posadas-ambar); }
+
+/* ─── el colofón de la pared: un bloque que no es foto ───
+   Dentro de la última fila ocupa exactamente lo que le falta
+   al muro para cerrar a ras; si el sobrante no da pieza, baja
+   a bloque entero. */
+
+.posadas-cierre {
+  display: grid;
+  gap: var(--space-2xs);
+  align-content: center;
+  justify-items: start;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: clamp(0.9rem, 2vw, 1.5rem);
+  background: color-mix(in oklch, var(--posadas-negra-2) 85%, transparent);
+  border: var(--rule-hair) solid color-mix(in oklch, var(--posadas-linea) 55%, transparent);
+  color: var(--posadas-polvo);
+  pointer-events: none;
+  user-select: none;
+}
+
+.posadas-cierre--solo { width: 100%; }
+
+.posadas-cierre-cuenta {
+  font-family: var(--f-edge);
+  font-size: clamp(2.75rem, 7vw, 5.5rem);
+  font-stretch: 100%;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+  color: var(--posadas-ambar);
+}
+
+/* ─── paso de rollo ─── */
+
+.rollo--posadas > .paso {
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  margin-block-start: 0;
+  padding: var(--space-xl) var(--page-gutter) 0;
+  border-block-start-color: color-mix(in oklch, var(--posadas-ambar) 28%, transparent);
+}
+
+.rollo--posadas .paso .edge { color: var(--posadas-polvo); }
+.rollo--posadas .paso-titulo { color: color-mix(in oklch, var(--posadas-hueso) 82%, transparent); }
+.rollo--posadas .paso a:hover .paso-titulo,
+.rollo--posadas .paso a:focus-visible .paso-titulo { color: var(--posadas-ambar); }
+
+/* ─── escritorio: la fila se tiende y cierra a ras ─── */
+
+@media (min-width: 48rem) {
+  .posadas-fila {
+    flex-wrap: nowrap;
+    align-items: flex-start;
+  }
+
+  /* a cada pieza le toca su parte de lo que queda del ancho
+     después de descontar los huecos: la fila cierra exacta */
+  .posadas-fila .posadas-cuadro,
+  .posadas-fila .posadas-cierre {
+    width: calc((100% - (var(--piezas) - 1) * var(--posadas-hueco)) * var(--parte));
+  }
+
+  .posadas-cierre--solo { width: 100%; }
+
+  .posadas-cabecera-pie {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+    align-items: end;
+    column-gap: var(--space-2xl);
+  }
+
+  .posadas-registro { justify-self: end; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .posadas-foto img { transition: none; }
+}

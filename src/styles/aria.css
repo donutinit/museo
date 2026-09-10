@@ -1,0 +1,485 @@
+/* ═════════════════════════════════════════════════════════
+   Aria Climatización — la hoja de instalación.
+
+   El único rollo con cliente y con encargo técnico. La página
+   se comporta como la memoria de una obra: galván oscuro y
+   frío, el rojo del overol como único acento —el mismo rojo
+   que ya traen puesto los trabajadores— y el lettering en
+   Archivo estrecha, versalitas, tracking abierto, como
+   rotulación de tablero.
+
+   Macroestructura: díptico asimétrico. La foto lleva dos tercios de
+   la lámina y el rótulo vive en un carril angosto al canto — número,
+   código y filete—; el lado alterna al bajar. Con seis piezas: sube,
+   baja, sube, baja, y al cierre los dos detalles —sellador fresco y
+   rotomartillo— cruzan la hoja a todo lo ancho. El encargo abre la
+   hoja, antes que las fotos; el cierre disuelve la partida: el sistema
+   antes de volverse invisible queda en hueco.
+
+   Reglas duras de esta hoja:
+   1. el adorno nunca toca la foto — el plano vive fijo detrás
+      (z-index -1), el dato vive en el carril y la junta corre por el
+      borde del carril, jamás sobre la imagen.
+   2. el orden es intocable: las piezas se leen 01 → 06 en el
+      DOM y en pantalla; el lado alterna con una clase, no
+      reordenando nada.
+   3. ninguna foto se recorta: el alto sale del aspect real de cada
+      pieza; las verticales se contienen por alto, sin caja que
+      encajone.
+   4. cero datos inventados: todo el texto suelto sale del
+      frontmatter, de alt.json o del markdown.
+   ═════════════════════════════════════════════════════════ */
+
+body:has(.rollo--aria) {
+  /* galván frío: lámina oscura, sin calor */
+  --aria-galvan: oklch(14.5% 0.012 255);
+  --aria-galvan-2: oklch(18.5% 0.012 255);
+  --aria-hueso: oklch(91% 0.008 250);
+  --aria-polvo: oklch(71% 0.012 255);
+  --aria-rojo: oklch(62% 0.19 29);
+  --aria-linea: oklch(29% 0.012 255);
+
+  /* contraste medido (WCAG, oklch → sRGB → luminancia):
+     sobre galván — hueso 15.16:1, polvo 7.69:1,
+     rojo 4.97:1. Los rótulos de 12 px pasan 4.5:1 con
+     holgura en cualquiera de los dos tonos. Sobre galván-2 —
+     polvo 7.25:1, rojo 4.68:1: cualquier texto pasa también
+     ahí; el rojo de trazo y regla queda muy arriba del 3:1. */
+
+  /* el armazón viejo, retinteado: rail, colofón y lupa se van solos */
+  --fondo: var(--aria-galvan);
+  --rebate: var(--aria-galvan-2);
+  --papel: var(--aria-hueso);
+  --polvo: var(--aria-polvo);
+  --grasa: var(--aria-rojo);
+  --ambar: var(--aria-rojo);
+  --linea: var(--aria-linea);
+
+  background: var(--aria-galvan);
+  color: var(--aria-hueso);
+}
+
+/* el grano del sitio se queda: polvo de obra */
+body:has(.rollo--aria)::after { opacity: 0.06; }
+
+body:has(.rollo--aria) ::selection {
+  background: var(--aria-rojo);
+  color: var(--aria-galvan);
+}
+
+/* ─── el plano: capas fijas, siempre detrás de todo ─── */
+
+.aria-plano {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  /* una veta de luz fría cruzando la lámina */
+  background:
+    linear-gradient(
+      112deg,
+      transparent 30%,
+      color-mix(in oklch, var(--aria-hueso) 4%, transparent) 46%,
+      transparent 60%
+    ),
+    var(--aria-galvan);
+}
+
+.aria-capa {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* cepillado del galván: estría vertical finita */
+.aria-capa--veta {
+  opacity: 0.45;
+  background-image: repeating-linear-gradient(
+    90deg,
+    color-mix(in oklch, var(--aria-polvo) 7%, transparent) 0 1px,
+    transparent 1px 0.4rem
+  );
+}
+
+/* juntas de lámina: paneles grandes, línea a plomo */
+.aria-capa--juntas {
+  opacity: 0.6;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in oklch, var(--aria-linea) 70%, transparent) 0 1px,
+      transparent 1px 52rem
+    ),
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in oklch, var(--aria-linea) 55%, transparent) 0 1px,
+      transparent 1px 70rem
+    );
+}
+
+/* ─── armazón del sitio, teñido ─── */
+
+body:has(.rollo--aria) .rail {
+  background: color-mix(in oklch, var(--aria-galvan) 86%, transparent);
+  border-bottom-color: color-mix(in oklch, var(--aria-rojo) 38%, transparent);
+}
+
+body:has(.rollo--aria) .colofon {
+  border-top-color: color-mix(in oklch, var(--aria-linea) 90%, transparent);
+}
+
+body:has(.rollo--aria) .lupa {
+  background: color-mix(in oklch, var(--aria-galvan) 96%, transparent);
+}
+
+.rollo--aria {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* ─── tipografía y piezas compartidas de la hoja ─── */
+
+/* el lettering de tablero: 12 px, estrecho, versalitas,
+   tracking abierto. Medido: polvo 7.69:1 y rojo 4.97:1
+   sobre galván — pasa 4.5:1 a esta caja. */
+.aria-rotulo {
+  font-family: var(--f-edge);
+  font-size: 0.75rem;
+  font-weight: 550;
+  font-stretch: 68%;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.24em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--aria-polvo);
+  white-space: nowrap;
+}
+
+/* ─── cabecera: la primera partida de la hoja ─── */
+
+.aria-cabecera-zona {
+  width: 100%;
+  padding: clamp(var(--space-xl), 6vw, var(--space-3xl)) var(--page-gutter)
+    clamp(var(--space-lg), 4vw, var(--space-2xl));
+}
+
+.aria-cabecera {
+  display: grid;
+  grid-template-areas:
+    "sello"
+    "titulo"
+    "registro";
+  gap: var(--space-lg);
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  min-width: 0;
+}
+
+.aria-sello {
+  grid-area: sello;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  justify-self: start;
+  color: var(--aria-hueso);
+}
+
+/* el cuadro de señal: rojo de seguridad, como el overol */
+.aria-sello::before {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  flex: 0 0 auto;
+  background: var(--aria-rojo);
+}
+
+.aria-titulo {
+  grid-area: titulo;
+  min-width: 0;
+  display: grid;
+  font-family: var(--f-edge);
+  font-size: clamp(3.5rem, 13vw, 9rem);
+  font-stretch: 62%;
+  font-weight: 800;
+  font-style: normal;
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--aria-hueso);
+  overflow-wrap: anywhere;
+}
+
+.aria-titulo > * { grid-area: 1 / 1; }
+
+/* la plantilla desregistrada: el trazo queda en rojo, un pelo corrido */
+.aria-titulo-eco {
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklch, var(--aria-rojo) 60%, transparent);
+  translate: clamp(2px, 0.4vw, 6px) 0;
+}
+
+/* los datos duros de la obra, al canto derecho */
+.aria-registro {
+  grid-area: registro;
+  width: min(100%, 26rem);
+  min-width: 0;
+}
+
+.aria-registro > div { border-bottom-color: var(--aria-linea); }
+.aria-registro dt { color: var(--aria-polvo); }
+.aria-registro dd { color: var(--aria-hueso); }
+
+/* ─── la hoja: dípticos que parten la lámina ─── */
+
+.aria-hoja {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(var(--space-2xl), 7vw, var(--space-4xl));
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  min-width: 0;
+  padding: clamp(var(--space-lg), 4vw, var(--space-2xl)) var(--page-gutter) 0;
+}
+
+.aria-diptico {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.aria-mitad { min-width: 0; }
+
+/* ─── la mitad foto: la imagen entera, su propio aspect ─── */
+
+.aria-captura {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  text-align: start;
+  cursor: zoom-in;
+  border-radius: var(--radius-none);
+  background: var(--aria-galvan-2);
+}
+
+.aria-captura img {
+  width: 100%;
+  height: auto;
+  transition: filter var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .aria-diptico:hover .aria-captura img { filter: contrast(1.05) brightness(1.04); }
+}
+
+.aria-captura:focus-visible {
+  /* rojo sobre galván rinde 4.97:1: pasa el 3:1 del anillo */
+  outline: var(--rule-focus) solid var(--aria-rojo);
+  outline-offset: var(--space-2xs);
+}
+
+.aria-captura:active img { filter: brightness(0.97); }
+
+/* ─── la mitad aire: el dato al canto ─── */
+
+.aria-mitad--dato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
+  padding-block-start: var(--space-xs);
+  border-block-start: var(--rule-hair) solid var(--aria-linea);
+}
+
+/* el folio, en hueco: rotulación estarcida, no tinta */
+.aria-folio {
+  font-family: var(--f-edge);
+  font-size: clamp(2.25rem, 7vw, 6.5rem);
+  font-stretch: 62%;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  font-style: normal;
+  line-height: 0.85;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in oklch, var(--aria-rojo) 80%, transparent);
+  transition: color var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* la señal se carga al pasar: la plantilla recibe su rojo */
+  .aria-diptico:hover .aria-folio {
+    color: color-mix(in oklch, var(--aria-rojo) 88%, transparent);
+    -webkit-text-stroke-color: transparent;
+  }
+}
+
+/* ─── el cierre: la hoja se cierra, el sistema se vuelve invisible ─── */
+
+.aria-cierre {
+  display: grid;
+  gap: var(--space-md);
+  min-width: 0;
+  margin-block-start: clamp(var(--space-xl), 6vw, var(--space-3xl));
+  padding-block-start: var(--space-lg);
+  border-block-start: var(--rule-hair) solid var(--aria-linea);
+}
+
+/* la cinta de señalización: la única banda llena de la hoja */
+.aria-cinta {
+  display: block;
+  width: 100%;
+  height: 0.2rem;
+  background: color-mix(in oklch, var(--aria-rojo) 72%, transparent);
+}
+
+.aria-cierre-linea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-lg);
+  min-width: 0;
+}
+
+/* la cuenta se disuelve: trazo fantasma, el sistema ya instalado */
+.aria-cuenta {
+  font-family: var(--f-edge);
+  font-size: clamp(3.25rem, 8vw, 6.5rem);
+  font-stretch: 62%;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.85;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklch, var(--aria-hueso) 38%, transparent);
+}
+
+/* ─── el encargo: la voz abre la hoja, antes que las fotos ─── */
+
+.aria-encargo {
+  display: grid;
+  gap: var(--space-md);
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: 0 var(--page-gutter) clamp(var(--space-xl), 5vw, var(--space-3xl));
+}
+
+.aria-encargo .voz {
+  max-width: 42rem;
+  padding-inline-start: clamp(var(--space-md), 2vw, var(--space-lg));
+  border-inline-start: var(--rule-hair) solid
+    color-mix(in oklch, var(--aria-rojo) 55%, transparent);
+  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+}
+
+/* ─── paso de rollo ─── */
+
+.rollo--aria > .paso {
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  margin-block-start: 0;
+  padding: var(--space-xl) var(--page-gutter) 0;
+  border-block-start-color: color-mix(in oklch, var(--aria-linea) 80%, transparent);
+}
+
+.rollo--aria .paso .edge { color: var(--aria-polvo); }
+.rollo--aria .paso-titulo { color: color-mix(in oklch, var(--aria-hueso) 80%, transparent); }
+.rollo--aria .paso a:hover .paso-titulo,
+.rollo--aria .paso a:focus-visible .paso-titulo { color: var(--aria-rojo); }
+
+/* ─── escritorio: la foto lleva dos tercios, el rótulo queda en un
+       carril angosto al canto y el par alterna de lado ─── */
+
+@media (min-width: 56rem) {
+  .aria-cabecera {
+    grid-template-areas:
+      "sello  sello"
+      "titulo registro";
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    column-gap: clamp(var(--space-lg), 3vw, var(--space-2xl));
+    align-items: end;
+  }
+
+  .aria-registro { justify-self: end; }
+
+  .aria-diptico {
+    grid-template-columns: minmax(0, 8fr) minmax(0, 3fr);
+    column-gap: clamp(var(--space-lg), 3vw, var(--space-2xl));
+  }
+
+  /* la vuelta: la foto pasa al otro lado, el carril queda a la izquierda */
+  .aria-diptico--vuelta {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 8fr);
+  }
+
+  .aria-diptico--vuelta .aria-mitad--foto { order: 2; }
+  .aria-diptico--vuelta .aria-mitad--dato { order: 1; }
+
+  /* el carril: número, código y punto contra el filete, nunca sobre la foto */
+  .aria-mitad--dato {
+    display: grid;
+    align-content: start;
+    justify-items: end;
+    gap: var(--space-2xs);
+    padding: var(--space-2xs) 0 var(--space-2xs) clamp(var(--space-md), 2vw, var(--space-lg));
+    border-block-start: 0;
+    border-inline-start: var(--rule-hair) solid var(--aria-linea);
+  }
+
+  /* sube, baja: el carril alterna el canto vertical */
+  .aria-diptico--vuelta .aria-mitad--dato {
+    align-content: end;
+    justify-items: start;
+    text-align: start;
+    padding: var(--space-2xs) clamp(var(--space-md), 2vw, var(--space-lg)) var(--space-2xs) 0;
+    border-inline-start: 0;
+    border-inline-end: var(--rule-hair) solid var(--aria-linea);
+  }
+}
+
+/* verticales: contenidas por alto, el ancho sigue saliendo del aspect —
+   ninguna caja que encajone la imagen */
+.aria-diptico--alta .aria-captura {
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  margin-inline: auto;
+}
+
+.aria-diptico--alta .aria-captura img {
+  inline-size: auto;
+  block-size: auto;
+  max-block-size: min(80vh, 48rem);
+  max-inline-size: 100%;
+}
+
+/* los detalles que cruzan la hoja: una sola columna, el dato en línea al pie */
+.aria-diptico--ancho {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.aria-diptico--ancho .aria-mitad--dato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
+  padding: var(--space-xs) 0 0;
+  border-inline: 0;
+  border-block-start: var(--rule-hair) solid var(--aria-linea);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aria-captura img { transition: none; }
+  .aria-folio { transition: none; }
+}
