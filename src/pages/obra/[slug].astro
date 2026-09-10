@@ -16,6 +16,7 @@ import RolloAria from '../../components/RolloAria.astro';
 import RolloBikefest from '../../components/RolloBikefest.astro';
 import RolloRaulalcala from '../../components/RolloRaulalcala.astro';
 import RolloKaren from '../../components/RolloKaren.astro';
+import RolloDonaestereso from '../../components/RolloDonaestereso.astro';
 import { grafo, persona, imagen, migas, ID_PERSONA, SITIO } from '../../lib/seo';
 
 export async function getStaticPaths() {
@@ -94,6 +95,7 @@ const PIELES = {
   bikefest: { piel: RolloBikefest, sizes: '(max-width: 55.99rem) 92vw, (max-width: 79.99rem) calc(84.5vw - 24rem), calc(50vw - 20rem)' },
   raulalcala: { piel: RolloRaulalcala, sizes: '(max-width: 55.99rem) 80vw, 32rem' },
   karen: { piel: RolloKaren, sizes: '(max-width: 55.99rem) 92vw, 32rem' },
+  donaestereso: { piel: RolloDonaestereso, sizes: '(max-width: 55.99rem) 92vw, 22vw' },
 } as const;
 
 const piel = PIELES[proyecto.id as keyof typeof PIELES];

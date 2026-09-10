@@ -1,0 +1,413 @@
+/* ═════════════════════════════════════════════════════════
+   Doña Estéreo — el cartel de la tocada.
+
+   Veintisiete fotos de una banda tocando a otra banda: luces
+   bajas, humo, haces azules y magentas. La hoja no compite
+   con eso: se comporta como el afiche pegado fuera del
+   auditorio. Tipografía de cartel —Archivo ANCHA, eje de
+   ancho al 118–120%, caja alta, enorme— sobre negro de sala.
+   El color ya está en las fotos; el acento de la hoja es el
+   azul eléctrico del haz, con el magenta sólo donde hace
+   falta (foco del chrome, sello, aro del cierre).
+
+   Dos reglas duras de esta hoja:
+   1. el adorno nunca toca la foto: el plano (trama de sala,
+      dato vertical) vive en capa fija z-index -1; la cuenta y
+      el aro viven en el cierre, después de la última pieza.
+   2. el orden del rollo es intocable: las filas se arman en
+      el build en orden 01, 02, 03… y cada fila lleva sus
+      piezas a una misma altura. Nada se recorta: el ancho de
+      cada pieza sale de su aspect real.
+   ═════════════════════════════════════════════════════════ */
+
+body:has(.rollo--donaestereso) {
+  /* negro de sala con tinte de haz */
+  --n-negro: oklch(14.5% 0.018 268);
+  --n-negro-2: oklch(19% 0.022 268);
+  --n-hueso: oklch(93% 0.012 265);
+  --n-polvo: oklch(79% 0.02 265);
+  --n-azul: oklch(82% 0.155 252);
+  --n-magenta: oklch(72% 0.19 345);
+  --n-linea: oklch(30% 0.035 268);
+
+  /* contraste medido (oklch → sRGB → luminancia WCAG):
+     sobre negro — hueso 13.17:1, polvo 5.14:1, azul 6.79:1,
+     magenta 4.96:1; sobre negro-2 — polvo 5.11:1, azul
+     6.75:1, magenta 4.93:1. Los rótulos de 12 px pasan
+     4.5:1 con holgura y el azul pasa 3:1 como anillo de foco
+     sobre el negro. */
+
+  /* el armazón viejo, retinteado: rail, colofón, lupa y paso se van solos */
+  --fondo: var(--n-negro);
+  --rebate: var(--n-negro-2);
+  --papel: var(--n-hueso);
+  --polvo: var(--n-polvo);
+  --grasa: var(--n-azul);
+  --ambar: var(--n-magenta);
+  --linea: var(--n-linea);
+
+  background: var(--n-negro);
+  color: var(--n-hueso);
+}
+
+/* el grano se queda: humo de sala, un punto más alto */
+body:has(.rollo--donaestereso)::after { opacity: 0.065; }
+
+/* azul del haz detrás del texto, no hueso encima de azul */
+body:has(.rollo--donaestereso) ::selection {
+  background: var(--n-azul);
+  color: var(--n-negro);
+}
+
+/* ─── el plano: capa fija, siempre detrás de todo ─── */
+
+.donaestereso-plano {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  background: var(--n-negro);
+}
+
+.donaestereso-capa {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* trama de sala: puntos separados, como luces lejanas fuera de foco */
+.donaestereso-capa--trama {
+  opacity: 0.55;
+  background-image: radial-gradient(
+    color-mix(in oklch, var(--n-azul) 15%, transparent) 1px,
+    transparent 1.4px
+  );
+  background-size: 1.5rem 1.5rem;
+  mask-image: radial-gradient(120% 90% at 50% 0%, oklch(0% 0 0) 8%, transparent 68%);
+}
+
+/* el dato del cartel, gigante y vertical, en el margen derecho */
+.donaestereso-capa--dato {
+  inset: auto var(--space-md) var(--space-xl) auto;
+  writing-mode: vertical-rl;
+  font-family: var(--f-edge);
+  font-size: clamp(4rem, 9vw, 8.5rem);
+  font-stretch: 118%;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklch, var(--n-azul) 28%, transparent);
+}
+
+@media (max-width: 55.99rem) {
+  .donaestereso-capa--dato { display: none; }
+}
+
+/* ─── armazón del sitio, teñido ─── */
+
+body:has(.rollo--donaestereso) .rail {
+  background: color-mix(in oklch, var(--n-negro) 86%, transparent);
+  border-bottom-color: color-mix(in oklch, var(--n-linea) 90%, transparent);
+}
+
+body:has(.rollo--donaestereso) .colofon {
+  border-top-color: color-mix(in oklch, var(--n-linea) 90%, transparent);
+}
+
+body:has(.rollo--donaestereso) .lupa {
+  background: color-mix(in oklch, var(--n-negro) 96%, transparent);
+}
+
+.rollo--donaestereso {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* ─── tipografía compartida ─── */
+
+/* el lettering del cartel: 12 px, ancho también — hasta la
+   letra chica es ancha en este rollo. Medido a 5.14:1. */
+.donaestereso-rotulo {
+  font-family: var(--f-edge);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.16em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: var(--n-polvo);
+}
+
+.donaestereso-dato { color: var(--n-azul); }
+
+/* ─── el cartel: cabecera de afiche ─── */
+
+.donaestereso-cartel {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-lg);
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  min-width: 0;
+  padding: clamp(var(--space-xl), 6vw, var(--space-3xl)) var(--page-gutter)
+    clamp(var(--space-xl), 5vw, var(--space-3xl));
+}
+
+/* el sello: cuadro magenta y el código del rollo */
+.donaestereso-sello {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-2xs) var(--space-sm);
+  border: var(--rule-hair) solid color-mix(in oklch, var(--n-magenta) 55%, transparent);
+}
+
+.donaestereso-sello::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: 0 0 auto;
+  background: var(--n-magenta);
+}
+
+/* el nombre: Archivo ANCHA, caja alta, peso de afiche */
+.donaestereso-titulo {
+  min-width: 0;
+  display: grid;
+  font-family: var(--f-edge);
+  font-size: clamp(2.6rem, 12vw, 10rem);
+  font-stretch: 120%;
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  color: var(--n-hueso);
+}
+
+/* el nombre, lleno; el lema, en azul: dos renglones de afiche */
+.donaestereso-nombre { color: var(--n-hueso); }
+.donaestereso-lema { color: var(--n-azul); }
+
+/* si el navegador no sabe trazar contorno, el lema queda lleno en azul */
+@supports (-webkit-text-stroke: 1px oklch(0% 0 0)) {
+  .donaestereso-lema {
+    color: transparent;
+    -webkit-text-stroke: 0.022em var(--n-azul);
+  }
+}
+
+/* la declaración: la voz del markdown, grande, en redonda.
+   El arranque pesa por peso, no por inclinación. */
+.donaestereso-declaracion {
+  max-width: min(100%, 26ch);
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  line-height: 1.28;
+  color: var(--n-hueso);
+}
+
+.donaestereso-declaracion > p:first-child {
+  font-weight: 600;
+}
+
+/* la letra chica del afiche */
+.donaestereso-fina {
+  width: min(100%, 26rem);
+  margin-block-start: var(--space-sm);
+}
+
+.donaestereso-fina dt { color: var(--n-polvo); }
+.donaestereso-fina dd { color: var(--n-hueso); }
+
+/* ─── la banda que abre la tocada ─── */
+
+.donaestereso-banda {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2xs) var(--space-md);
+  width: 100%;
+  padding: var(--space-sm) var(--page-gutter);
+  border-block: var(--rule-hair) solid color-mix(in oklch, var(--n-linea) 90%, transparent);
+  background: color-mix(in oklch, var(--n-negro-2) 60%, transparent);
+}
+
+/* ─── la tocada: filas justificadas, altura pareja por fila ───
+   El reparto se calcula en el build con el aspect real de cada
+   pieza (patrón de la galería de ebikecamp): a cada fila le
+   toca una altura y a cada pieza un ancho proporcional a su
+   aspect. Nadie se recorta y el orden 01, 02, 03… se respeta
+   en el DOM y en pantalla. */
+
+.donaestereso-tocada {
+  width: 100%;
+  min-width: 0;
+  padding: clamp(var(--space-lg), 4vw, var(--space-2xl)) var(--page-gutter)
+    clamp(var(--space-2xl), 6vw, var(--space-3xl));
+}
+
+.donaestereso-filas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(var(--space-lg), 3.5vw, var(--space-2xl));
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+}
+
+.donaestereso-fila {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(var(--space-lg), 3.5vw, var(--space-2xl));
+  min-width: 0;
+}
+
+.donaestereso-foto {
+  position: relative;
+  min-width: 0;
+}
+
+.donaestereso-moldura {
+  position: relative;
+  min-width: 0;
+  border: var(--rule-hair) solid var(--n-linea);
+  background: var(--n-negro-2);
+}
+
+.donaestereso-captura {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  text-align: start;
+  cursor: zoom-in;
+  border-radius: var(--radius-none);
+  background: var(--n-negro-2);
+}
+
+.donaestereso-captura img {
+  width: 100%;
+  height: auto;
+  transition: filter var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .donaestereso-foto:hover .donaestereso-captura img {
+    filter: brightness(1.05) contrast(1.03);
+  }
+}
+
+/* anillo de foco: azul sobre negro, 6.79:1 — pasa el 3:1 de sobra */
+.donaestereso-captura:focus-visible {
+  outline: var(--rule-focus) solid var(--n-azul);
+  outline-offset: var(--space-2xs);
+}
+
+.donaestereso-captura:active img { filter: brightness(0.97); }
+
+.donaestereso-captura:is(:disabled, [aria-disabled="true"]) { cursor: not-allowed; opacity: 0.5; }
+
+/* el pie: código y cuenta, fuera de la imagen */
+.donaestereso-pie {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2xs) var(--space-md);
+  margin-block-start: var(--space-2xs);
+}
+
+.donaestereso-pie > span { white-space: nowrap; }
+
+/* ─── el cierre del cartel: nada de esto es foto ─── */
+
+.donaestereso-cierre {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-lg) var(--space-xl);
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  min-width: 0;
+  margin-block-start: clamp(var(--space-xl), 5vw, var(--space-3xl));
+  padding-block-start: var(--space-lg);
+  border-block-start: var(--rule-hair) solid color-mix(in oklch, var(--n-linea) 90%, transparent);
+  color: var(--n-polvo);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* el aro de neón que asoma en las fotos, dibujado una vez, fuera de ellas */
+.donaestereso-aro {
+  display: block;
+  width: clamp(3rem, 8vw, 6rem);
+  height: auto;
+  color: var(--n-magenta);
+  opacity: 0.85;
+}
+
+/* la cuenta, en hueco: el otro número grande del cartel */
+.donaestereso-cuenta {
+  font-family: var(--f-edge);
+  font-size: clamp(4rem, 14vw, 11rem);
+  font-stretch: 118%;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.82;
+  letter-spacing: -0.005em;
+  color: transparent;
+  -webkit-text-stroke: 0.018em color-mix(in oklch, var(--n-azul) 72%, transparent);
+}
+
+.donaestereso-cierre .donaestereso-rotulo {
+  padding-block-end: 0.35rem;
+}
+
+/* ─── paso de rollo ─── */
+
+.rollo--donaestereso > .paso {
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  margin-block-start: 0;
+  padding: var(--space-xl) var(--page-gutter) 0;
+  border-block-start-color: color-mix(in oklch, var(--n-linea) 90%, transparent);
+}
+
+.rollo--donaestereso .paso .edge { color: var(--n-polvo); }
+.rollo--donaestereso .paso-titulo { color: var(--n-hueso); }
+.rollo--donaestereso .paso a:hover .paso-titulo,
+.rollo--donaestereso .paso a:focus-visible .paso-titulo { color: var(--n-azul); }
+
+/* ─── escritorio: las filas se tienden ─── */
+
+@media (min-width: 56rem) {
+  .donaestereso-fila {
+    flex-direction: row;
+    align-items: start;
+    gap: clamp(var(--space-sm), 1.2vw, var(--space-md));
+  }
+
+  /* el ancho sale del aspect: la fila cierra exacta contra los
+     dos márgenes y todas las piezas de la fila quedan a la
+     misma altura, sin recortar a nadie */
+  .donaestereso-fila .donaestereso-foto {
+    flex: 0 0 auto;
+    width: calc((100% - (var(--piezas) - 1) * clamp(var(--space-sm), 1.2vw, var(--space-md))) * var(--parte));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .donaestereso-captura img { transition: none; }
+}

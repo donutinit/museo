@@ -1,0 +1,173 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import '../styles/donaestereso.css';
+
+/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+interface Pieza {
+  nn: string;
+  src: string;
+  conjunto: string | undefined;
+  w?: number;
+  h?: number;
+  alt: string;
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  piezas: Pieza[];
+  /** La medida de la placa de portada; la misma que precarga la página. */
+  sizesCabeza: string;
+}
+
+const { proyecto, piezas, sizesCabeza } = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+// El cartel parte el título por los dos puntos que ya trae el
+// frontmatter: nombre lleno arriba, lema azul abajo. Si algún día
+// el título no trae dos puntos, queda una sola línea.
+const [nombre = data.title, ...resto] = data.title.split(':');
+const lema = resto.join(':').trim();
+
+// La letra chica del afiche.
+const campos = [
+  ['cartel', data.photosPrefix],
+  ...(data.location ? [['lugar', data.location.toLowerCase()]] : []),
+  ['año', String(data.year)],
+  ['fotografías', String(data.photoCount)],
+];
+
+/** El tramo que se toca: `01 — 27`. */
+const tramo = `${piezas[0]?.nn ?? ''} — ${piezas.at(-1)?.nn ?? ''}`;
+
+/* ── el reparto en filas ───────────────────────────────────────────────
+   Filas de dos o tres piezas, altura pareja por fila, armadas aquí en
+   el build con el aspect real de cada pieza (medidas.json). Cada pieza
+   recibe un ancho proporcional a su aspect: la fila cierra exacta
+   contra los márgenes, nadie se recorta y el orden 01, 02, 03… se
+   respeta en el DOM y en pantalla. Sin JavaScript. */
+const SUMA_FILA = 2.3;
+const POR_FILA = 3;
+
+const aspect = (pieza: Pieza) => (pieza.w ?? 3) / (pieza.h ?? 2);
+
+const filas: Pieza[][] = [];
+{
+  let fila: Pieza[] = [];
+  let suma = 0;
+  for (const pieza of piezas) {
+    fila.push(pieza);
+    suma += aspect(pieza);
+    if (suma >= SUMA_FILA || fila.length === POR_FILA) {
+      filas.push(fila);
+      fila = [];
+      suma = 0;
+    }
+  }
+  if (fila.length) filas.push(fila);
+}
+
+/**
+ * Lo que le toca a una pieza del ancho de su fila. La última fila se
+ * mide contra `SUMA_FILA` y no contra lo suyo: una pieza suelta no se
+ * estira hasta ocupar la hoja entera.
+ */
+const reparto = (fila: Pieza[], pieza: Pieza, ultima: boolean) => {
+  const suma = fila.reduce((n, p) => n + aspect(p), 0);
+  return aspect(pieza) / (ultima ? Math.max(suma, SUMA_FILA) : suma);
+};
+
+/** El `sizes` sale de esa misma parte: la hoja ocupa ~92vw hasta su tope. */
+const sizesPieza = (parte: number) =>
+  `(max-width: 55.99rem) 92vw, ${Math.max(1, Math.round(parte * 92))}vw`;
+
+/** El dato del margen: lugar y año, tal como vienen del frontmatter. */
+const datoMargen = [data.location?.toLowerCase(), String(data.year)]
+  .filter(Boolean)
+  .join(' · ');
+---
+
+{/* el plano del cartel: capa fija, detrás de todo, nunca sobre una foto */}
+<div class="donaestereso-plano" aria-hidden="true">
+  <span class="donaestereso-capa donaestereso-capa--trama"></span>
+  <span class="donaestereso-capa donaestereso-capa--dato" data-nosnippet>{datoMargen}</span>
+</div>
+
+{/* el afiche: nombre, lema, la declaración y la letra chica */}
+<section class="donaestereso-cartel" aria-labelledby="donaestereso-titulo">
+  <p class="donaestereso-sello donaestereso-rotulo" data-nosnippet>cartel {data.photosPrefix}</p>
+
+  <h1 class="donaestereso-titulo" id="donaestereso-titulo">
+    <span class="donaestereso-nombre">{nombre}</span>
+    {lema && <span class="donaestereso-lema">{lema}</span>}
+  </h1>
+
+  <div class="voz donaestereso-declaracion"><Content /></div>
+
+  <dl class="registro micro donaestereso-fina">
+    {campos.map(([campo, valor]) => (
+      <div data-nosnippet><dt>{campo}</dt> <dd>{valor}</dd></div>
+    ))}
+  </dl>
+</section>
+
+{/* la banda que abre la tocada */}
+<p class="donaestereso-banda donaestereso-rotulo" data-nosnippet>
+  <span>tocada</span>
+  <span class="donaestereso-dato">{data.photosPrefix} {tramo}</span>
+</p>
+
+<section class="donaestereso-tocada" aria-labelledby="donaestereso-secuencia-titulo">
+  <h2 class="fuera" id="donaestereso-secuencia-titulo">Las fotografías</h2>
+
+  <div class="donaestereso-filas">
+    {filas.map((fila, f) => (
+      <div class="donaestereso-fila" style={`--piezas:${fila.length}`}>
+        {fila.map((pieza) => {
+          const parte = reparto(fila, pieza, f === filas.length - 1);
+          const primera = pieza.nn === piezas[0].nn;
+          return (
+            <figure class="donaestereso-foto" style={`--parte:${parte.toFixed(5)}`}>
+              <div class="donaestereso-moldura">
+                <button
+                  type="button"
+                  class="donaestereso-captura"
+                  data-lupa-src={pieza.src}
+                  data-lupa-alt={pieza.alt}
+                  aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+                >
+                  <img
+                    src={pieza.src}
+                    srcset={pieza.conjunto}
+                    sizes={primera ? sizesCabeza : sizesPieza(parte)}
+                    alt={pieza.alt}
+                    width={pieza.w}
+                    height={pieza.h}
+                    loading={primera ? 'eager' : 'lazy'}
+                    decoding="async"
+                    fetchpriority={primera ? 'high' : undefined}
+                  />
+                </button>
+              </div>
+
+              <figcaption class="donaestereso-pie donaestereso-rotulo">
+                <span class="donaestereso-dato" data-nosnippet>{data.photosPrefix} {pieza.nn}</span>
+                <span data-nosnippet>{pieza.nn}/{data.photoCount}</span>
+              </figcaption>
+            </figure>
+          );
+        })}
+      </div>
+    ))}
+  </div>
+
+  {/* el cierre del cartel: aro, cuenta y fin. nada de esto es foto. */}
+  <div class="donaestereso-cierre" aria-hidden="true" data-nosnippet>
+    <span class="donaestereso-cuenta">{String(data.photoCount).padStart(2, '0')}</span>
+    <span class="donaestereso-rotulo">fotografías</span>
+    <svg class="donaestereso-aro" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+      <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="1.5" />
+    </svg>
+    <span class="donaestereso-rotulo">fin del cartel</span>
+  </div>
+</section>
