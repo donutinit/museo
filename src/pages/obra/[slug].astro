@@ -6,6 +6,10 @@ import { oficio } from '../../lib/archivo';
 import Lupa from '../../components/Lupa.astro';
 import RolloApice from '../../components/RolloApice.astro';
 import RolloSofiaMaximalista from '../../components/RolloSofiaMaximalista.astro';
+import RolloMarchas from '../../components/RolloMarchas.astro';
+import RolloEbikecamp from '../../components/RolloEbikecamp.astro';
+import RolloCerrandociclos from '../../components/RolloCerrandociclos.astro';
+import RolloBikeparkesfera from '../../components/RolloBikeparkesfera.astro';
 import { grafo, persona, imagen, migas, ID_PERSONA, SITIO } from '../../lib/seo';
 
 export async function getStaticPaths() {
@@ -74,6 +78,10 @@ const SIZES = '(max-width: 47.99rem) 100vw, 620px';
 const PIELES = {
   'sofia-maximalista': { piel: RolloSofiaMaximalista, sizes: '(max-width: 47.99rem) 90vw, 66vw' },
   apice: { piel: RolloApice, sizes: '(max-width: 55.99rem) 92vw, 28rem' },
+  marchas: { piel: RolloMarchas, sizes: '(max-width: 55.99rem) 92vw, 30rem' },
+  ebikecamp: { piel: RolloEbikecamp, sizes: '(max-width: 47.99rem) 74vw, 28rem' },
+  cerrandociclos: { piel: RolloCerrandociclos, sizes: '(max-width: 55.99rem) 92vw, 34rem' },
+  bikeparkesfera: { piel: RolloBikeparkesfera, sizes: '(max-width: 55.99rem) 92vw, 42rem' },
 } as const;
 
 const piel = PIELES[proyecto.id as keyof typeof PIELES];

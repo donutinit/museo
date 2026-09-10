@@ -1,0 +1,153 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import { oficio } from '../lib/archivo';
+import '../styles/cerrandociclos.css';
+
+/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+interface Pieza {
+  nn: string;
+  src: string;
+  conjunto: string | undefined;
+  w?: number;
+  h?: number;
+  alt: string;
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  piezas: Pieza[];
+  /** La medida de la placa de portada; la misma que precarga la página. */
+  sizesCabeza: string;
+}
+
+const { proyecto, piezas, sizesCabeza } = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+// acta de baja: documento, no ficha. El encabezado va a todo lo ancho, la
+// despedida arriba —aquí la voz manda— y el inventario de partidas corre
+// abajo, corrido, como anexo. La pieza 10, el exhibidor Giant en el local
+// vacío, cierra el anexo y recibe el sello.
+const PIEZA_CIERRE = '10';
+
+// anchos de partida en la retícula de 12 columnas (ver cerrandociclos.css):
+// la 01 abre con 5 columnas y su sizes tiene que ser el mismo string que
+// precarga la página; las demás miden según lo que muestran
+const SIZES_NARROW = '(max-width: 55.99rem) 92vw, 28rem';
+const SIZES_MEDIA = '(max-width: 55.99rem) 92vw, 34rem';
+const SIZES_GRANDE = '(max-width: 55.99rem) 92vw, 40rem';
+const SIZES_ANCHA = '(max-width: 55.99rem) 92vw, 47rem';
+const SIZES_CIERRE = '(max-width: 55.99rem) 92vw, 44rem';
+
+const ANCHOS: Record<string, string> = {
+  '01': SIZES_MEDIA,
+  '02': SIZES_GRANDE,
+  '03': SIZES_ANCHA,
+  '04': SIZES_NARROW,
+  '05': SIZES_GRANDE,
+  '06': SIZES_MEDIA,
+  '07': SIZES_MEDIA,
+  '08': SIZES_GRANDE,
+  '09': SIZES_MEDIA,
+};
+
+const sizesDe = (nn: string) => (nn === PIEZA_CIERRE ? SIZES_CIERRE : (ANCHOS[nn] ?? SIZES_MEDIA));
+
+// campos del acta: todo sale del frontmatter, nada inventado
+const campos = [
+  ['rollo', data.photosPrefix],
+  ['oficio', oficio[data.type]],
+  ...(data.location ? [['lugar', data.location.toLowerCase()]] : []),
+  ['año', String(data.year)],
+  ['partidas', String(data.photoCount)],
+];
+
+/** El anexo inventaria el rollo completo: `01 — 10`. */
+const tramo = `${piezas[0]?.nn} — ${piezas.at(-1)?.nn}`;
+
+/** La firma del acta: lugar y año, tal cual viven en el frontmatter. */
+const firma = [data.location?.toLowerCase(), String(data.year)].filter(Boolean).join(' · ');
+---
+
+{/* el plano: capa fija, detrás de todo, nada sobre una foto */}
+<div class="cerrandociclos-plano" aria-hidden="true">
+  <span class="cerrandociclos-capa cerrandociclos-capa--ejes"></span>
+</div>
+
+<section class="cerrandociclos-acta" aria-labelledby="cerrandociclos-titulo">
+  <header class="cerrandociclos-cabecera">
+    <p class="cerrandociclos-folio cerrandociclos-rotulo" data-nosnippet>acta de baja · {data.photosPrefix}</p>
+
+    <h1 class="cerrandociclos-titulo" id="cerrandociclos-titulo">{data.title}</h1>
+
+    <dl class="registro micro cerrandociclos-registro">
+      {campos.map(([campo, valor]) => (
+        <div data-nosnippet><dt>{campo}</dt> <dd>{valor}</dd></div>
+      ))}
+    </dl>
+  </header>
+</section>
+
+<section class="cerrandociclos-documento" aria-label="Despedida">
+  <p class="cerrandociclos-rotulo cerrandociclos-rotulo--regla" data-nosnippet>despedida</p>
+  <div class="voz cerrandociclos-voz"><Content /></div>
+  {firma && <p class="cerrandociclos-firma cerrandociclos-rotulo" data-nosnippet>{firma}</p>}
+</section>
+
+<section class="cerrandociclos-anexo" aria-labelledby="cerrandociclos-anexo-titulo">
+  <h2 class="fuera" id="cerrandociclos-anexo-titulo">Inventario completo</h2>
+
+  {/* el anexo abre con folio y tramo; la regla es cota: mide el ancho del local */}
+  <div class="cerrandociclos-anexo-cab" data-nosnippet>
+    <p class="cerrandociclos-rotulo">inventario de partidas</p>
+    <p class="cerrandociclos-rotulo cerrandociclos-dato">{data.photosPrefix} {tramo}</p>
+    <span class="cerrandociclos-cota cerrandociclos-cota--total" aria-hidden="true"></span>
+  </div>
+
+  {piezas.map((pieza, i) => (
+    <figure class="cerrandociclos-placa cerrandociclos-lamina">
+      <div class="cerrandociclos-mate">
+        <button
+          type="button"
+          class="cerrandociclos-captura"
+          data-lupa-src={pieza.src}
+          data-lupa-alt={pieza.alt}
+          aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+        >
+          <img
+            src={pieza.src}
+            srcset={pieza.conjunto}
+            sizes={i === 0 ? sizesCabeza : sizesDe(pieza.nn)}
+            alt={pieza.alt}
+            width={pieza.w}
+            height={pieza.h}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchpriority={i === 0 ? 'high' : undefined}
+          />
+        </button>
+      </div>
+
+      <figcaption class="cerrandociclos-partida">
+        <span class="cerrandociclos-rotulo cerrandociclos-dato" data-nosnippet>partida {pieza.nn}</span>
+        <span class="cerrandociclos-rotulo" data-nosnippet>{pieza.nn}/{data.photoCount}</span>
+      </figcaption>
+    </figure>
+  ))}
+
+  {/* cotas del plano: miden los vanos donde cuelgan las partidas; sin números */}
+  <div class="cerrandociclos-cotas" aria-hidden="true" data-nosnippet>
+    <span class="cerrandociclos-cota cerrandociclos-cota--v"></span>
+    <span class="cerrandociclos-cota cerrandociclos-cota--v"></span>
+    <span class="cerrandociclos-cota cerrandociclos-cota--v"></span>
+    <span class="cerrandociclos-cota cerrandociclos-cota--v"></span>
+  </div>
+
+  {/* el gesto de cierre: un sello, una vez */}
+  <div class="cerrandociclos-cierre" aria-hidden="true" data-nosnippet>
+    <span class="cerrandociclos-sello">
+      <span class="cerrandociclos-sello-texto">baja</span>
+      <span class="cerrandociclos-rotulo">{data.photosPrefix} · {data.year}</span>
+    </span>
+  </div>
+</section>

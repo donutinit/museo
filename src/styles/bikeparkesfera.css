@@ -1,0 +1,535 @@
+/* ═════════════════════════════════════════════════════════
+   Bike Park Esfera — cronofotografía de un salto.
+
+   21 láminas de una inauguración: cuerpos en el aire sobre
+   madera, tierra y concreto, contra cielo blanco quemado.
+   Mediodía nublado: blanco frío, negro duro de estructura y
+   UNA sola señal — turquesa, el color de las bicis de las
+   piezas 02 y 17. Nada de crema de cuaderno.
+
+   La hoja se lee como el día que retrata: la LARGADA corta el
+   listón —una línea que se quiebra sobre el código— y suelta
+   de inmediato la pieza 01, un cuerpo suspendido contra el
+   cielo, a lo grande y sola. La voz y los datos duros van
+   después, como créditos. El SALTO es una sola monta: el
+   tamaño de cada lámina cuenta el tramo —aire grande,
+   despegue y aterrizaje contenidos—, el barrido va de
+   izquierda a derecha sin regresar y el offset vertical
+   dibuja el arco: sube del 03 al 10, se sostiene en la
+   cresta del 11 al 16 y se despeña del 17 al 21. El trazo
+   acompaña esa misma curva por detrás de las fotos.
+
+   Tres reglas duras de esta hoja:
+   1. el adorno NUNCA toca la foto — vive detrás (z-index
+      menor), en el margen o en celdas que ninguna lámina
+      ocupa. Las fotos se sostienen solas con su dorsal y su
+      folio: sin marcos, sin relleno de tarjeta.
+   2. cero datos inventados — todo el texto suelto sale del
+      frontmatter, de alt.json o del markdown del rollo.
+   3. nada de blur falso, gradientes de energía ni sombras de
+      tarjeta — el contraste lo dan la tinta y el cielo.
+   ═════════════════════════════════════════════════════════ */
+
+body:has(.rollo--bikeparkesfera) {
+  /* blanco frío quemado, tinta de estructura, turquesa como
+     única señal (las bicis de 02 y 17 ya lo traen puesto) */
+  --b-cielo: oklch(97.7% 0.004 230);
+  --b-cielo-2: oklch(95% 0.005 230);
+  --b-tinta: oklch(20% 0.01 250);
+  --b-gris: oklch(42% 0.012 250);
+  --b-senal: oklch(46% 0.09 210);      /* turquesa profundo: texto a 6.3:1 */
+  --b-senal-viva: oklch(64% 0.125 200); /* turquesa bici: sólo trazo y marca */
+  --b-concreto: oklch(55% 0.01 250);
+  --b-linea: oklch(88% 0.008 240);
+
+  /* el armazón viejo, retinteado: rail, colofón y lupa se van solos */
+  --fondo: var(--b-cielo);
+  --rebate: var(--b-cielo-2);
+  --papel: var(--b-tinta);
+  --polvo: var(--b-gris);
+  --grasa: var(--b-senal);
+  --ambar: var(--b-senal);
+  --linea: var(--b-linea);
+
+  background: var(--b-cielo);
+  color: var(--b-tinta);
+}
+
+/* El grano del sitio es una capa encima de todo, fotos incluidas.
+   En esta hoja no hay grano: mediodía nublado, luz pareja. */
+body:has(.rollo--bikeparkesfera)::after { content: none; }
+
+/* ─── el plano: capa fija, siempre detrás de todo ─── */
+
+.bikeparkesfera-plano {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  /* cielo de mediodía: parejo, apenas más claro arriba */
+  background:
+    linear-gradient(180deg, color-mix(in oklch, var(--b-cielo-2) 55%, transparent) 0%, transparent 34%),
+    var(--b-cielo);
+}
+
+/* papel milimetrado de estudio de movimiento: muy tenue, sólo
+   acompañando; ninguna foto depende de él */
+.bikeparkesfera-capa--reticula {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(90deg, color-mix(in oklch, var(--b-concreto) 20%, transparent) 0 1px, transparent 1px 6rem),
+    repeating-linear-gradient(0deg, color-mix(in oklch, var(--b-concreto) 20%, transparent) 0 1px, transparent 1px 6rem);
+  mask-image: linear-gradient(180deg, transparent 0%, oklch(0% 0 0) 10%, oklch(0% 0 0) 88%, transparent 100%);
+}
+
+/* ─── armazón del sitio, teñido ─── */
+
+body:has(.rollo--bikeparkesfera) .rail {
+  background: color-mix(in oklch, var(--b-cielo) 88%, transparent);
+  border-bottom-color: color-mix(in oklch, var(--b-concreto) 55%, transparent);
+}
+
+body:has(.rollo--bikeparkesfera) .colofon {
+  border-top-color: color-mix(in oklch, var(--b-concreto) 55%, transparent);
+}
+
+body:has(.rollo--bikeparkesfera) .lupa {
+  background: color-mix(in oklch, var(--b-cielo) 96%, transparent);
+}
+
+.rollo--bikeparkesfera {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* ─── tipografía y piezas compartidas de la hoja ─── */
+
+/* el lettering del rollo: chico, espaciado, metraje de placa.
+   12 px en --b-gris: 7.9:1 contra el cielo. */
+.bikeparkesfera-rotulo {
+  font-family: var(--f-edge);
+  font-size: 0.75rem;
+  font-stretch: 72%;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--b-gris);
+}
+
+/* ─── largada: corte de listón, título y la pieza 01 sola ─── */
+
+.bikeparkesfera-largada {
+  display: grid;
+  justify-items: start;
+  gap: clamp(var(--space-lg), 4vw, var(--space-2xl));
+  padding: clamp(var(--space-xl), 6vw, var(--space-3xl)) var(--page-gutter) 0;
+}
+
+/* el listón: una línea que cruza y se quiebra sobre el código.
+   El corte es el gesto de inauguración; después del quiebre la
+   línea queda caída. */
+.bikeparkesfera-liston {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  min-width: 0;
+}
+
+.bikeparkesfera-liston-tramo {
+  flex: 1 1 0;
+  height: 0;
+  border-block-start: var(--rule-hair) solid color-mix(in oklch, var(--b-senal) 50%, transparent);
+}
+
+.bikeparkesfera-liston-tramo--corte {
+  translate: 0 0.3rem;
+  opacity: 0.65;
+}
+
+.bikeparkesfera-sello { color: var(--b-senal); }
+
+.bikeparkesfera-cabecera {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-md);
+  width: 100%;
+  min-width: 0;
+}
+
+.bikeparkesfera-titulo {
+  display: grid;
+  min-width: 0;
+  font-family: var(--f-edge);
+  font-size: clamp(2.5rem, 10.5vw, 7.5rem);
+  font-stretch: 62%;
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--b-tinta);
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+.bikeparkesfera-titulo > * { grid-area: 1 / 1; }
+
+/* la sombra del cuerpo en el aire: el registro corre un pelo,
+   como la estampa que queda después del salto */
+.bikeparkesfera-titulo-eco {
+  color: var(--b-tinta);
+  translate: 0 clamp(3px, 0.6vw, 8px);
+}
+
+@supports (-webkit-text-stroke: 1px black) {
+  .bikeparkesfera-titulo-eco {
+    color: transparent;
+    -webkit-text-stroke: 1px color-mix(in oklch, var(--b-tinta) 38%, transparent);
+  }
+}
+
+/* la placa de largada: 01, el cuerpo suspendido contra el cielo.
+   Va sola, centrada y a lo grande — nada a su lado. */
+.bikeparkesfera-placa.bikeparkesfera-placa--cabeza {
+  width: min(100%, 42rem);
+  margin-inline: auto;
+}
+
+/* la voz, después de la foto, como en la sala: ancha, serifa,
+   centrada como columna pero tendida a la izquierda */
+.bikeparkesfera-voz {
+  width: min(100%, 34rem);
+  margin-inline: auto;
+  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+  color: var(--b-tinta);
+}
+
+/* los datos duros, en fila: la línea de créditos del rollo.
+   dt en turquesa (6.3:1), dd en tinta. La doble clase gana al
+   .registro global sin depender del orden del bundle, y se
+   estira a lo ancho para que la fila centre de verdad. */
+.registro.bikeparkesfera-registro {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: var(--space-sm) var(--space-lg);
+  width: 100%;
+  justify-self: stretch;
+}
+
+.registro.bikeparkesfera-registro > div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+
+.registro.bikeparkesfera-registro > div + div {
+  padding-inline-start: var(--space-lg);
+  border-inline-start: var(--rule-hair) solid color-mix(in oklch, var(--b-concreto) 55%, transparent);
+}
+
+.registro.bikeparkesfera-registro dt { color: var(--b-senal); }
+.registro.bikeparkesfera-registro dd { color: var(--b-tinta); text-align: start; }
+
+/* ─── la placa: la foto se sostiene sola ───
+   sin mate, sin relleno, sin tarjeta: sólo el filo de tinta
+   que la separa del cielo quemado, el dorsal y el folio. */
+
+.bikeparkesfera-placa {
+  position: relative;
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.bikeparkesfera-captura {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  text-align: start;
+  cursor: zoom-in;
+  border-radius: var(--radius-none);
+  background: var(--b-cielo);
+  /* el filo de tinta: contra cielo quemado, la foto necesita
+     su propio borde para leerse como objeto */
+  box-shadow: 0 0 0 var(--rule-hair) color-mix(in oklch, var(--b-tinta) 55%, transparent);
+}
+
+.bikeparkesfera-captura img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: filter var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bikeparkesfera-placa:hover .bikeparkesfera-captura img { filter: contrast(1.04) saturate(1.03); }
+  .bikeparkesfera-placa:hover .bikeparkesfera-captura {
+    box-shadow: 0 0 0 var(--rule-hair) var(--b-tinta);
+  }
+}
+
+.bikeparkesfera-captura:focus-visible {
+  outline: var(--rule-focus) solid var(--b-senal);
+  outline-offset: 2px;
+}
+
+.bikeparkesfera-captura:active img { filter: brightness(0.97); }
+
+.bikeparkesfera-captura:is(:disabled, [aria-disabled="true"]) { cursor: not-allowed; opacity: 0.5; }
+
+/* el pie: número dorsal grande a la izquierda, código al canto.
+   El dorsal vive en el margen, jamás sobre la imagen. */
+.bikeparkesfera-pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 var(--space-md);
+  padding: var(--space-2xs) 0;
+  border-block-end: var(--rule-hair) solid color-mix(in oklch, var(--b-concreto) 70%, transparent);
+}
+
+.bikeparkesfera-dorsal {
+  font-family: var(--f-edge);
+  font-size: clamp(1.75rem, 3.2vw, 2.75rem);
+  font-stretch: 62%;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--b-tinta);
+}
+
+@supports (-webkit-text-stroke: 1px black) {
+  .bikeparkesfera-dorsal {
+    color: transparent;
+    -webkit-text-stroke: 1.25px color-mix(in oklch, var(--b-tinta) 78%, transparent);
+  }
+}
+
+/* la cima del arco: la única pieza que lleva la señal en el
+   dorsal y en el folio — dos cuerpos en el aire a la vez */
+.bikeparkesfera-lamina--cima .bikeparkesfera-dorsal { -webkit-text-stroke-color: color-mix(in oklch, var(--b-senal) 80%, transparent); }
+.bikeparkesfera-lamina--cima .bikeparkesfera-pie { border-block-end-color: color-mix(in oklch, var(--b-senal) 55%, transparent); }
+
+/* ─── señales: el mapa del salto, antes del salto ─── */
+
+.bikeparkesfera-senales {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-sm) var(--space-lg);
+  min-width: 0;
+  margin-block-start: clamp(var(--space-xl), 5vw, var(--space-2xl));
+  padding: var(--space-sm) var(--page-gutter);
+  border-block-start: var(--rule-hair) solid color-mix(in oklch, var(--b-concreto) 60%, transparent);
+}
+
+.bikeparkesfera-tramo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+/* el rótulo base pinta gris: aquí el tramo manda.
+   12 px en --b-senal: 6.3:1 contra el cielo. */
+.bikeparkesfera-tramo .bikeparkesfera-rotulo { color: var(--b-senal); }
+
+.bikeparkesfera-flecha {
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--b-senal);
+}
+
+/* ─── el salto: la secuencia, en orden de rollo ─── */
+
+.bikeparkesfera-salto {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(var(--space-2xl), 7vw, var(--space-4xl));
+  min-width: 0;
+  padding: clamp(var(--space-xl), 5vw, var(--space-3xl)) var(--page-gutter) clamp(var(--space-lg), 3vw, var(--space-2xl));
+}
+
+.bikeparkesfera-lamina {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  align-self: start;
+}
+
+/* la trayectoria: en el teléfono el arco lo dibujan las fotos
+   solas; el trazo y la retícula se apagan */
+.bikeparkesfera-trazo {
+  display: none;
+}
+
+/* ─── cierre de la secuencia ─── */
+
+.bikeparkesfera-cierre {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  align-items: center;
+  gap: var(--space-lg);
+  min-width: 0;
+  padding-block-start: var(--space-lg);
+  border-block-start: var(--rule-hair) solid color-mix(in oklch, var(--b-concreto) 55%, transparent);
+}
+
+.bikeparkesfera-marca {
+  display: grid;
+  gap: var(--space-2xs);
+  justify-items: start;
+  align-content: center;
+  min-width: 0;
+  color: var(--b-gris);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* la escala: marcas de concreto, una alta en turquesa cada 5rem */
+.bikeparkesfera-escala {
+  display: block;
+  width: 100%;
+  height: 0.7rem;
+  background-image:
+    repeating-linear-gradient(90deg, var(--b-concreto) 0 1px, transparent 1px 1rem),
+    repeating-linear-gradient(90deg, var(--b-senal-viva) 0 1px, transparent 1px 5rem);
+  background-position: bottom;
+  opacity: 0.8;
+}
+
+/* la cuenta total, en hueco: el número gordo del cierre */
+.bikeparkesfera-cuenta {
+  font-family: var(--f-edge);
+  font-size: clamp(var(--text-3xl), 14vw, 8rem);
+  font-stretch: 58%;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.82;
+  letter-spacing: -0.01em;
+  color: var(--b-tinta);
+}
+
+@supports (-webkit-text-stroke: 1px black) {
+  .bikeparkesfera-cuenta {
+    color: transparent;
+    -webkit-text-stroke: 1px color-mix(in oklch, var(--b-tinta) 70%, transparent);
+  }
+}
+
+/* ─── paso de rollo ─── */
+
+.rollo--bikeparkesfera > .paso {
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  margin-block-start: 0;
+  padding: var(--space-xl) var(--page-gutter) 0;
+  border-block-start-color: color-mix(in oklch, var(--b-concreto) 60%, transparent);
+}
+
+.rollo--bikeparkesfera .paso .edge { color: var(--b-senal); }
+.rollo--bikeparkesfera .paso-titulo { color: var(--b-gris); }
+.rollo--bikeparkesfera .paso a:hover .paso-titulo,
+.rollo--bikeparkesfera .paso a:focus-visible .paso-titulo { color: var(--b-senal); }
+
+/* ─── retícula grande: la monta ───
+    Fila = orden del rollo: en pantalla se lee 02, 03, 04 … 21,
+    igual que el DOM y que el foco con teclado. Veinticuatro
+    columnas para el barrido: cada lámina avanza hacia la
+    derecha sin regresar — el zigzag era lo que rompía la
+    trayectoria. El TAMAÑO cuenta el tramo (aire en 9–12
+    columnas, despegue y aterrizaje contenidos en 7–8) y el
+    offset `top` dibuja el arco: arranca abajo en el 03, sube
+    hasta la cresta del 11 al 16 y cae hasta el 21. Los huecos
+    verticales entre láminas nunca cierran: el salto máximo de
+    offset entre filas vecinas es menor que el gap de fila. */
+
+@media (min-width: 56rem) {
+  /* el gutter propio de las secciones ya no hace falta: el margen
+     lo pone el contenedor madre, igual que el rail y el colofón */
+  .rollo--bikeparkesfera { padding-inline: var(--margen); }
+  .bikeparkesfera-largada { padding-inline: 0; }
+  .bikeparkesfera-senales { padding-inline: 0; }
+
+  .bikeparkesfera-salto {
+    grid-template-columns: repeat(24, minmax(0, 1fr));
+    gap: clamp(var(--space-2xl), 6vw, var(--space-4xl)) var(--space-lg);
+    padding-inline: 0;
+  }
+
+  /* colocación a mano: fila = posición del rollo, columna =
+     el barrido, top = la altura del cuerpo en su tramo */
+  .bikeparkesfera-lamina:nth-of-type(1)  { grid-area: 1 / 7 / auto / 19; }                 /* 02 · dos en el aire: la tesis, grande */
+  .bikeparkesfera-lamina:nth-of-type(2)  { grid-area: 2 / 1 / auto / 9;   top: 2.5rem; }   /* 03 · despegue, arranca abajo a la izquierda */
+  .bikeparkesfera-lamina:nth-of-type(3)  { grid-area: 3 / 3 / auto / 11;  top: 1rem; }     /* 04 · despegue */
+  .bikeparkesfera-lamina:nth-of-type(4)  { grid-area: 4 / 5 / auto / 13; }                 /* 05 · despegue */
+  .bikeparkesfera-lamina:nth-of-type(5)  { grid-area: 5 / 7 / auto / 14;  top: -1.5rem; }  /* 06 */
+  .bikeparkesfera-lamina:nth-of-type(6)  { grid-area: 6 / 9 / auto / 16;  top: -3rem; }    /* 07 · despegue */
+  .bikeparkesfera-lamina:nth-of-type(7)  { grid-area: 7 / 11 / auto / 18; top: -4.5rem; }  /* 08 */
+  .bikeparkesfera-lamina:nth-of-type(8)  { grid-area: 8 / 13 / auto / 20; top: -5.5rem; }  /* 09 */
+  .bikeparkesfera-lamina:nth-of-type(9)  { grid-area: 9 / 15 / auto / 22; top: -6rem; }    /* 10 */
+  .bikeparkesfera-lamina:nth-of-type(10) { grid-area: 10 / 11 / auto / 21; top: -6.5rem; } /* 11 · aire: empieza la cresta, grande */
+  .bikeparkesfera-lamina:nth-of-type(11) { grid-area: 11 / 8 / auto / 20; top: -7rem; }    /* 12 · aire, la sierra al fondo: el punto alto */
+  .bikeparkesfera-lamina:nth-of-type(12) { grid-area: 12 / 10 / auto / 20; top: -7rem; }   /* 13 · aire, grande */
+  .bikeparkesfera-lamina:nth-of-type(13) { grid-area: 13 / 13 / auto / 20; top: -6.5rem; } /* 14 */
+  .bikeparkesfera-lamina:nth-of-type(14) { grid-area: 14 / 13 / auto / 23; top: -5.5rem; } /* 15 · aire, grande */
+  .bikeparkesfera-lamina:nth-of-type(15) { grid-area: 15 / 15 / auto / 25; top: -4.5rem; } /* 16 · aire, grande */
+  .bikeparkesfera-lamina:nth-of-type(16) { grid-area: 16 / 18 / auto / 25; top: -2.5rem; } /* 17 · despegue, la bici turquesa */
+  .bikeparkesfera-lamina:nth-of-type(17) { grid-area: 17 / 17 / auto / 24; top: -1rem; }   /* 18 · despegue */
+  .bikeparkesfera-lamina:nth-of-type(18) { grid-area: 18 / 18 / auto / 25; top: 1rem; }    /* 19 · despegue */
+  .bikeparkesfera-lamina:nth-of-type(19) { grid-area: 19 / 16 / auto / 25; top: 3.5rem; }  /* 20 · aire, la última: cae */
+  .bikeparkesfera-lamina:nth-of-type(20) { grid-area: 20 / 18 / auto / 25; top: 6.5rem; }  /* 21 · aterrizaje, abajo a la derecha */
+
+  .bikeparkesfera-cierre { grid-area: 21 / 1 / auto / 25; }
+
+  /* el trazo: la curva que cuelga del arranque, se sostiene
+     alta sobre el despegue, atraviesa la cresta y se despeña
+     bajo el aterrizaje. z-index 0 contra las láminas en 1:
+     pasa por detrás y reaparece en los claros. */
+  .bikeparkesfera-trazo {
+    display: block;
+    position: absolute;
+    inset: clamp(var(--space-2xl), 6vw, var(--space-4xl)) 0 0;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .bikeparkesfera-trazo svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .bikeparkesfera-trazo path {
+    fill: none;
+    stroke: color-mix(in oklch, var(--b-senal) 62%, transparent);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bikeparkesfera-captura img { transition: none; }
+}

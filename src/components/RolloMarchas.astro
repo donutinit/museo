@@ -1,0 +1,198 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import { oficio } from '../lib/archivo';
+import '../styles/marchas.css';
+
+/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+interface Pieza {
+  nn: string;
+  src: string;
+  conjunto: string | undefined;
+  w?: number;
+  h?: number;
+  alt: string;
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  piezas: Pieza[];
+  /** La medida de la placa de portada; la misma que precarga la página. */
+  sizesCabeza: string;
+}
+
+const { proyecto, piezas, sizesCabeza } = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+// El vértice del mapa: en la pieza 13 el alt señala una estructura de metal
+// oxidado marcada 3710. Es el único número del mapa que existe en los datos;
+// todo lo demás son cuentas del propio rollo (piezas, año, lugar).
+const VERTICE = '13';
+const VERTICE_MARCA = '3710';
+
+const portada = piezas[0];
+const secuencia = piezas.slice(1);
+
+// Todo el texto suelto sale del frontmatter: código, oficio, lugar, año, cuenta.
+// Las palabras del rollo se dicen una sola vez, en el markdown.
+const campos = [
+  ['rollo', data.photosPrefix],
+  ['oficio', oficio[data.type]],
+  ...(data.location ? [['lugar', data.location.toLowerCase()]] : []),
+  ['año', String(data.year)],
+  ['etapas', String(data.photoCount)],
+];
+
+/** El tramo que queda después de la portada: `02 — 15`. */
+const tramo = `${secuencia[0]?.nn ?? portada.nn} — ${piezas.at(-1)?.nn ?? portada.nn}`;
+---
+
+{/* el plano del mapa: capas fijas, detrás de todo, ninguna sobre una foto */}
+<div class="marchas-plano" aria-hidden="true">
+  <span class="marchas-capa marchas-capa--curvas"></span>
+  <span class="marchas-capa marchas-capa--utm"></span>
+  <span class="marchas-capa marchas-capa--pliegues"></span>
+</div>
+
+<section class="marchas-carta" aria-labelledby="marchas-titulo">
+  <header class="marchas-cabecera">
+    <p class="marchas-sello marchas-rotulo" data-nosnippet>carta {data.photosPrefix}</p>
+
+    <h1 class="marchas-titulo" id="marchas-titulo">{data.title}</h1>
+
+    <span class="marchas-traza" aria-hidden="true"></span>
+
+    <dl class="registro micro marchas-registro">
+      {campos.map(([campo, valor]) => (
+        <div data-nosnippet><dt>{campo}</dt> <dd>{valor}</dd></div>
+      ))}
+    </dl>
+  </header>
+
+  <figure class="marchas-placa marchas-placa--cabeza">
+    <div class="marchas-mate">
+      <span class="marchas-cruces" aria-hidden="true"></span>
+      <button
+        type="button"
+        class="marchas-captura"
+        data-lupa-src={portada.src}
+        data-lupa-alt={portada.alt}
+        aria-label={`Abrir ${portada.alt} a pantalla completa`}
+      >
+        <img
+          src={portada.src}
+          srcset={portada.conjunto}
+          sizes={sizesCabeza}
+          alt={portada.alt}
+          width={portada.w}
+          height={portada.h}
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </button>
+    </div>
+
+    <figcaption class="marchas-margen marchas-rotulo">
+      <span class="marchas-dato" data-nosnippet>{data.photosPrefix} {portada.nn}</span>
+      <span data-nosnippet>etapa {portada.nn}/{data.photoCount}</span>
+    </figcaption>
+  </figure>
+</section>
+
+<section class="marchas-ficha" aria-label="Diario de ruta">
+  <p class="marchas-rotulo" data-nosnippet>diario de ruta</p>
+  <div class="voz"><Content /></div>
+</section>
+
+<section class="marchas-secuencia" aria-labelledby="marchas-secuencia-titulo">
+  <h2 class="fuera" id="marchas-secuencia-titulo">Secuencia completa</h2>
+
+  {/* el arranque de la ruta: la vereda empieza aquí y baja por la hoja */}
+  <div class="marchas-arranque marchas-rotulo" aria-hidden="true" data-nosnippet>
+    <p class="marchas-arranque-rumbo">
+      <span>recorrido</span>
+      <span class="marchas-dato">{data.photosPrefix} {tramo}</span>
+    </p>
+    <span class="marchas-regla"></span>
+  </div>
+
+  <div class="marchas-ruta">
+    {secuencia.map((pieza, i) => (
+      <>
+        <figure class:list={['marchas-placa', 'marchas-lamina', { 'marchas-lamina--vertice': pieza.nn === VERTICE }]}>
+          <div class="marchas-mate">
+            <span class="marchas-cruces" aria-hidden="true"></span>
+            <button
+              type="button"
+              class="marchas-captura"
+              data-lupa-src={pieza.src}
+              data-lupa-alt={pieza.alt}
+              aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+            >
+              <img
+                src={pieza.src}
+                srcset={pieza.conjunto}
+                sizes="(max-width: 55.99rem) 92vw, 38vw"
+                alt={pieza.alt}
+                width={pieza.w}
+                height={pieza.h}
+                loading="lazy"
+                decoding="async"
+              />
+            </button>
+          </div>
+
+          <figcaption class="marchas-margen marchas-rotulo">
+            <span class="marchas-dato" data-nosnippet>{data.photosPrefix} {pieza.nn}</span>
+            {pieza.nn === VERTICE && <span class="marchas-aviso" data-nosnippet>vértice {VERTICE_MARCA}</span>}
+            <span data-nosnippet>etapa {pieza.nn}/{data.photoCount}</span>
+          </figcaption>
+        </figure>
+
+        {/* el hito de etapa: marca la vereda junto a su lámina. El número ya
+            está en el pie de la foto; aquí se repite como rotulación de mapa. */}
+        <span
+          class:list={[
+            'marchas-hito',
+            i % 2 === 0 ? 'marchas-hito--izq' : 'marchas-hito--der',
+            { 'marchas-hito--vertice': pieza.nn === VERTICE },
+          ]}
+          aria-hidden="true"
+          data-nosnippet
+        >
+          <span class="marchas-hito-punto"></span>
+          <span class="marchas-hito-num marchas-rotulo">{pieza.nn}</span>
+        </span>
+      </>
+    ))}
+
+    {/* Las marcas del mapa: en la retícula cada una cae en un hueco del
+        recorrido — la cuenta frente al vértice real — y en el teléfono se
+        junta todo al final como tira de cierre. */}
+    <div class="marchas-cierre" aria-hidden="true" data-nosnippet>
+      <div class="marchas-marca marchas-marca--cuenta">
+        <span class="marchas-cuenta">{VERTICE_MARCA}</span>
+        <span class="marchas-rotulo">vértice</span>
+      </div>
+
+      <div class="marchas-marca marchas-marca--norte">
+        <svg class="marchas-norte" viewBox="0 0 32 48" aria-hidden="true" focusable="false">
+          <path
+            d="M16 3 23 29 16 24.5 9 29Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1"
+          />
+          <line x1="16" y1="29" x2="16" y2="45" stroke="currentColor" stroke-width="1" />
+        </svg>
+        <span class="marchas-rotulo">norte</span>
+      </div>
+
+      <div class="marchas-marca marchas-marca--fin">
+        <span class="marchas-rotulo">fin de ruta</span>
+        <span class="marchas-escala"></span>
+      </div>
+    </div>
+  </div>
+</section>

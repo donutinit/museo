@@ -1,0 +1,452 @@
+/* ═════════════════════════════════════════════════════════
+   E-Bike Camp — el horizonte.
+
+   Real de Catorce: caliza casi blanca, mediodía que lastima,
+   contraluz. El copy lo dice: el paisaje manda, los riders
+   pasan apenas un segundo. De ahí sale la hoja: la cabecera
+   queda arriba y todo lo demás cuelga de UNA línea de
+   horizonte que cruza la página de lado a lado. La secuencia
+   es una tira panorámica — carril horizontal con scroll-snap
+   donde las piezas pasan de largo como pasa el terreno. La
+   pieza 01 abre colgada de la línea: es el contraluz del sol,
+   no pasa de largo, recibe. La cuenta del rollo va después,
+   cuando el terreno ya pasó.
+
+   Paleta: caliza quemada, negro duro de contraluz, polvo
+   quemado y el azul del cielo como único acento que corta.
+   Luz de mediodía, no papel guardado: nada de crema ni sepia,
+   ese papel ya lo ocupa otra hoja del archivo.
+
+   Reglas duras de esta hoja:
+   1. el adorno nunca toca la foto: el sol vive en la capa
+      fija (z-index -1) y los códigos cuelgan debajo de la
+      línea de piso del carril.
+   2. cero datos inventados: todo el texto suelto sale del
+      frontmatter, de alt.json o del markdown del rollo.
+   3. el carril es el único scroll horizontal: overflow-x en
+      el carril, jamás en el body; scroll-padding para que la
+      pieza enfocada no quede a medias, y scrollbar a la vista
+      — el avance se anuncia, no se esconde.
+   ═════════════════════════════════════════════════════════ */
+
+body:has(.rollo--ebikecamp) {
+  /* mediodía a dos mil metros: luz que lastima. La caliza va
+     fría — blanca de mediodía, no crema de archivo. */
+  --e-caliza: oklch(96.5% 0.008 230);
+  --e-caliza-2: oklch(94.5% 0.011 230);
+  --e-tinta: oklch(19% 0.012 250);
+  --e-polvo: oklch(29% 0.034 80);
+  --e-cielo: oklch(32% 0.115 255);
+  --e-horizonte: oklch(40% 0.07 74);
+  --e-sol: oklch(88% 0.075 85);
+  --e-ocre: oklch(46% 0.12 70);
+  --e-linea: oklch(84% 0.02 90);
+  --e-mate: oklch(15.5% 0.012 250);
+
+  /* contraste medido (WCAG, oklch → sRGB → luminancia):
+     sobre caliza — tinta 16.7:1, polvo 12.8:1, cielo 11.5:1;
+     sobre caliza-2 (el fondo que asoma bajo la tira) —
+     polvo 12.1:1, cielo 10.9:1. Los rótulos de 12 px pasan
+     4.5:1 con holgura. La línea de horizonte rinde 8.4:1
+     sobre caliza: sirve de anillo de foco del carril y de
+     la barra de avance. --e-sol y --e-ocre sólo viven en el
+     halo fijo, jamás como texto sobre caliza. */
+
+  /* el armazón viejo, retinteado: rail, colofón y lupa se van solos */
+  --fondo: var(--e-caliza);
+  --rebate: var(--e-mate);
+  --papel: var(--e-tinta);
+  --polvo: var(--e-polvo);
+  --grasa: var(--e-cielo);
+  --ambar: var(--e-cielo);
+  --linea: var(--e-linea);
+
+  /* alto del carril: la pieza manda. En el teléfono la tira
+     come la mayor parte de la ventana; una foto que pasa tiene
+     que ser un acontecimiento, no un índice en miniatura.
+     De aquí salen los `sizes` de la tira (ver RolloEbikecamp). */
+  --e-tira-alto: clamp(19rem, 58vh, 36rem);
+  --e-tira-gap: clamp(0.9rem, 2vw, 1.6rem);
+
+  background: var(--e-caliza);
+  color: var(--e-tinta);
+}
+
+/* el grano se queda: diente de piedra, un punto más bajo */
+body:has(.rollo--ebikecamp)::after { opacity: 0.05; }
+
+body:has(.rollo--ebikecamp) ::selection {
+  background: var(--e-cielo);
+  color: var(--e-caliza);
+}
+
+/* ─── el plano: sol fijo, siempre detrás de todo ─── */
+
+.ebikecamp-plano {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  background: linear-gradient(180deg, var(--e-caliza) 46%, var(--e-caliza-2) 100%);
+}
+
+.ebikecamp-capa {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* el sol de mediodía: halo y calimba, alto en el cielo */
+.ebikecamp-capa--sol {
+  background:
+    radial-gradient(
+      36rem 36rem at 76% 12%,
+      color-mix(in oklch, var(--e-sol) 46%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      110rem 80rem at 76% 12%,
+      color-mix(in oklch, var(--e-ocre) 12%, transparent),
+      transparent 72%
+    );
+}
+
+/* ─── armazón del sitio, teñido ─── */
+
+body:has(.rollo--ebikecamp) .rail {
+  background: color-mix(in oklch, var(--e-caliza) 88%, transparent);
+  border-bottom-color: color-mix(in oklch, var(--e-horizonte) 55%, transparent);
+}
+
+body:has(.rollo--ebikecamp) .colofon {
+  border-top-color: color-mix(in oklch, var(--e-horizonte) 45%, transparent);
+}
+
+body:has(.rollo--ebikecamp) .lupa {
+  background: color-mix(in oklch, var(--e-caliza) 96%, transparent);
+}
+
+.rollo--ebikecamp {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* ─── tipografía compartida ─── */
+
+/* el lettering del rollo: 12 px, medido a 4.64:1 sobre caliza */
+.ebikecamp-rotulo {
+  font-family: var(--f-edge);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-stretch: 72%;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.18em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: var(--e-polvo);
+}
+
+/* ─── la cabecera: arriba de la línea, en banda, sin columnas de placa ─── */
+
+.ebikecamp-cabecera-zona {
+  width: 100%;
+  padding: clamp(var(--space-xl), 6vw, var(--space-3xl)) var(--page-gutter)
+    clamp(var(--space-2xl), 5vw, var(--space-3xl));
+}
+
+.ebikecamp-cabecera {
+  display: grid;
+  gap: var(--space-lg);
+  max-width: var(--ancho);
+  margin-inline: auto;
+  min-width: 0;
+}
+
+/* el sello: un aro de sol y el código del rollo, sin caja */
+.ebikecamp-sello {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  justify-self: start;
+}
+
+.ebikecamp-sello::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: var(--rule-hair) solid var(--e-horizonte);
+}
+
+/* título y registro comparten banda: la voz a la izquierda,
+   la ficha técnica cerrando a la derecha, alineada al piso */
+.ebikecamp-titular {
+  display: grid;
+  gap: var(--space-lg);
+  min-width: 0;
+}
+
+.ebikecamp-titulo {
+  min-width: 0;
+  font-family: var(--f-voz);
+  font-optical-sizing: auto;
+  font-size: clamp(2.75rem, 9vw, 6.75rem);
+  font-weight: 520;
+  line-height: 0.95;
+  letter-spacing: -0.012em;
+  color: var(--e-tinta);
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+.ebikecamp-registro { width: min(100%, 26rem); }
+
+/* ─── la línea y la tira que cuelga de ella ───
+    Un carril, piezas de alto parejo y ancho propio, colgadas
+    de la línea que cruza la hoja. El carril es el ÚNICO scroll
+    horizontal de la página. */
+
+.ebikecamp-tramo {
+  position: relative;
+  width: 100%;
+  border-block-start: 2px solid var(--e-horizonte);
+  padding-block-end: clamp(var(--space-xl), 5vw, var(--space-2xl));
+}
+
+/* el marcador de tramo, sentado sobre la línea en el margen derecho */
+.ebikecamp-marcador {
+  position: absolute;
+  inset-inline-end: var(--page-gutter);
+  bottom: calc(100% + 0.45rem);
+  color: var(--e-cielo);
+}
+
+.ebikecamp-tira {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--e-tira-gap);
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--page-gutter);
+  overscroll-behavior-x: contain;
+  padding-block: var(--space-md) var(--space-lg);
+  padding-inline: var(--page-gutter);
+  /* el avance se declara, no se esconde: scrollbar propia,
+     delgada, en tinta de horizonte sobre un riel apenas
+     presentado. Con ratón nadie tiene que adivinar que la
+     tira corre. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--e-horizonte)
+    color-mix(in oklch, var(--e-horizonte) 22%, transparent);
+}
+
+.ebikecamp-tira::-webkit-scrollbar {
+  height: 0.5rem;
+}
+
+.ebikecamp-tira::-webkit-scrollbar-track {
+  background: color-mix(in oklch, var(--e-horizonte) 22%, transparent);
+}
+
+.ebikecamp-tira::-webkit-scrollbar-thumb {
+  background: var(--e-horizonte);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.ebikecamp-tira:focus-visible {
+  outline: var(--rule-focus) solid var(--e-horizonte);
+  outline-offset: calc(var(--space-2xs) * -1);
+}
+
+.ebikecamp-pieza {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 0;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+/* la lámina: alto parejo, ancho según su aspect; sin mate, el
+   terreno corre pegado. El fondo del mate carga mientras llega */
+.ebikecamp-pieza .ebikecamp-mate { height: var(--e-tira-alto); }
+
+.ebikecamp-pieza .ebikecamp-captura { height: var(--e-tira-alto); }
+
+.ebikecamp-pieza .ebikecamp-captura img {
+  width: auto;
+  height: 100%;
+}
+
+/* la línea de piso: un segmento por pieza, tendido sobre el
+   hueco del paso, de modo que la línea corre toda la tira */
+.ebikecamp-pieza::after {
+  content: "";
+  position: absolute;
+  top: var(--e-tira-alto);
+  left: 0;
+  right: calc(var(--e-tira-gap) * -1);
+  height: var(--rule-hair);
+  background: var(--e-horizonte);
+  pointer-events: none;
+}
+
+.ebikecamp-mate {
+  position: relative;
+  min-width: 0;
+  background: var(--e-mate);
+}
+
+.ebikecamp-captura {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  text-align: start;
+  cursor: zoom-in;
+  border-radius: var(--radius-none);
+  background: var(--e-mate);
+}
+
+.ebikecamp-captura img {
+  width: 100%;
+  height: auto;
+  transition: filter var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ebikecamp-pieza:hover .ebikecamp-captura img {
+    filter: brightness(1.05) contrast(1.02);
+  }
+}
+
+.ebikecamp-captura:focus-visible {
+  /* el anillo de la foto se dibuja sobre el mate oscuro:
+     caliza, no horizonte — ahí el horizonte rinde 2.1:1 y
+     no llega al 3:1 que pide un indicador de foco */
+  outline: var(--rule-focus) solid var(--e-caliza);
+  outline-offset: var(--space-2xs);
+}
+
+.ebikecamp-captura:active img { filter: brightness(0.97); }
+
+/* los códigos, colgados debajo de la línea de piso */
+.ebikecamp-pie {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+  margin-block-start: var(--space-2xs);
+  color: var(--e-polvo);
+}
+
+.ebikecamp-pie .ebikecamp-dato { color: var(--e-cielo); }
+
+/* ─── el fin de tira: una pieza que no es foto ─── */
+
+.ebikecamp-fin {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 13rem;
+  display: grid;
+  gap: var(--space-2xs);
+  align-content: start;
+  padding-inline: var(--space-md);
+  padding-block-end: var(--space-xs);
+  color: var(--e-polvo);
+}
+
+.ebikecamp-fin::after {
+  content: "";
+  position: absolute;
+  top: var(--e-tira-alto);
+  left: 0;
+  right: 0;
+  height: var(--rule-hair);
+  background: var(--e-horizonte);
+  pointer-events: none;
+}
+
+/* la cuenta, en tinta llena: el único número grande del rollo */
+.ebikecamp-fin-cuenta {
+  height: var(--e-tira-alto);
+  display: grid;
+  align-content: end;
+  font-family: var(--f-edge);
+  font-size: clamp(3.25rem, 8vw, 6rem);
+  font-stretch: 58%;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.8;
+  color: color-mix(in oklch, var(--e-tinta) 88%, transparent);
+}
+
+/* ─── la cuenta del rollo: el texto, después del terreno ─── */
+
+.ebikecamp-ficha {
+  display: grid;
+  gap: var(--space-md);
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: 0 var(--page-gutter) clamp(var(--space-xl), 5vw, var(--space-3xl));
+}
+
+.ebikecamp-ficha .voz {
+  max-width: 44rem;
+  padding-inline-start: clamp(var(--space-md), 2vw, var(--space-lg));
+  border-inline-start: var(--rule-hair) solid var(--e-horizonte);
+  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+}
+
+/* ─── paso de rollo ─── */
+
+.rollo--ebikecamp > .paso {
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  margin-block-start: 0;
+  padding: var(--space-xl) var(--page-gutter) 0;
+  border-block-start-color: color-mix(in oklch, var(--e-horizonte) 60%, transparent);
+}
+
+.rollo--ebikecamp .paso .edge { color: var(--e-polvo); }
+.rollo--ebikecamp .paso-titulo { color: color-mix(in oklch, var(--e-tinta) 80%, transparent); }
+.rollo--ebikecamp .paso a:hover .paso-titulo,
+.rollo--ebikecamp .paso a:focus-visible .paso-titulo { color: var(--e-cielo); }
+
+/* ─── escritorio: la cabecera en banda, la tira más alta ─── */
+
+@media (min-width: 56rem) {
+  body:has(.rollo--ebikecamp) {
+    /* escritorio: la tira ocupa la mayor parte de la ventana;
+       el tope de rem sólo corta en pantallas desproporcionadas */
+    --e-tira-alto: clamp(24rem, 66vh, 52rem);
+  }
+
+  .ebikecamp-titular {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-2xl);
+    align-items: end;
+  }
+
+  .ebikecamp-registro { justify-self: end; }
+}
+
+/* ─── movimiento reducido: el carril deja de encajar fuerte ─── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ebikecamp-tira {
+    scroll-snap-type: x proximity;
+    scroll-behavior: auto;
+  }
+  .ebikecamp-captura img { transition: none; }
+}

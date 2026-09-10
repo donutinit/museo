@@ -1,0 +1,162 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import { oficio } from '../lib/archivo';
+import '../styles/ebikecamp.css';
+
+/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+interface Pieza {
+  nn: string;
+  src: string;
+  conjunto: string | undefined;
+  w?: number;
+  h?: number;
+  alt: string;
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  piezas: Pieza[];
+  /** La medida de la placa de portada; la misma que precarga la página. */
+  sizesCabeza: string;
+}
+
+const { proyecto, piezas, sizesCabeza } = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+const portada = piezas[0];
+const secuencia = piezas.slice(1);
+
+// Todo el texto suelto sale del frontmatter: código, oficio, lugar, año, cuenta.
+const campos = [
+  ['rollo', data.photosPrefix],
+  ['oficio', oficio[data.type]],
+  ...(data.location ? [['lugar', data.location.toLowerCase()]] : []),
+  ['año', String(data.year)],
+  ['piezas', String(data.photoCount)],
+];
+
+/** El marcador sobre la línea: el tramo completo, `ebikecamp 01 — 31`. */
+const tramo = `${piezas[0]?.nn ?? ''} — ${piezas.at(-1)?.nn ?? ''}`;
+
+// En la tira todas las láminas miden lo mismo de alto (ver --e-tira-alto en
+// ebikecamp.css) y lo suyo de ancho. El `sizes` se estima por orientación
+// para que el navegador pida el derivado correcto del srcset: con la tira
+// alta, una vertical pide ~28rem en escritorio y una apaisada ~62rem.
+const sizesTira = (pieza: Pieza) =>
+  (pieza.w ?? 0) > (pieza.h ?? 0)
+    ? '(max-width: 47.99rem) 165vw, 62rem'
+    : '(max-width: 47.99rem) 74vw, 28rem';
+---
+
+{/* el plano del paisaje: sol fijo, detrás de todo, nunca sobre una foto */}
+<div class="ebikecamp-plano" aria-hidden="true">
+  <span class="ebikecamp-capa ebikecamp-capa--sol"></span>
+</div>
+
+{/* la cabecera queda arriba de la línea: sello, título y registro en banda */}
+<section class="ebikecamp-cabecera-zona" aria-labelledby="ebikecamp-titulo">
+  <div class="ebikecamp-cabecera">
+    <p class="ebikecamp-sello ebikecamp-rotulo" data-nosnippet>rollo {data.photosPrefix}</p>
+
+    <div class="ebikecamp-titular">
+      <h1 class="ebikecamp-titulo" id="ebikecamp-titulo">{data.title}</h1>
+
+      <dl class="registro micro ebikecamp-registro">
+        {campos.map(([campo, valor]) => (
+          <div data-nosnippet><dt>{campo}</dt> <dd>{valor}</dd></div>
+        ))}
+      </dl>
+    </div>
+  </div>
+</section>
+
+{/* la línea cruza la hoja de lado a lado y la tira cuelga de ella */}
+<section class="ebikecamp-tramo" aria-labelledby="ebikecamp-secuencia-titulo">
+  <h2 class="fuera" id="ebikecamp-secuencia-titulo">Secuencia completa</h2>
+
+  <span class="ebikecamp-marcador ebikecamp-rotulo" data-nosnippet>
+    {data.photosPrefix} {tramo}
+  </span>
+
+  {/* el carril: el único scroll horizontal de la página. Enfocable para
+      recorrerlo con teclado; el scroll sigue al botón que recibe el foco. */}
+  <div
+    class="ebikecamp-tira"
+    role="region"
+    aria-labelledby="ebikecamp-secuencia-titulo"
+    tabindex="0"
+  >
+    {/* la pieza 01 no pasa: es el contraluz del sol, abre colgada de la línea */}
+    <figure class="ebikecamp-pieza">
+      <div class="ebikecamp-mate">
+        <button
+          type="button"
+          class="ebikecamp-captura"
+          data-lupa-src={portada.src}
+          data-lupa-alt={portada.alt}
+          aria-label={`Abrir ${portada.alt} a pantalla completa`}
+        >
+          <img
+            src={portada.src}
+            srcset={portada.conjunto}
+            sizes={sizesCabeza}
+            alt={portada.alt}
+            width={portada.w}
+            height={portada.h}
+            loading="eager"
+            decoding="async"
+            fetchpriority="high"
+          />
+        </button>
+      </div>
+
+      <figcaption class="ebikecamp-pie ebikecamp-rotulo">
+        <span class="ebikecamp-dato" data-nosnippet>{data.photosPrefix} {portada.nn}</span>
+        <span data-nosnippet>{portada.nn}/{data.photoCount}</span>
+      </figcaption>
+    </figure>
+
+    {secuencia.map((pieza) => (
+      <figure class="ebikecamp-pieza">
+        <div class="ebikecamp-mate">
+          <button
+            type="button"
+            class="ebikecamp-captura"
+            data-lupa-src={pieza.src}
+            data-lupa-alt={pieza.alt}
+            aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+          >
+            <img
+              src={pieza.src}
+              srcset={pieza.conjunto}
+              sizes={sizesTira(pieza)}
+              alt={pieza.alt}
+              width={pieza.w}
+              height={pieza.h}
+              loading="lazy"
+              decoding="async"
+            />
+          </button>
+        </div>
+
+        <figcaption class="ebikecamp-pie ebikecamp-rotulo">
+          <span class="ebikecamp-dato" data-nosnippet>{data.photosPrefix} {pieza.nn}</span>
+          <span data-nosnippet>{pieza.nn}/{data.photoCount}</span>
+        </figcaption>
+      </figure>
+    ))}
+
+    {/* el fin de tira: una pieza que no es foto. Adorno y datos repetidos. */}
+    <div class="ebikecamp-fin" aria-hidden="true" data-nosnippet>
+      <span class="ebikecamp-fin-cuenta">{String(data.photoCount).padStart(2, '0')}</span>
+      <span class="ebikecamp-rotulo">fin del rollo</span>
+      <span class="ebikecamp-rotulo ebikecamp-dato">{data.photosPrefix} · {data.year}</span>
+    </div>
+  </div>
+</section>
+
+{/* la cuenta del rollo, después de que el terreno pasó */}
+<section class="ebikecamp-ficha">
+  <div class="voz"><Content /></div>
+</section>

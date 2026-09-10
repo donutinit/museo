@@ -1,0 +1,735 @@
+/* ═════════════════════════════════════════════════════════
+   Marchas Eternas — carta topográfica y diario de ruta.
+
+   La única hoja del archivo que va en claro: papel de carta,
+   tinta sepia, verde militar, líneas finas. Un mapa doblado y
+   anotado, no una pieza épica: la secuencia se lee como
+   etapas del recorrido y el adorno es rotulación de mapa
+   (curvas de nivel, retícula, pliegues, marcas de registro).
+
+   Dos reglas duras de esta hoja:
+   1. nada decorativo toca la foto — las capas del plano viven
+      fijas detrás (z-index -1), la vereda del recorrido corre
+      detrás de las láminas, las cruces caen en el mate y las
+      marcas del mapa en huecos que ninguna lámina ocupa.
+   2. cero datos inventados — todo el texto suelto sale del
+      frontmatter, de alt.json o del markdown del rollo. El
+      único número ajeno al conteo es el 3710, que el alt de la
+      pieza 13 señala grabado en el metal.
+   ═════════════════════════════════════════════════════════ */
+
+body:has(.rollo--marchas) {
+  /* papel de carta: hueso, arena, tinta sepia, verde militar */
+  --m-papel: oklch(94.5% 0.014 88);
+  --m-papel-2: oklch(91% 0.018 86);
+  --m-tinta: oklch(29% 0.035 65);
+  --m-tinta-2: oklch(38% 0.032 68);
+  --m-polvo: oklch(43% 0.03 75);
+  --m-verde: oklch(44% 0.075 135);
+  --m-sepia: oklch(47% 0.115 60);
+  --m-linea: oklch(80% 0.022 84);
+
+  /* el armazón viejo, retinteado: rail, colofón y lupa se van solos */
+  --fondo: var(--m-papel);
+  --rebate: var(--m-papel-2);
+  --papel: var(--m-tinta);
+  --polvo: var(--m-polvo);
+  --grasa: var(--m-sepia);
+  --ambar: var(--m-verde);
+  --linea: var(--m-linea);
+
+  /* regla de escala: tick cada 1rem, una alta cada 5 */
+  --m-regla:
+    repeating-linear-gradient(90deg, color-mix(in oklch, var(--m-sepia) 55%, transparent) 0 1px, transparent 1px 1rem),
+    repeating-linear-gradient(90deg, var(--m-verde) 0 1px, transparent 1px 5rem);
+
+  background: var(--m-papel);
+  color: var(--m-tinta);
+}
+
+/* el grano del sitio se queda: en papel se re-tinta a multiply
+   y se lee como diente del papel, no como ISO de sensor */
+body:has(.rollo--marchas)::after {
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+}
+
+/* la selección invierte la tinta: oscuro sobre claro */
+body:has(.rollo--marchas) ::selection {
+  background: var(--m-tinta);
+  color: var(--m-papel);
+}
+
+/* ─── el plano: capas fijas, siempre detrás de todo ─── */
+
+.marchas-plano {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  background: var(--m-papel);
+}
+
+.marchas-capa {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* curvas de nivel: anillos finos alrededor de tres vértices */
+.marchas-capa--curvas {
+  opacity: 0.6;
+  background-image:
+    repeating-radial-gradient(
+      circle at 12% 14%,
+      transparent 0 2.6rem,
+      color-mix(in oklch, var(--m-sepia) 20%, transparent) 2.6rem calc(2.6rem + 1px)
+    ),
+    repeating-radial-gradient(
+      circle at 88% 42%,
+      transparent 0 3.4rem,
+      color-mix(in oklch, var(--m-verde) 16%, transparent) 3.4rem calc(3.4rem + 1px)
+    ),
+    repeating-radial-gradient(
+      circle at 34% 88%,
+      transparent 0 4.2rem,
+      color-mix(in oklch, var(--m-tinta) 12%, transparent) 4.2rem calc(4.2rem + 1px)
+    );
+}
+
+/* retícula UTM: fina, cada 2rem, apenas declarada */
+.marchas-capa--utm {
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(90deg, color-mix(in oklch, var(--m-tinta) 7%, transparent) 0 1px, transparent 1px 2rem),
+    repeating-linear-gradient(0deg, color-mix(in oklch, var(--m-tinta) 7%, transparent) 0 1px, transparent 1px 2rem);
+}
+
+/* pliegues del mapa: dos dobleces verticales con su sombra y un doblez horizontal */
+.marchas-capa--pliegues {
+  opacity: 0.55;
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent calc(33.34% - 1px),
+      color-mix(in oklch, var(--m-sepia) 26%, transparent) calc(33.34% - 1px),
+      color-mix(in oklch, var(--m-sepia) 7%, transparent) calc(33.34% + 0.55rem),
+      transparent calc(33.34% + 0.65rem)
+    ),
+    linear-gradient(
+      90deg,
+      transparent calc(66.66% - 1px),
+      color-mix(in oklch, var(--m-sepia) 26%, transparent) calc(66.66% - 1px),
+      color-mix(in oklch, var(--m-sepia) 7%, transparent) calc(66.66% + 0.55rem),
+      transparent calc(66.66% + 0.65rem)
+    ),
+    linear-gradient(
+      0deg,
+      transparent calc(50% - 1px),
+      color-mix(in oklch, var(--m-sepia) 18%, transparent) calc(50% - 1px),
+      transparent calc(50% + 1px)
+    );
+}
+
+/* ─── armazón del sitio, teñido ─── */
+
+body:has(.rollo--marchas) .rail {
+  background: color-mix(in oklch, var(--m-papel) 90%, transparent);
+  border-bottom-color: color-mix(in oklch, var(--m-sepia) 38%, transparent);
+}
+
+body:has(.rollo--marchas) .colofon {
+  border-top-color: color-mix(in oklch, var(--m-sepia) 38%, transparent);
+}
+
+body:has(.rollo--marchas) .lupa {
+  background: color-mix(in oklch, var(--m-papel) 97%, transparent);
+}
+
+.rollo--marchas {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* ─── tipografía y piezas compartidas de la hoja ─── */
+
+/* rotulación cartográfica: condensada, espaciada, cifra de tabla.
+   12 px en todos los rótulos chicos; los tonos aguantan 4.5:1 */
+.marchas-rotulo {
+  font-family: var(--f-edge);
+  font-size: 0.75rem;
+  font-stretch: 70%;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.22em;
+  line-height: 1.45;
+  text-transform: uppercase;
+  color: var(--m-polvo);
+}
+
+/* ─── carta: cabecera a la izquierda, placa 01 a la derecha ─── */
+
+.marchas-carta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(var(--space-xl), 6vw, var(--space-3xl));
+  padding: clamp(var(--space-xl), 6vw, var(--space-3xl)) var(--page-gutter) clamp(var(--space-lg), 4vw, var(--space-2xl));
+}
+
+.marchas-cabecera {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-lg);
+  min-width: 0;
+}
+
+/* el sello del mapa: diamante de vértice y código del rollo */
+.marchas-sello {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-2xs) var(--space-sm);
+  border: var(--rule-hair) solid color-mix(in oklch, var(--m-sepia) 55%, transparent);
+  color: var(--m-sepia);
+}
+
+.marchas-sello::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  flex: 0 0 auto;
+  border: var(--rule-hair) solid var(--m-sepia);
+  rotate: 45deg;
+}
+
+.marchas-titulo {
+  min-width: 0;
+  font-family: var(--f-edge);
+  font-size: clamp(2.4rem, 10.5vw, 7rem);
+  font-stretch: 62%;
+  font-weight: 750;
+  line-height: 0.95;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  color: var(--m-tinta);
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+/* la traza de ruta: línea punteada de puntilla a vértice, pura rotulación */
+.marchas-traza {
+  display: flex;
+  align-items: center;
+  width: min(100%, 24rem);
+  height: 0.9rem;
+  background-image: repeating-linear-gradient(90deg, var(--m-sepia) 0 0.4rem, transparent 0.4rem 0.85rem);
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 50%;
+}
+
+.marchas-traza::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: var(--m-sepia);
+}
+
+.marchas-traza::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-left: auto;
+  border: var(--rule-hair) solid var(--m-sepia);
+  rotate: 45deg;
+}
+
+/* los datos duros, pegados al nombre */
+.marchas-registro {
+  width: min(100%, 24rem);
+  margin-block-start: var(--space-xs);
+}
+
+.marchas-registro > div { border-bottom-color: color-mix(in oklch, var(--m-sepia) 35%, transparent); }
+.marchas-registro dt { color: var(--m-verde); }
+.marchas-registro dd { color: var(--m-tinta); }
+
+/* ─── la placa: mate de papel, cruces de registro, margen al pie ─── */
+
+.marchas-placa {
+  position: relative;
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.marchas-mate {
+  --m-cruz: var(--m-sepia);
+  --cruces: clamp(0.75rem, 1.8vw, 1.2rem);
+  position: relative;
+  min-width: 0;
+  padding: clamp(0.55rem, 1.6vw, 1.1rem);
+  background: var(--m-papel-2);
+  box-shadow: inset 0 0 0 var(--rule-hair) color-mix(in oklch, var(--m-tinta) 24%, transparent);
+}
+
+/* cruces de registro cartográfico: dos en el mate y, con `.marchas-cruces`,
+   las otras dos. Caen sobre el mate y en el margen, nunca sobre la imagen. */
+.marchas-mate::before,
+.marchas-mate::after,
+.marchas-cruces::before,
+.marchas-cruces::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  width: var(--cruces);
+  aspect-ratio: 1;
+  pointer-events: none;
+  transition: width var(--dur-short) var(--ease-out);
+  background:
+    linear-gradient(to right, transparent calc(50% - 0.5px), var(--m-cruz) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(50% - 0.5px), var(--m-cruz) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+}
+
+.marchas-mate::before {
+  inset-block-start: calc(var(--cruces) * -0.5);
+  inset-inline-start: calc(var(--cruces) * -0.5);
+}
+
+.marchas-mate::after {
+  inset-block-end: calc(var(--cruces) * -0.5);
+  inset-inline-end: calc(var(--cruces) * -0.5);
+}
+
+.marchas-cruces {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.marchas-cruces::before {
+  inset-block-start: calc(var(--cruces) * -0.5);
+  inset-inline-end: calc(var(--cruces) * -0.5);
+}
+
+.marchas-cruces::after {
+  inset-block-end: calc(var(--cruces) * -0.5);
+  inset-inline-start: calc(var(--cruces) * -0.5);
+}
+
+.marchas-captura {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  text-align: start;
+  cursor: zoom-in;
+  border-radius: var(--radius-none);
+  background: var(--m-papel);
+}
+
+.marchas-captura img {
+  width: 100%;
+  height: auto;
+  transition: filter var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .marchas-placa:hover .marchas-captura img { filter: contrast(1.04) brightness(1.02); }
+  .marchas-placa:hover :is(.marchas-mate, .marchas-cruces)::before,
+  .marchas-placa:hover :is(.marchas-mate, .marchas-cruces)::after {
+    width: calc(var(--cruces) * 1.5);
+  }
+}
+
+.marchas-captura:focus-visible {
+  outline: var(--rule-focus) solid var(--m-verde);
+  outline-offset: calc(var(--space-2xs) * -1);
+}
+
+.marchas-captura:active img { filter: brightness(0.97); }
+
+.marchas-captura:is(:disabled, [aria-disabled="true"]) { cursor: not-allowed; opacity: 0.5; }
+
+/* margen: la anotación bajo la lámina, fuera de la imagen */
+.marchas-margen {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2xs) var(--space-md);
+  margin-block-start: calc(var(--rule-hair) * -1);
+  padding: var(--space-2xs) var(--space-xs);
+  border: var(--rule-hair) solid color-mix(in oklch, var(--m-tinta) 24%, transparent);
+  border-block-start: 0;
+}
+
+.marchas-margen .marchas-dato { color: var(--m-sepia); }
+.marchas-margen .marchas-aviso { color: var(--m-verde); }
+
+/* ─── diario de ruta ─── */
+
+.marchas-ficha {
+  display: grid;
+  gap: var(--space-md);
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: clamp(var(--space-lg), 4vw, var(--space-2xl)) var(--page-gutter) clamp(var(--space-xl), 5vw, var(--space-3xl));
+}
+
+.marchas-ficha .voz {
+  padding-inline-start: clamp(var(--space-md), 2vw, var(--space-lg));
+  border-inline-start: var(--rule-hair) solid color-mix(in oklch, var(--m-sepia) 45%, transparent);
+  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+}
+
+/* ─── el recorrido: la vereda que baja por la hoja ───
+   La secuencia ya no es una retícula suelta: es una ruta. Una línea
+   discontinua baja por la hoja — al centro en escritorio, por el canto
+   izquierdo en teléfono —, cada etapa lleva su hito sobre la línea y las
+   láminas cuelgan a una y otra orilla. La línea es adorno: vive detrás,
+   nunca sobre una foto. */
+
+/* el arranque: la banda deja de ser barra y se vuelve cabecera de vereda */
+.marchas-arranque {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-sm);
+  width: min(100%, 30rem);
+  padding-block-end: var(--space-xl);
+}
+
+.marchas-arranque-rumbo {
+  display: grid;
+  gap: var(--space-3xs);
+}
+
+.marchas-arranque .marchas-dato { color: var(--m-sepia); }
+
+.marchas-regla {
+  display: block;
+  width: min(100%, 18rem);
+  height: 0.55rem;
+  background-image: var(--m-regla);
+  background-position: bottom;
+  opacity: 0.65;
+}
+
+.marchas-secuencia {
+  position: relative;
+  min-width: 0;
+  padding: 0 var(--page-gutter) clamp(var(--space-3xl), 9vw, var(--space-4xl));
+}
+
+.marchas-ruta {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(var(--space-2xl), 7vw, var(--space-4xl));
+  min-width: 0;
+}
+
+/* la vereda: trazo discontinuo, siempre detrás de las láminas */
+.marchas-ruta::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset-block: 0;
+  left: 0.6rem;
+  width: 2px;
+  background-image: repeating-linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--m-sepia) 65%, transparent) 0 0.45rem,
+    transparent 0.45rem 0.95rem
+  );
+}
+
+/* el punto de partida, sobre el primer tramo de vereda */
+.marchas-ruta::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: calc(1px - 0.3rem);
+  left: calc(0.6rem + 1px - 0.3rem);
+  width: 0.6rem;
+  aspect-ratio: 1;
+  border: var(--rule-hair) solid var(--m-sepia);
+  background: var(--m-papel);
+  rotate: 45deg;
+}
+
+/* hitos de etapa: rotulación sobre la vereda. El número ya está en el pie
+   de cada lámina; aquí se repite como dato, por eso va oculto a lectores */
+.marchas-hito {
+  display: none;
+}
+
+.marchas-lamina {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  align-self: start;
+}
+
+/* la pieza del vértice 3710: el mate se tiñe de verde y las cruces mandan */
+.marchas-lamina--vertice .marchas-mate {
+  --m-cruz: var(--m-verde);
+  --cruces: clamp(1.1rem, 2.6vw, 2rem);
+  box-shadow: inset 0 0 0 var(--rule-hair) color-mix(in oklch, var(--m-verde) 60%, transparent);
+}
+
+/* ─── marcas: la rotulación de los huecos del recorrido ─── */
+
+/* en el teléfono es una tira de cierre; en la retícula cada marca cae
+   en un hueco de la vereda que ninguna lámina ocupa */
+.marchas-cierre {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  align-items: center;
+  gap: var(--space-lg);
+  min-width: 0;
+  margin-block-start: clamp(var(--space-lg), 4vw, var(--space-2xl));
+  padding-block-start: var(--space-lg);
+  border-block-start: var(--rule-hair) solid color-mix(in oklch, var(--m-verde) 40%, transparent);
+  background: var(--m-papel);
+}
+
+.marchas-marca {
+  display: grid;
+  gap: var(--space-2xs);
+  justify-items: start;
+  align-content: center;
+  min-width: 0;
+  color: var(--m-verde);
+  pointer-events: none;
+  user-select: none;
+}
+
+.marchas-escala {
+  display: block;
+  width: 100%;
+  height: 0.8rem;
+  background-image: var(--m-regla);
+  background-position: bottom;
+  opacity: 0.75;
+}
+
+.marchas-marca--fin .marchas-escala { width: min(100%, 10rem); }
+
+/* la flecha del norte */
+.marchas-norte {
+  display: block;
+  width: clamp(2rem, 5vw, 3.25rem);
+  height: auto;
+  color: var(--m-verde);
+  opacity: 0.9;
+}
+
+/* el vértice, en hueco: el único número grande del mapa */
+.marchas-cuenta {
+  font-family: var(--f-edge);
+  font-size: clamp(var(--text-3xl), 12vw, 7.5rem);
+  font-stretch: 58%;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.85;
+  letter-spacing: 0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in oklch, var(--m-tinta) 60%, transparent);
+}
+
+/* ─── paso de rollo ─── */
+
+.rollo--marchas > .paso {
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  margin-block-start: 0;
+  padding: var(--space-xl) var(--page-gutter) 0;
+  border-block-start-color: color-mix(in oklch, var(--m-sepia) 35%, transparent);
+}
+
+.rollo--marchas .paso .edge { color: var(--m-verde); }
+.rollo--marchas .paso-titulo { color: var(--m-tinta-2); }
+.rollo--marchas .paso a:hover .paso-titulo,
+.rollo--marchas .paso a:focus-visible .paso-titulo { color: var(--m-sepia); }
+
+/* ─── retícula grande ─── */
+
+@media (min-width: 56rem) {
+  .marchas-carta {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 30rem);
+    max-width: var(--ancho);
+    margin-inline: auto;
+    gap: clamp(var(--space-xl), 5vw, var(--space-3xl));
+  }
+
+  .marchas-cabecera {
+    /* la ficha se queda a la vista mientras la placa 01 sube */
+    position: sticky;
+    top: var(--space-xl);
+    gap: var(--space-lg);
+  }
+
+  .marchas-placa--cabeza { justify-self: end; }
+
+  /* la vereda al centro: arranque centrado sobre la línea */
+  .marchas-arranque {
+    justify-items: center;
+    text-align: center;
+    margin-inline: auto;
+  }
+
+  .marchas-ruta {
+    /* sin gap de columna: así el centro de los hitos (columnas 6-7)
+       cae exacto en el 50% donde corre la vereda */
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(var(--space-2xl), 6vw, var(--space-4xl)) 0;
+    max-width: var(--ancho);
+    margin-inline: auto;
+  }
+
+  .marchas-ruta::before { left: calc(50% - 1px); }
+
+  .marchas-ruta::after { left: calc(50% - 0.3rem); }
+
+  /* láminas colgando de la vereda: etapas nones a la izquierda, pares a la
+     derecha y un pelo más abajo: el paso alternado de quien camina */
+  .marchas-lamina:nth-of-type(odd) { grid-column: 1 / 6; }
+  .marchas-lamina:nth-of-type(even) { grid-column: 8 / 13; margin-block-start: var(--space-3xl); }
+
+  /* variantes de ancho para que el mapa no sea una escalera de compás */
+  .marchas-lamina:nth-of-type(5),
+  .marchas-lamina:nth-of-type(9),
+  .marchas-lamina:nth-of-type(13) { grid-column: 2 / 6; }
+  .marchas-lamina:nth-of-type(4),
+  .marchas-lamina:nth-of-type(8) { grid-column: 8 / 12; }
+
+  /* filas: cinco tramos de a par, el tramo del vértice con su hueco, cierre */
+  .marchas-lamina:nth-of-type(1),
+  .marchas-lamina:nth-of-type(2) { grid-row: 1; }
+  .marchas-lamina:nth-of-type(3),
+  .marchas-lamina:nth-of-type(4) { grid-row: 2; }
+  .marchas-lamina:nth-of-type(5),
+  .marchas-lamina:nth-of-type(6) { grid-row: 3; }
+  .marchas-lamina:nth-of-type(7),
+  .marchas-lamina:nth-of-type(8) { grid-row: 4; }
+  .marchas-lamina:nth-of-type(9),
+  .marchas-lamina:nth-of-type(10) { grid-row: 5; }
+  .marchas-lamina:nth-of-type(11) { grid-row: 6; }
+  .marchas-lamina:nth-of-type(12) { grid-row: 7; }
+  .marchas-lamina:nth-of-type(13),
+  .marchas-lamina:nth-of-type(14) { grid-row: 8; }
+
+  /* hitos: un marcador de etapa por lámina, sobre la línea, con su guía
+     hacia la orilla de su foto */
+  .marchas-hito {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-column: 6 / 8;
+    justify-items: center;
+    align-content: start;
+    gap: var(--space-2xs);
+    margin-block-start: 1.1rem;
+  }
+
+  .marchas-hito--der { margin-block-start: calc(var(--space-3xl) + 1.1rem); }
+
+  .marchas-hito:nth-of-type(1),
+  .marchas-hito:nth-of-type(2) { grid-row: 1; }
+  .marchas-hito:nth-of-type(3),
+  .marchas-hito:nth-of-type(4) { grid-row: 2; }
+  .marchas-hito:nth-of-type(5),
+  .marchas-hito:nth-of-type(6) { grid-row: 3; }
+  .marchas-hito:nth-of-type(7),
+  .marchas-hito:nth-of-type(8) { grid-row: 4; }
+  .marchas-hito:nth-of-type(9),
+  .marchas-hito:nth-of-type(10) { grid-row: 5; }
+  .marchas-hito:nth-of-type(11) { grid-row: 6; }
+  .marchas-hito:nth-of-type(12) { grid-row: 7; }
+  .marchas-hito:nth-of-type(13),
+  .marchas-hito:nth-of-type(14) { grid-row: 8; }
+
+  .marchas-hito-punto {
+    width: 0.5rem;
+    aspect-ratio: 1;
+    border: var(--rule-hair) solid var(--m-sepia);
+    background: var(--m-papel);
+    rotate: 45deg;
+  }
+
+  /* el vértice se marca en verde, como su placa */
+  .marchas-hito--vertice .marchas-hito-punto { border-color: var(--m-verde); }
+  .marchas-hito--vertice .marchas-hito-num { color: var(--m-verde); }
+  .marchas-hito--vertice::before {
+    background-image: repeating-linear-gradient(90deg, color-mix(in oklch, var(--m-verde) 60%, transparent) 0 0.35rem, transparent 0.35rem 0.7rem);
+  }
+
+  /* la guía: guión corto de la línea al canto de la lámina */
+  .marchas-hito::before {
+    content: "";
+    position: absolute;
+    top: 0.25rem;
+    height: 1px;
+    background-image: repeating-linear-gradient(90deg, color-mix(in oklch, var(--m-sepia) 55%, transparent) 0 0.35rem, transparent 0.35rem 0.7rem);
+  }
+
+  .marchas-hito--izq::before { left: 0; right: 50%; }
+  .marchas-hito--der::before { left: 50%; right: 0; }
+
+  .marchas-hito-num {
+    color: var(--m-sepia);
+  }
+
+  /* las marcas caen en los huecos de la ruta: la cuenta 3710 enfrente del
+     vértice real, el norte a media ladera, el fin cerrando la línea */
+  .marchas-cierre { display: contents; }
+
+  .marchas-marca--cuenta {
+    position: relative;
+    z-index: 1;
+    grid-area: 7 / 2 / auto / 6;
+    justify-self: end;
+    justify-items: end;
+    align-self: center;
+  }
+
+  .marchas-marca--norte {
+    position: relative;
+    z-index: 1;
+    grid-area: 6 / 8 / auto / 10;
+    align-self: center;
+  }
+
+  .marchas-marca--fin {
+    position: relative;
+    z-index: 1;
+    grid-area: 9 / 1 / auto / 13;
+    justify-self: center;
+    justify-items: center;
+    margin-block-start: var(--space-lg);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--m-papel);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marchas-captura img,
+  .marchas-mate::before,
+  .marchas-mate::after,
+  .marchas-cruces::before,
+  .marchas-cruces::after { transition: none; }
+}

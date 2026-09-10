@@ -1,0 +1,231 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import { oficio } from '../lib/archivo';
+import '../styles/bikeparkesfera.css';
+
+/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+interface Pieza {
+  nn: string;
+  src: string;
+  conjunto: string | undefined;
+  w?: number;
+  h?: number;
+  alt: string;
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  piezas: Pieza[];
+  /** La medida de la placa de portada; la misma que precarga la página. */
+  sizesCabeza: string;
+}
+
+const { proyecto, piezas, sizesCabeza } = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+// Tramos del salto, leídos del alt de cada pieza (src/data/alt.json):
+// despegue = sobre estructura (plataforma, rampa, riel, pasarela, entrada al
+// muro); aire = suspendido, contra cielo; aterrizaje = de bajada o ya rodando.
+const DESPEGUE = new Set(['03', '04', '05', '07', '17', '18', '19']);
+const AIRE = new Set(['02', '11', '12', '13', '15', '16', '20']);
+
+const tramoDe = (nn: string) => (DESPEGUE.has(nn) ? 'despegue' : AIRE.has(nn) ? 'aire' : 'aterrizaje');
+
+// la pieza 02 es la cima del arco: dos cuerpos en el aire al mismo tiempo
+const PIEZA_CIMA = '02';
+
+const portada = piezas[0];
+const secuencia = piezas.slice(1);
+
+// Todo el texto suelto sale del frontmatter: código, oficio, lugar, año, cuenta.
+// Las palabras del rollo se dicen una sola vez, en el markdown.
+const campos = [
+  ['rollo', data.photosPrefix],
+  ['oficio', oficio[data.type]],
+  ...(data.location ? [['lugar', data.location.toLowerCase()]] : []),
+  ['año', String(data.year)],
+  ['piezas', String(data.photoCount)],
+];
+
+/** El tramo que queda después de la portada: `02 — 21`. */
+const tramo = `${secuencia[0]?.nn ?? portada.nn} — ${piezas.at(-1)?.nn ?? portada.nn}`;
+---
+
+{/* el plano del salto: cielo quemado y papel milimetrado, detrás de todo */}
+<div class="bikeparkesfera-plano" aria-hidden="true">
+  <span class="bikeparkesfera-capa--reticula"></span>
+</div>
+
+{/* la largada: corte de listón, el título y de inmediato la pieza 01
+    a lo grande, sola — sin ficha compitiendo a su lado. La voz y los
+    datos duros van después, como créditos. */}
+<section class="bikeparkesfera-largada" aria-labelledby="bikeparkesfera-titulo">
+  <header class="bikeparkesfera-cabecera">
+    <p class="bikeparkesfera-liston" data-nosnippet>
+      <span class="bikeparkesfera-liston-tramo" aria-hidden="true"></span>
+      <span class="bikeparkesfera-sello bikeparkesfera-rotulo">{data.photosPrefix}</span>
+      <span class="bikeparkesfera-liston-tramo bikeparkesfera-liston-tramo--corte" aria-hidden="true"></span>
+    </p>
+
+    <h1 class="bikeparkesfera-titulo" id="bikeparkesfera-titulo">
+      <span class="bikeparkesfera-titulo-eco" aria-hidden="true">{data.title}</span>
+      <span>{data.title}</span>
+    </h1>
+  </header>
+
+  <figure class="bikeparkesfera-placa bikeparkesfera-placa--cabeza">
+    <button
+      type="button"
+      class="bikeparkesfera-captura"
+      data-lupa-src={portada.src}
+      data-lupa-alt={portada.alt}
+      aria-label={`Abrir ${portada.alt} a pantalla completa`}
+    >
+      <img
+        src={portada.src}
+        srcset={portada.conjunto}
+        sizes={sizesCabeza}
+        alt={portada.alt}
+        width={portada.w}
+        height={portada.h}
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
+      />
+    </button>
+
+    <figcaption class="bikeparkesfera-pie">
+      <span class="bikeparkesfera-dorsal" data-nosnippet>{portada.nn}</span>
+      <span class="bikeparkesfera-rotulo" data-nosnippet>{data.photosPrefix} {portada.nn}/{data.photoCount}</span>
+    </figcaption>
+  </figure>
+
+  <div class="voz bikeparkesfera-voz"><Content /></div>
+
+  <dl class="registro micro bikeparkesfera-registro">
+    {campos.map(([campo, valor]) => (
+      <div data-nosnippet><dt>{campo}</dt> <dd>{valor}</dd></div>
+    ))}
+  </dl>
+</section>
+
+{/* el mapa del salto antes del salto: los tres tramos que vienen */}
+<div class="bikeparkesfera-senales" data-nosnippet>
+  <p class="bikeparkesfera-tramo bikeparkesfera-tramo--despegue">
+    <svg class="bikeparkesfera-flecha" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 20 20 4M12 4h8v8" fill="none" stroke="currentColor" stroke-width="1.5" />
+    </svg>
+    <span class="bikeparkesfera-rotulo">despegue</span>
+  </p>
+
+  <p class="bikeparkesfera-tramo bikeparkesfera-tramo--aire">
+    <svg class="bikeparkesfera-flecha" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M3 12h18M14 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.5" />
+    </svg>
+    <span class="bikeparkesfera-rotulo">aire</span>
+  </p>
+
+  <p class="bikeparkesfera-tramo bikeparkesfera-tramo--aterrizaje">
+    <svg class="bikeparkesfera-flecha" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 4l16 16M20 12v8h-8" fill="none" stroke="currentColor" stroke-width="1.5" />
+    </svg>
+    <span class="bikeparkesfera-rotulo">aterrizaje</span>
+  </p>
+</div>
+
+<section class="bikeparkesfera-salto" aria-labelledby="bikeparkesfera-salto-titulo">
+  <h2 class="fuera" id="bikeparkesfera-salto-titulo">Secuencia completa {data.photosPrefix} {tramo}</h2>
+
+  {secuencia.map((pieza) => (
+    <figure
+      class:list={[
+        'bikeparkesfera-placa',
+        'bikeparkesfera-lamina',
+        `bikeparkesfera-lamina--${tramoDe(pieza.nn)}`,
+        { 'bikeparkesfera-lamina--cima': pieza.nn === PIEZA_CIMA },
+      ]}
+    >
+      <button
+        type="button"
+        class="bikeparkesfera-captura"
+        data-lupa-src={pieza.src}
+        data-lupa-alt={pieza.alt}
+        aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+      >
+        <img
+          src={pieza.src}
+          srcset={pieza.conjunto}
+          sizes="(max-width: 55.99rem) 92vw, 44vw"
+          alt={pieza.alt}
+          width={pieza.w}
+          height={pieza.h}
+          loading="lazy"
+          decoding="async"
+        />
+      </button>
+
+      <figcaption class="bikeparkesfera-pie">
+        <span class="bikeparkesfera-dorsal" data-nosnippet>{pieza.nn}</span>
+        <span class="bikeparkesfera-rotulo" data-nosnippet>{data.photosPrefix} {pieza.nn}/{data.photoCount}</span>
+      </figcaption>
+    </figure>
+  ))}
+
+  {/* El trazo del salto: una sola curva que cuelga del arranque,
+      se mantiene alta sobre el despegue —sube en pantalla mientras
+      uno baja—, atraviesa la cresta de piezas grandes del aire y
+      se despeña bajo el aterrizaje. Vive en el plano de la sección,
+      detrás de las láminas (z-index 0 contra 1): se pierde detrás de
+      cada foto y reaparece en los claros. Nunca encima. Adorno
+      puro: aria-hidden y fuera del teléfono. Coordenadas medidas
+      contra la retícula renderizada a 1440 px: el trazo arranca en
+      el centro de la pieza 02, roza por arriba las del despegue,
+      cruza el tercio alto de las del aire y suelta por debajo de
+      las del aterrizaje. */}
+  <span class="bikeparkesfera-trazo" aria-hidden="true">
+    <svg viewBox="0 0 1296 12305" preserveAspectRatio="none" focusable="false">
+      <path
+        d="M 450 430
+           C 380 442, 90 432, 30 502
+           C 2 572, 60 734, 88 852
+           C 116 970, 161 1091, 198 1209
+           C 235 1327, 271 1448, 308 1559
+           C 345 1670, 381 1730, 418 1877
+           C 455 2024, 491 2254, 528 2444
+           C 565 2634, 601 2825, 638 3018
+           C 675 3211, 719 3373, 748 3601
+           C 777 3829, 820 4119, 813 4388
+           C 806 4657, 712 4928, 703 5216
+           C 694 5503, 735 5837, 758 6111
+           C 781 6385, 813 6623, 840 6858
+           C 868 7093, 891 7276, 923 7522
+           C 955 7768, 978 8071, 1033 8335
+           C 1088 8599, 1217 8910, 1256 9106
+           C 1294 9302, 1274 9342, 1266 9512
+           C 1258 9682, 1211 9921, 1211 10127
+           C 1211 10333, 1257 10518, 1266 10750
+           C 1275 10982, 1266 11284, 1266 11518
+           C 1266 11752, 1266 12050, 1266 12156"
+      />
+    </svg>
+  </span>
+
+  {/* El cierre: el aparato alrededor de las placas, sin tocar ninguna. */}
+  <div class="bikeparkesfera-cierre" aria-hidden="true" data-nosnippet>
+    <div class="bikeparkesfera-marca">
+      <span class="bikeparkesfera-escala"></span>
+      <span class="bikeparkesfera-rotulo">{data.photosPrefix} · {data.year}</span>
+    </div>
+
+    <div class="bikeparkesfera-marca">
+      <span class="bikeparkesfera-cuenta">{String(data.photoCount).padStart(2, '0')}</span>
+      <span class="bikeparkesfera-rotulo">piezas</span>
+    </div>
+
+    <div class="bikeparkesfera-marca">
+      <span class="bikeparkesfera-rotulo">fin de secuencia</span>
+      <span class="bikeparkesfera-escala"></span>
+    </div>
+  </div>
+</section>
