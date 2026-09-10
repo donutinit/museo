@@ -24,9 +24,6 @@ const { proyecto, piezas, sizesCabeza } = Astro.props;
 const { data } = proyecto;
 const { Content } = await render(proyecto);
 
-const portada = piezas[0];
-const secuencia = piezas.slice(1);
-
 // Todo el texto suelto sale del frontmatter: código, oficio, lugar, año, cuenta.
 const campos = [
   ['rollo', data.photosPrefix],
@@ -39,12 +36,50 @@ const campos = [
 /** El marcador sobre la línea: el tramo completo, `ebikecamp 01 — 31`. */
 const tramo = `${piezas[0]?.nn ?? ''} — ${piezas.at(-1)?.nn ?? ''}`;
 
-/** Apaisada: en la galería abre a 64rem; la vertical se queda en 40rem. */
-const ancha = (pieza: Pieza) => (pieza.w ?? 0) > (pieza.h ?? 0);
+/* ── el reparto en filas justificadas ──────────────────────────────────
+   La retícula se calcula aquí, en el build, porque las medidas nativas de
+   cada pieza ya las tenemos (medidas.json). Cada fila lleva sus piezas a
+   una misma altura y reparte el ancho en proporción al aspect de cada una:
+   así la fila cierra exacta contra el margen, nadie se recorta y el orden
+   del rollo se respeta al pie de la letra. Sin JavaScript.
 
-/** El `sizes` sale del tope de ancho de cada pieza (ver ebikecamp.css). */
-const sizesPieza = (pieza: Pieza) =>
-  ancha(pieza) ? '(max-width: 69.99rem) 92vw, 64rem' : '(max-width: 45.99rem) 92vw, 40rem';
+   La suma de aspects de una fila decide su altura: alto = ancho / suma.
+   Con 2.0 las filas cierran en dos o tres piezas y quedan altas —entre un
+   medio y un tercio del ancho de la hoja—, que es donde una vertical deja
+   de verse chica. Subirlo mete más piezas por fila y las achica. */
+const SUMA_FILA = 2.0;
+
+const aspect = (pieza: Pieza) => (pieza.w ?? 3) / (pieza.h ?? 2);
+
+const filas: Pieza[][] = [];
+{
+  let fila: Pieza[] = [];
+  let suma = 0;
+  for (const pieza of piezas) {
+    fila.push(pieza);
+    suma += aspect(pieza);
+    if (suma >= SUMA_FILA) {
+      filas.push(fila);
+      fila = [];
+      suma = 0;
+    }
+  }
+  if (fila.length) filas.push(fila);
+}
+
+/**
+ * Lo que le toca a una pieza del ancho de su fila. La última fila se mide
+ * contra `SUMA_FILA` y no contra lo suyo: si se justificara, dos piezas
+ * sueltas se estirarían hasta ocupar la hoja entera.
+ */
+const reparto = (fila: Pieza[], pieza: Pieza, ultima: boolean) => {
+  const suma = fila.reduce((n, p) => n + aspect(p), 0);
+  return aspect(pieza) / (ultima ? Math.max(suma, SUMA_FILA) : suma);
+};
+
+/** El `sizes` sale de esa misma parte: la hoja ocupa ~92vw hasta su tope. */
+const sizesPieza = (parte: number) =>
+  `(max-width: 55.99rem) 92vw, ${Math.max(1, Math.round(parte * 92))}vw`;
 ---
 
 {/* el plano del paisaje: sol fijo, detrás de todo, nunca sobre una foto */}
@@ -78,64 +113,46 @@ const sizesPieza = (pieza: Pieza) =>
   </span>
 
   <div class="ebikecamp-galeria">
-    {/* la pieza 01 abre: el contraluz del sol, colgado de la línea */}
-    <figure class:list={['ebikecamp-pieza', { 'ebikecamp-pieza--ancha': ancha(portada) }]}>
-      <div class="ebikecamp-mate">
-        <button
-          type="button"
-          class="ebikecamp-captura"
-          data-lupa-src={portada.src}
-          data-lupa-alt={portada.alt}
-          aria-label={`Abrir ${portada.alt} a pantalla completa`}
-        >
-          <img
-            src={portada.src}
-            srcset={portada.conjunto}
-            sizes={sizesCabeza}
-            alt={portada.alt}
-            width={portada.w}
-            height={portada.h}
-            loading="eager"
-            decoding="async"
-            fetchpriority="high"
-          />
-        </button>
+    {filas.map((fila, f) => (
+      <div
+        class="ebikecamp-fila"
+        style={`--piezas:${fila.length}`}
+      >
+        {fila.map((pieza) => {
+          const parte = reparto(fila, pieza, f === filas.length - 1);
+          const primera = pieza.nn === piezas[0].nn;
+          return (
+            <figure class="ebikecamp-pieza" style={`--parte:${parte.toFixed(5)}`}>
+              <div class="ebikecamp-mate">
+                <button
+                  type="button"
+                  class="ebikecamp-captura"
+                  data-lupa-src={pieza.src}
+                  data-lupa-alt={pieza.alt}
+                  aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+                >
+                  <img
+                    src={pieza.src}
+                    srcset={pieza.conjunto}
+                    sizes={primera ? sizesCabeza : sizesPieza(parte)}
+                    alt={pieza.alt}
+                    width={pieza.w}
+                    height={pieza.h}
+                    loading={primera ? 'eager' : 'lazy'}
+                    decoding="async"
+                    fetchpriority={primera ? 'high' : undefined}
+                  />
+                </button>
+              </div>
+
+              <figcaption class="ebikecamp-pie ebikecamp-rotulo">
+                <span class="ebikecamp-dato" data-nosnippet>{data.photosPrefix} {pieza.nn}</span>
+                <span data-nosnippet>{pieza.nn}/{data.photoCount}</span>
+              </figcaption>
+            </figure>
+          );
+        })}
       </div>
-
-      <figcaption class="ebikecamp-pie ebikecamp-rotulo">
-        <span class="ebikecamp-dato" data-nosnippet>{data.photosPrefix} {portada.nn}</span>
-        <span data-nosnippet>{portada.nn}/{data.photoCount}</span>
-      </figcaption>
-    </figure>
-
-    {secuencia.map((pieza) => (
-      <figure class:list={['ebikecamp-pieza', { 'ebikecamp-pieza--ancha': ancha(pieza) }]}>
-        <div class="ebikecamp-mate">
-          <button
-            type="button"
-            class="ebikecamp-captura"
-            data-lupa-src={pieza.src}
-            data-lupa-alt={pieza.alt}
-            aria-label={`Abrir ${pieza.alt} a pantalla completa`}
-          >
-            <img
-              src={pieza.src}
-              srcset={pieza.conjunto}
-              sizes={sizesPieza(pieza)}
-              alt={pieza.alt}
-              width={pieza.w}
-              height={pieza.h}
-              loading="lazy"
-              decoding="async"
-            />
-          </button>
-        </div>
-
-        <figcaption class="ebikecamp-pie ebikecamp-rotulo">
-          <span class="ebikecamp-dato" data-nosnippet>{data.photosPrefix} {pieza.nn}</span>
-          <span data-nosnippet>{pieza.nn}/{data.photoCount}</span>
-        </figcaption>
-      </figure>
     ))}
 
     {/* el cierre: un bloque que no es foto. Adorno y datos repetidos. */}

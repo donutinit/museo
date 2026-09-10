@@ -223,33 +223,58 @@ body:has(.rollo--ebikecamp) .lupa {
   color: var(--e-cielo);
 }
 
-/* ─── la galería: las piezas bajan por la hoja, una tras otra ─── */
+/* ─── la galería: filas justificadas ───────────────────────────────
+   Cada fila lleva sus piezas a una misma altura. El ancho de cada una
+   sale de `--parte`, la proporción que el componente le calculó según
+   su aspect, descontando antes los huecos de la fila. Así la fila cierra
+   exacta contra los dos márgenes sin recortar una sola imagen. */
 
 .ebikecamp-galeria {
+  --hueco: clamp(0.5rem, 1.1vw, 1rem);
+  --hueco-fila: clamp(var(--space-lg), 3vw, var(--space-2xl));
+
   display: grid;
-  /* una sola columna, declarada: la retícula implícita se prestaba a que el
-     navegador repartiera las piezas en varias. Aquí bajan de una en una. */
   grid-template-columns: minmax(0, 1fr);
-  justify-items: center;
-  gap: clamp(var(--space-2xl), 6vw, var(--space-4xl));
+  gap: var(--hueco-fila);
   width: 100%;
-  padding: clamp(var(--space-xl), 5vw, var(--space-3xl)) var(--page-gutter) 0;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: clamp(var(--space-lg), 4vw, var(--space-2xl)) var(--page-gutter) 0;
 }
 
-/* cada pieza a su medida: la apaisada abre más que la vertical, y ninguna
-   se recorta nunca. El tope va en ancho, no en alto, para que el `sizes`
-   del `<img>` pueda decir la verdad. */
-.ebikecamp-pieza {
-  position: relative;
-  width: min(100%, 40rem);
+.ebikecamp-fila {
+  display: flex;
+  flex-direction: column;
+  /* apilada, la fila deja de existir como grupo: el aire entre piezas es
+     el mismo por dentro que por fuera, si no el ritmo sale cojo */
+  gap: var(--hueco-fila);
   min-width: 0;
 }
 
-.ebikecamp-pieza--ancha { width: min(100%, 64rem); }
+.ebikecamp-pieza {
+  position: relative;
+  min-width: 0;
+}
 
 .ebikecamp-pieza .ebikecamp-captura img {
   width: 100%;
   height: auto;
+}
+
+/* en la hoja angosta la fila se deshace: una pieza por renglón, a lo ancho.
+   De 56rem para arriba se tiende: a cada pieza le toca su parte de lo que
+   queda del ancho después de descontar los huecos. */
+@media (min-width: 56rem) {
+  .ebikecamp-fila {
+    flex-direction: row;
+    align-items: start;
+    gap: var(--hueco);
+  }
+
+  .ebikecamp-fila .ebikecamp-pieza {
+    flex: 0 0 auto;
+    width: calc((100% - (var(--piezas) - 1) * var(--hueco)) * var(--parte));
+  }
 }
 
 .ebikecamp-mate {
