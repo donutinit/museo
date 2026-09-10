@@ -1,0 +1,217 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import { oficio } from '../lib/archivo';
+import '../styles/sofia-maximalista.css';
+
+/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+interface Pieza {
+  nn: string;
+  src: string;
+  conjunto: string | undefined;
+  w?: number;
+  h?: number;
+  alt: string;
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  piezas: Pieza[];
+  /** La medida de la pieza 01; la misma que precarga la página. */
+  sizesCabeza: string;
+}
+
+const { proyecto, piezas, sizesCabeza } = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+// Sofía Maximalista va decorada hasta el tope, así que el reparto de chispas del fondo
+// se calcula aquí con una semilla fija: el mismo build da siempre el mismo
+// confeti y nada de esto se decide en el cliente.
+const TONOS = ['--s-fucsia', '--s-turquesa', '--s-violeta', '--s-oro', '--s-chicle', '--s-lila'];
+const FORMAS = ['estrella', 'lenteja', 'rombo', 'estrella'];
+
+const dado = (() => {
+  let semilla = 26082026;
+  return () => ((semilla = (semilla * 1664525 + 1013904223) % 4294967296) / 4294967296);
+})();
+
+const chispas = Array.from({ length: 54 }, () => ({
+  x: +(dado() * 100).toFixed(2),
+  y: +(dado() * 100).toFixed(2),
+  s: +(0.35 + dado() * 1.75).toFixed(2),
+  r: Math.round(dado() * 360),
+  d: +(dado() * 7).toFixed(2),
+  tono: TONOS[Math.floor(dado() * TONOS.length)],
+  forma: FORMAS[Math.floor(dado() * FORMAS.length)],
+}));
+
+// Fecha de la sesión. Vive aquí y no en el frontmatter porque el esquema de
+// `projects` no tiene campo para ella: `publishedAt` es cuándo se publicó, no
+// cuándo se fotografió. Si algún día se agrega al esquema, esto se va.
+const FECHA_ROLLO = '26.08.2026';
+
+// Todo el texto suelto de la hoja sale de aquí: lugar, año, código, fecha y
+// cuenta. Nada de adjetivos — las palabras del rollo se dicen una sola vez, en
+// el markdown, y no se repiten alrededor de las fotos.
+const datosRollo = [
+  data.photosPrefix,
+  oficio[data.type],
+  ...(data.location ? [data.location.toLowerCase()] : []),
+  FECHA_ROLLO,
+  `${data.photoCount} piezas`,
+];
+const anteTitulo = [oficio[data.type], data.location?.toLowerCase(), String(data.year)]
+  .filter(Boolean)
+  .join(' · ');
+const bajoTitulo = `rollo ${data.photosPrefix} · ${data.photoCount} piezas`;
+const registroPortada = `${FECHA_ROLLO} · 01/${data.photoCount}`;
+// la banda es un bucle: se repite el mismo tramo dos veces para que empalme.
+// el espacio del final va duro, si no el navegador lo tira y los tramos se pegan
+const cintaRollo = `${datosRollo.join(' ★ ')} ★\u00a0`;
+
+// Rellenos de la secuencia. Cada uno tiene su celda propia en la retícula, así
+// que ocupan el hueco que ninguna lámina usa y jamás caen encima de una foto.
+const notas: { tras: number; clase: string; texto?: string }[] = [
+  { tras: 2, clase: 'sofia-nota--n1', texto: `${data.photosPrefix} · ${data.year}` },
+  { tras: 2, clase: 'sofia-nota--n2' },
+  { tras: 5, clase: 'sofia-nota--n3' },
+  { tras: 6, clase: 'sofia-nota--n4' },
+  { tras: 9, clase: 'sofia-nota--n5', texto: FECHA_ROLLO },
+  { tras: 9, clase: 'sofia-nota--n6', texto: `${data.photoCount} piezas` },
+];
+---
+
+  {/* El vergo de glitter: capas fijas, detrás de todo. Ninguna toca una foto. */}
+  <div class="sofia-fondo" aria-hidden="true">
+    <span class="sofia-capa sofia-capa--aurora"></span>
+    <span class="sofia-capa sofia-capa--polvo"></span>
+    <span class="sofia-capa sofia-capa--lentejuela"></span>
+    <span class="sofia-capa sofia-capa--estrellas"></span>
+    <span class="sofia-capa sofia-capa--holo"></span>
+  </div>
+
+  <section class="sofia-apertura" aria-labelledby="sofia-titulo">
+    <span class="sofia-guirnalda" aria-hidden="true"></span>
+
+    <div class="sofia-rotulo">
+      <p class="sofia-antetitulo" data-nosnippet aria-hidden="true">{anteTitulo}</p>
+      <h1 class="sofia-titulo" id="sofia-titulo">
+        <span class="sofia-titulo-eco" aria-hidden="true">{data.title}</span>
+        <span class="sofia-titulo-cara">{data.title}</span>
+      </h1>
+      <p class="sofia-lema" data-nosnippet>{bajoTitulo}</p>
+    </div>
+
+    <div class="sofia-marco">
+      <span class="sofia-cinta-adhesiva" aria-hidden="true"></span>
+      <span class="sofia-esquina sofia-esquina--ne" aria-hidden="true"></span>
+      <span class="sofia-esquina sofia-esquina--no" aria-hidden="true"></span>
+      <span class="sofia-esquina sofia-esquina--se" aria-hidden="true"></span>
+      <span class="sofia-esquina sofia-esquina--so" aria-hidden="true"></span>
+
+      <div class="sofia-passe">
+        <button
+          type="button"
+          class="sofia-portada"
+          data-lupa-src={piezas[0].src}
+          data-lupa-alt={piezas[0].alt}
+          aria-label={`Abrir ${piezas[0].alt} a pantalla completa`}
+        >
+          <img
+            src={piezas[0].src}
+            srcset={piezas[0].conjunto}
+            sizes={sizesCabeza}
+            alt={piezas[0].alt}
+            width={piezas[0].w}
+            height={piezas[0].h}
+            loading="eager"
+            decoding="async"
+            fetchpriority="high"
+          />
+        </button>
+      </div>
+    </div>
+
+    <p class="sofia-portada-registro"><span data-nosnippet>{registroPortada}</span></p>
+    <span class="sofia-guirnalda sofia-guirnalda--baja" aria-hidden="true"></span>
+  </section>
+
+  <div class="sofia-marquesina" aria-hidden="true" data-nosnippet>
+    <div class="sofia-marquesina-pista">
+      <span>{cintaRollo}</span>
+      <span>{cintaRollo}</span>
+    </div>
+  </div>
+
+  <section class="sofia-ficha" aria-label="Ficha del rollo">
+    <div class="sofia-ficha-voz">
+      <span class="sofia-racimo" aria-hidden="true"></span>
+      <div class="voz"><Content /></div>
+    </div>
+
+    <dl class="registro micro">
+      <div data-nosnippet><dt>rollo</dt> <dd>{data.photosPrefix}</dd></div>
+      <div data-nosnippet><dt>oficio</dt> <dd>{oficio[data.type]}</dd></div>
+      <div data-nosnippet><dt>año</dt> <dd>{data.year}</dd></div>
+      <div data-nosnippet><dt>piezas</dt> <dd>{data.photoCount}</dd></div>
+    </dl>
+  </section>
+
+  <section class="sofia-secuencia" aria-labelledby="sofia-secuencia-titulo">
+    <h2 class="fuera" id="sofia-secuencia-titulo">Secuencia completa</h2>
+
+    {/* Confeti del fondo: va debajo de las láminas, nunca sobre ellas. */}
+    <div class="sofia-confeti" aria-hidden="true">
+      {chispas.map((chispa) => (
+        <span
+          class:list={['sofia-chispa', `sofia-chispa--${chispa.forma}`]}
+          style={`--x:${chispa.x};--y:${chispa.y};--s:${chispa.s};--r:${chispa.r};--d:${chispa.d};--c:var(${chispa.tono})`}
+        ></span>
+      ))}
+    </div>
+
+    {piezas.slice(1).map((pieza, i) => (
+      <>
+        <figure class="sofia-lamina">
+          <div class="sofia-marco sofia-marco--lamina">
+            <span class="sofia-esquina sofia-esquina--no" aria-hidden="true"></span>
+            <span class="sofia-esquina sofia-esquina--se" aria-hidden="true"></span>
+
+            <div class="sofia-passe">
+              <button
+                type="button"
+                class="sofia-foto"
+                data-lupa-src={pieza.src}
+                data-lupa-alt={pieza.alt}
+                aria-label={`Abrir ${pieza.alt} a pantalla completa`}
+              >
+                <img
+                  src={pieza.src}
+                  srcset={pieza.conjunto}
+                  sizes="(max-width: 39.99rem) 90vw, 60vw"
+                  alt={pieza.alt}
+                  width={pieza.w}
+                  height={pieza.h}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </button>
+            </div>
+          </div>
+
+          <figcaption>
+            <span data-nosnippet>{data.photosPrefix} {pieza.nn}</span>
+            <span data-nosnippet>{pieza.nn}/{data.photoCount}</span>
+          </figcaption>
+        </figure>
+
+        {notas
+          .filter((nota) => nota.tras === i + 1)
+          .map((nota) => (
+            <div class:list={['sofia-nota', nota.clase]} aria-hidden="true" data-nosnippet>
+              {nota.texto && <span class="sofia-nota-texto">{nota.texto}</span>}
+            </div>
+          ))}
+      </>
+    ))}
+  </section>
