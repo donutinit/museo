@@ -1,0 +1,63 @@
+---
+import CintaPlayer from './CintaPlayer.astro';
+
+const estados = [
+  'default',
+  'hover',
+  'focus',
+  'active',
+  'disabled',
+  'loading',
+  'error',
+  'success',
+] as const;
+---
+
+<section class="preview" aria-label="CintaPlayer — ocho estados">
+  <h1>CintaPlayer — ocho estados</h1>
+  {estados.map((estado) => (
+    <figure>
+      <figcaption>{estado}</figcaption>
+      <CintaPlayer
+        slug={`preview-${estado}`}
+        title="cinta de prueba"
+        src="/media/videos/entrevista-yolanda-web-20260907.mp4"
+        poster="/media/video-posters/entrevista-yolanda.jpg"
+        captions="/captions/entrevista-yolanda.vtt"
+        durationLabel="00:53"
+        aspect="16/9"
+        previewState={estado}
+      />
+    </figure>
+  ))}
+</section>
+
+<style>
+  /* Hallmark · preview: CintaPlayer · states: 8 */
+  .preview {
+    display: grid;
+    gap: var(--space-xl);
+    padding: var(--space-xl);
+    color: var(--papel);
+    background: var(--fondo);
+    font-family: var(--f-edge);
+  }
+
+  .preview h1 {
+    font-family: var(--f-edge);
+    font-size: var(--text-lg);
+    font-style: normal;
+  }
+
+  .preview figure {
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  .preview figcaption {
+    color: var(--polvo);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+</style>

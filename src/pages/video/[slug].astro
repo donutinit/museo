@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import CintaPlayer from '../../components/CintaPlayer.astro';
 import { cintasPorFecha, kindLabel, subtitulosDe } from '../../data/videos';
 import { media, medidaDe } from '../../lib/media';
 import { medidaCinta } from '../../lib/archivo';
@@ -42,21 +43,18 @@ const esquema = grafo(
   imageWidth={pw}
   imageHeight={ph}
   imageAlt={`${cinta.title} — ${oficio}, ${cinta.year}`}
+  precargar={cinta.poster}
 >
   <main class="contenedor rollo" id="hoja">
-    <div class="visor" style={`--cuadro-aspect: ${cinta.aspect};`}>
-      <video controls playsinline preload="none" poster={media(cinta.poster)}>
-        <source src={media(cinta.src)} type="video/mp4" />
-        <track
-          kind="captions"
-          src={subtitulosDe(cinta.slug)}
-          srclang="es"
-          label="Español"
-          default
-        />
-        Tu navegador no puede reproducir esta cinta.
-      </video>
-    </div>
+    <CintaPlayer
+      slug={cinta.slug}
+      title={cinta.title}
+      src={media(cinta.src)}
+      poster={media(cinta.poster)}
+      captions={subtitulosDe(cinta.slug)}
+      durationLabel={cinta.durationLabel}
+      aspect={cinta.aspect}
+    />
 
     <header class="rollo-cab rollo-cab--cinta">
       <div>

@@ -1,0 +1,963 @@
+---
+type Aspecto = '9/16' | '16/9' | '4/3';
+type EstadoPreview =
+  | 'default'
+  | 'hover'
+  | 'focus'
+  | 'active'
+  | 'disabled'
+  | 'loading'
+  | 'error'
+  | 'success';
+
+interface Props {
+  slug: string;
+  title: string;
+  src: string;
+  poster: string;
+  captions: string;
+  durationLabel: string;
+  aspect: Aspecto;
+  previewState?: EstadoPreview;
+}
+
+const {
+  slug,
+  title,
+  src,
+  poster,
+  captions,
+  durationLabel,
+  aspect,
+  previewState,
+} = Astro.props;
+
+const razones: Record<Aspecto, number> = {
+  '9/16': 9 / 16,
+  '16/9': 16 / 9,
+  '4/3': 4 / 3,
+};
+
+const estado = previewState === 'loading'
+  ? 'loading'
+  : previewState === 'error'
+    ? 'error'
+    : previewState === 'success'
+      ? 'ended'
+      : 'idle';
+
+const clasePreview = previewState && ['hover', 'focus', 'active', 'disabled'].includes(previewState)
+  ? `is-${previewState}`
+  : undefined;
+
+const llamada = estado === 'loading'
+  ? 'cargando cinta'
+  : estado === 'error'
+    ? 'intentar de nuevo'
+    : estado === 'ended'
+      ? 'volver a correr'
+      : 'correr cinta';
+
+const detalle = estado === 'error'
+  ? 'la cinta no cargó'
+  : estado === 'ended'
+    ? 'fin de cinta'
+    : durationLabel;
+
+const desactivado = previewState === 'disabled';
+const visto = previewState === 'success' ? 1 : 0;
+const controlId = `cinta-avance-${slug}`;
+---
+
+<div
+  class:list={['cinta-player', clasePreview]}
+  data-cinta-player
+  data-state={estado}
+  data-controls="visible"
+  data-sonido="on"
+  data-texto="on"
+  data-preview={previewState ? 'true' : undefined}
+  data-enhanced={previewState ? 'true' : undefined}
+  style={`--cinta-aspect: ${aspect}; --cinta-razon: ${razones[aspect]}; --visto: ${visto}; --cargado: ${visto};`}
+>
+  <video
+    class="cinta-player__video"
+    controls={!previewState}
+    playsinline
+    preload="none"
+    poster={poster}
+    aria-label={`Cinta: ${title}`}
+  >
+    <source src={src} type="video/mp4" />
+    <track
+      kind="captions"
+      src={captions}
+      srclang="es"
+      label="Español"
+      default
+    />
+    Tu navegador no puede reproducir esta cinta.
+  </video>
+
+  <button
+    class="cinta-player__lienzo"
+    type="button"
+    data-player-lienzo
+    aria-label={`Reproducir ${title}`}
+    aria-keyshortcuts="Space Enter K M C F ArrowLeft ArrowRight"
+    disabled={desactivado}
+  >
+    <span class="cinta-player__llamada" aria-hidden="true">
+      <svg class="cinta-player__llamada-icono" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M6 3.75 16 10 6 16.25Z" />
+      </svg>
+      <span class="cinta-player__llamada-texto" data-player-llamada>{llamada}</span>
+      <span class="cinta-player__llamada-detalle" data-player-detalle>{detalle}</span>
+    </span>
+  </button>
+
+  <div class="cinta-player__velo" aria-hidden="true"></div>
+
+  <div class="cinta-player__mandos" role="group" aria-label={`Controles de ${title}`}>
+    <div class="cinta-player__avance">
+      <span class="cinta-player__riel" aria-hidden="true">
+        <span class="cinta-player__cargado"></span>
+        <span class="cinta-player__visto"></span>
+      </span>
+      <input
+        id={controlId}
+        class="cinta-player__rango"
+        type="range"
+        min="0"
+        max="1000"
+        step="1"
+        value={previewState === 'success' ? '1000' : '0'}
+        aria-label="Posición de la cinta"
+        aria-valuetext={`00:00 de ${durationLabel}`}
+        disabled={!previewState || desactivado}
+        data-player-rango
+      />
+    </div>
+
+    <div class="cinta-player__transporte">
+      <button
+        class="cinta-player__mando cinta-player__mando--principal"
+        type="button"
+        data-player-toggle
+        aria-label={`Reproducir ${title}`}
+        disabled={desactivado}
+      >
+        <svg class="cinta-player__icono cinta-player__icono--reproducir" viewBox="0 0 20 20" aria-hidden="true">
+          <path class="cinta-player__icono-play" d="M6 3.75 16 10 6 16.25Z" />
+          <path class="cinta-player__icono-pausa" d="M5.5 4h3v12h-3zM11.5 4h3v12h-3z" />
+        </svg>
+        <span class="cinta-player__mando-palabra" data-player-toggle-label>{estado === 'ended' ? 'otra vez' : 'correr'}</span>
+      </button>
+
+      <output class="cinta-player__tiempo" for={controlId} aria-label="Tiempo de reproducción">
+        <span data-player-actual>{previewState === 'success' ? durationLabel : '00:00'}</span>
+        <span aria-hidden="true">/</span>
+        <span data-player-duracion>{durationLabel}</span>
+      </output>
+
+      <div class="cinta-player__acciones">
+        <button
+          class="cinta-player__mando"
+          type="button"
+          data-player-sonido
+          aria-label="Silenciar"
+          aria-pressed="true"
+          disabled={desactivado}
+        >
+          <svg class="cinta-player__icono" viewBox="0 0 20 20" aria-hidden="true">
+            <path class="cinta-player__trazo" d="M3.5 8h3L10.5 4v12l-4-4h-3zM13 7a4 4 0 0 1 0 6M15 4.75a7 7 0 0 1 0 10.5" />
+            <path class="cinta-player__trazo cinta-player__icono-mudo" d="m13.5 7.5 4 5m0-5-4 5" />
+          </svg>
+          <span class="cinta-player__mando-palabra">sonido</span>
+          <span class="cinta-player__estado-punto" aria-hidden="true"></span>
+        </button>
+
+        <button
+          class="cinta-player__mando"
+          type="button"
+          data-player-texto
+          aria-label="Ocultar subtítulos"
+          aria-pressed="true"
+          disabled={desactivado}
+        >
+          <span class="cinta-player__cc" aria-hidden="true">cc</span>
+          <span class="cinta-player__mando-palabra">texto</span>
+          <span class="cinta-player__estado-punto" aria-hidden="true"></span>
+        </button>
+
+        <button
+          class="cinta-player__mando"
+          type="button"
+          data-player-pantalla
+          aria-label="Abrir pantalla completa"
+          aria-pressed="false"
+          disabled={desactivado}
+        >
+          <svg class="cinta-player__icono" viewBox="0 0 20 20" aria-hidden="true">
+            <path class="cinta-player__trazo" d="M3.5 8V3.5H8M12 3.5h4.5V8M16.5 12v4.5H12M8 16.5H3.5V12" />
+          </svg>
+          <span class="cinta-player__mando-palabra" data-player-pantalla-label>pantalla</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <p class="fuera" aria-live="polite" data-player-live></p>
+</div>
+
+<script>
+  const CONTROL_IDLE_MS = 2500;
+
+  type VideoPantalla = HTMLVideoElement & {
+    webkitEnterFullscreen?: () => void;
+  };
+
+  const formatoTiempo = (segundos: number) => {
+    if (!Number.isFinite(segundos) || segundos < 0) return '00:00';
+    const entero = Math.floor(segundos);
+    const horas = Math.floor(entero / 3600);
+    const minutos = Math.floor((entero % 3600) / 60);
+    const segundosRestantes = entero % 60;
+    return horas > 0
+      ? `${horas}:${String(minutos).padStart(2, '0')}:${String(segundosRestantes).padStart(2, '0')}`
+      : `${String(minutos).padStart(2, '0')}:${String(segundosRestantes).padStart(2, '0')}`;
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-cinta-player]').forEach((player) => {
+    if (player.dataset.preview === 'true' || player.dataset.iniciado === 'true') return;
+
+    const video = player.querySelector<VideoPantalla>('video');
+    const lienzo = player.querySelector<HTMLButtonElement>('[data-player-lienzo]');
+    const toggle = player.querySelector<HTMLButtonElement>('[data-player-toggle]');
+    const toggleLabel = player.querySelector<HTMLElement>('[data-player-toggle-label]');
+    const rango = player.querySelector<HTMLInputElement>('[data-player-rango]');
+    const actual = player.querySelector<HTMLElement>('[data-player-actual]');
+    const duracion = player.querySelector<HTMLElement>('[data-player-duracion]');
+    const llamada = player.querySelector<HTMLElement>('[data-player-llamada]');
+    const detalle = player.querySelector<HTMLElement>('[data-player-detalle]');
+    const sonido = player.querySelector<HTMLButtonElement>('[data-player-sonido]');
+    const texto = player.querySelector<HTMLButtonElement>('[data-player-texto]');
+    const pantalla = player.querySelector<HTMLButtonElement>('[data-player-pantalla]');
+    const pantallaLabel = player.querySelector<HTMLElement>('[data-player-pantalla-label]');
+    const mandos = player.querySelector<HTMLElement>('.cinta-player__mandos');
+    const vivo = player.querySelector<HTMLElement>('[data-player-live]');
+    const pista = video?.textTracks[0];
+
+    if (
+      !video || !lienzo || !toggle || !toggleLabel || !rango || !actual ||
+      !duracion || !llamada || !detalle || !sonido || !texto || !pantalla ||
+      !pantallaLabel || !mandos || !vivo
+    ) return;
+
+    let ocultarMandos = 0;
+    let cuadro = 0;
+    let segundoPintado = -1;
+
+    const anunciar = (mensaje: string) => { vivo.textContent = mensaje; };
+
+    const mostrarMandos = (ocultarDespues = false) => {
+      window.clearTimeout(ocultarMandos);
+      player.dataset.controls = 'visible';
+      if (ocultarDespues && player.dataset.state === 'playing') {
+        ocultarMandos = window.setTimeout(() => {
+          if (!player.matches(':focus-within')) player.dataset.controls = 'hidden';
+        }, CONTROL_IDLE_MS);
+      }
+    };
+
+    const pintarSonido = () => {
+      const prendido = !video.muted && video.volume > 0;
+      player.dataset.sonido = prendido ? 'on' : 'off';
+      sonido.ariaPressed = String(prendido);
+      sonido.ariaLabel = prendido ? 'Silenciar' : 'Activar sonido';
+    };
+
+    const pintarTexto = () => {
+      const prendido = pista?.mode === 'showing';
+      player.dataset.texto = prendido ? 'on' : 'off';
+      texto.ariaPressed = String(prendido);
+      texto.ariaLabel = prendido ? 'Ocultar subtítulos' : 'Mostrar subtítulos';
+      texto.disabled = !pista;
+    };
+
+    const pintarPantalla = () => {
+      const prendida = document.fullscreenElement === player;
+      pantalla.ariaPressed = String(prendida);
+      pantalla.ariaLabel = prendida ? 'Salir de pantalla completa' : 'Abrir pantalla completa';
+      pantallaLabel.textContent = prendida ? 'salir' : 'pantalla';
+    };
+
+    const pintarCarga = () => {
+      if (!video.duration || video.buffered.length === 0) {
+        player.style.setProperty('--cargado', '0');
+        return;
+      }
+
+      let final = 0;
+      for (let i = 0; i < video.buffered.length; i += 1) {
+        if (video.buffered.start(i) <= video.currentTime) final = video.buffered.end(i);
+      }
+      player.style.setProperty('--cargado', String(Math.min(final / video.duration, 1)));
+    };
+
+    const pintarTiempo = () => {
+      const total = video.duration;
+      const corre = Number.isFinite(total) && total > 0;
+      const progreso = corre ? Math.min(video.currentTime / total, 1) : 0;
+      const segundo = Math.floor(video.currentTime);
+
+      player.style.setProperty('--visto', String(progreso));
+      rango.value = String(Math.round(progreso * 1000));
+
+      if (segundo !== segundoPintado) {
+        const tiempoActual = formatoTiempo(video.currentTime);
+        const tiempoTotal = corre ? formatoTiempo(total) : duracion.textContent || '00:00';
+        actual.textContent = tiempoActual;
+        if (corre) duracion.textContent = tiempoTotal;
+        rango.ariaValueText = `${tiempoActual} de ${tiempoTotal}`;
+        segundoPintado = segundo;
+      }
+    };
+
+    const seguirTiempo = () => {
+      window.cancelAnimationFrame(cuadro);
+      const paso = () => {
+        pintarTiempo();
+        if (!video.paused && !video.ended) cuadro = window.requestAnimationFrame(paso);
+      };
+      cuadro = window.requestAnimationFrame(paso);
+    };
+
+    const ponerEstado = (estado: 'idle' | 'loading' | 'playing' | 'paused' | 'ended' | 'error') => {
+      player.dataset.state = estado;
+      player.ariaBusy = estado === 'loading' ? 'true' : 'false';
+
+      if (estado === 'playing') {
+        toggleLabel.textContent = 'pausa';
+        toggle.ariaLabel = 'Pausar cinta';
+        lienzo.ariaLabel = 'Pausar cinta';
+        mostrarMandos(true);
+        return;
+      }
+
+      mostrarMandos();
+
+      if (estado === 'loading') {
+        llamada.textContent = 'cargando cinta';
+        detalle.textContent = 'espera';
+        toggleLabel.textContent = 'pausa';
+        toggle.ariaLabel = 'Pausar carga';
+        lienzo.ariaLabel = 'Pausar carga';
+      } else if (estado === 'paused') {
+        llamada.textContent = 'seguir cinta';
+        detalle.textContent = `${formatoTiempo(video.currentTime)} / ${duracion.textContent || '00:00'}`;
+        toggleLabel.textContent = 'correr';
+        toggle.ariaLabel = 'Reproducir cinta';
+        lienzo.ariaLabel = 'Reproducir cinta';
+      } else if (estado === 'ended') {
+        llamada.textContent = 'volver a correr';
+        detalle.textContent = 'fin de cinta';
+        toggleLabel.textContent = 'otra vez';
+        toggle.ariaLabel = 'Reproducir de nuevo';
+        lienzo.ariaLabel = 'Reproducir de nuevo';
+        anunciar('Fin de cinta.');
+      } else if (estado === 'error') {
+        llamada.textContent = 'intentar de nuevo';
+        detalle.textContent = 'la cinta no cargó';
+        toggleLabel.textContent = 'reintentar';
+        toggle.ariaLabel = 'Intentar cargar la cinta de nuevo';
+        lienzo.ariaLabel = 'Intentar cargar la cinta de nuevo';
+        anunciar('La cinta no cargó. Intenta de nuevo.');
+      } else {
+        llamada.textContent = 'correr cinta';
+        toggleLabel.textContent = 'correr';
+      }
+    };
+
+    const alternar = async () => {
+      if (!video.paused && !video.ended) {
+        video.pause();
+        return;
+      }
+
+      if (video.ended || player.dataset.state === 'error') {
+        video.currentTime = 0;
+        if (player.dataset.state === 'error') video.load();
+      }
+
+      ponerEstado('loading');
+      try {
+        await video.play();
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        ponerEstado('error');
+      }
+    };
+
+    const alternarSonido = () => {
+      video.muted = !video.muted;
+      if (!video.muted && video.volume === 0) video.volume = 1;
+      pintarSonido();
+      anunciar(video.muted ? 'Sonido apagado.' : 'Sonido encendido.');
+      mostrarMandos(true);
+    };
+
+    const alternarTexto = () => {
+      if (!pista) return;
+      pista.mode = pista.mode === 'showing' ? 'disabled' : 'showing';
+      pintarTexto();
+      anunciar(pista.mode === 'showing' ? 'Subtítulos encendidos.' : 'Subtítulos apagados.');
+      mostrarMandos(true);
+    };
+
+    const alternarPantalla = async () => {
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else if (player.requestFullscreen) {
+          await player.requestFullscreen();
+        } else {
+          video.webkitEnterFullscreen?.();
+        }
+      } catch {
+        anunciar('No se pudo abrir pantalla completa.');
+      }
+      pintarPantalla();
+      mostrarMandos(true);
+    };
+
+    lienzo.addEventListener('click', () => {
+      const tactil = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+      if (tactil && player.dataset.state === 'playing' && player.dataset.controls === 'hidden') {
+        mostrarMandos(true);
+        return;
+      }
+      void alternar();
+    });
+    toggle.addEventListener('click', () => void alternar());
+    sonido.addEventListener('click', alternarSonido);
+    texto.addEventListener('click', alternarTexto);
+    pantalla.addEventListener('click', () => void alternarPantalla());
+
+    lienzo.addEventListener('keydown', (evento) => {
+      const tecla = evento.key.toLowerCase();
+      if (tecla === 'k') {
+        evento.preventDefault();
+        void alternar();
+      } else if (tecla === 'm') {
+        evento.preventDefault();
+        alternarSonido();
+      } else if (tecla === 'c') {
+        evento.preventDefault();
+        alternarTexto();
+      } else if (tecla === 'f') {
+        evento.preventDefault();
+        void alternarPantalla();
+      } else if ((evento.key === 'ArrowLeft' || evento.key === 'ArrowRight') && Number.isFinite(video.duration)) {
+        evento.preventDefault();
+        const salto = evento.key === 'ArrowLeft' ? -5 : 5;
+        video.currentTime = Math.min(Math.max(video.currentTime + salto, 0), video.duration);
+        pintarTiempo();
+      }
+    });
+
+    rango.addEventListener('input', () => {
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+      video.currentTime = (Number(rango.value) / 1000) * video.duration;
+      pintarTiempo();
+      mostrarMandos(true);
+    });
+    rango.addEventListener('pointerdown', () => mostrarMandos());
+    rango.addEventListener('pointerup', () => mostrarMandos(true));
+
+    video.addEventListener('loadedmetadata', () => {
+      rango.disabled = false;
+      duracion.textContent = formatoTiempo(video.duration);
+      pista && (pista.mode = 'showing');
+      pintarTiempo();
+      pintarCarga();
+      pintarTexto();
+    });
+    video.addEventListener('waiting', () => ponerEstado('loading'));
+    video.addEventListener('playing', () => {
+      ponerEstado('playing');
+      seguirTiempo();
+    });
+    video.addEventListener('pause', () => {
+      window.cancelAnimationFrame(cuadro);
+      if (!video.ended && player.dataset.state !== 'error') ponerEstado('paused');
+    });
+    video.addEventListener('ended', () => {
+      window.cancelAnimationFrame(cuadro);
+      pintarTiempo();
+      ponerEstado('ended');
+    });
+    video.addEventListener('error', () => ponerEstado('error'));
+    video.addEventListener('progress', pintarCarga);
+    video.addEventListener('volumechange', pintarSonido);
+    video.addEventListener('seeking', pintarTiempo);
+
+    player.addEventListener('pointermove', () => mostrarMandos(true));
+    mandos.addEventListener('pointerenter', () => mostrarMandos());
+    mandos.addEventListener('pointerleave', () => mostrarMandos(true));
+    player.addEventListener('focusin', () => mostrarMandos());
+    player.addEventListener('focusout', (evento) => {
+      if (!(evento.relatedTarget instanceof Node) || !player.contains(evento.relatedTarget)) {
+        mostrarMandos(true);
+      }
+    });
+
+    document.addEventListener('fullscreenchange', pintarPantalla);
+    video.addEventListener('webkitbeginfullscreen', pintarPantalla);
+    video.addEventListener('webkitendfullscreen', pintarPantalla);
+
+    pista && (pista.mode = 'showing');
+    video.controls = false;
+    player.dataset.iniciado = 'true';
+    player.dataset.enhanced = 'true';
+    pintarSonido();
+    pintarTexto();
+    pintarPantalla();
+  });
+</script>
+
+<style>
+  /* Hallmark · component: video-player · genre: atmospheric · theme: museo
+   * states: default · hover · focus · active · disabled · loading · error · success
+   * contrast: pass (40–41) · mobile: pass (34, 49–57)
+   */
+  /* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4 */
+
+  .cinta-player {
+    position: relative;
+    isolation: isolate;
+    width: min(100%, calc(82svh * var(--cinta-razon)));
+    aspect-ratio: var(--cinta-aspect);
+    max-height: 82svh;
+    margin-block-start: clamp(var(--space-lg), 6vh, var(--space-2xl));
+    margin-inline: auto;
+    overflow: clip;
+    container-type: inline-size;
+    color: var(--papel);
+    background: var(--color-video);
+    border: var(--rule-hair) solid var(--linea);
+  }
+
+  .cinta-player__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    background: var(--color-video);
+  }
+
+  .cinta-player__video::cue {
+    color: var(--papel);
+    background: color-mix(in oklab, var(--fondo) 88%, transparent);
+    font-family: var(--f-edge);
+  }
+
+  .cinta-player__lienzo {
+    position: absolute;
+    z-index: var(--z-base);
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center start;
+    padding-inline: clamp(var(--space-md), 6cqi, var(--space-2xl));
+  }
+
+  .cinta-player__lienzo:focus-visible,
+  .cinta-player.is-focus .cinta-player__lienzo {
+    outline: var(--rule-focus) solid var(--ambar);
+    outline-offset: calc(var(--rule-focus) * -1);
+    box-shadow: inset 0 0 0 calc(var(--rule-focus) * 2) var(--fondo);
+  }
+
+  .cinta-player__llamada {
+    display: grid;
+    grid-template-areas:
+      "icono llamada"
+      "icono detalle";
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    justify-items: start;
+    gap: var(--space-2xs) var(--space-sm);
+    padding: var(--space-md) var(--space-lg);
+    color: var(--papel);
+    background: var(--fondo);
+    font-family: var(--f-edge);
+    transition:
+      opacity var(--dur-short) var(--ease-out),
+      transform var(--dur-short) var(--ease-out);
+  }
+
+  .cinta-player__llamada-icono {
+    grid-area: icono;
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: currentColor;
+  }
+
+  .cinta-player__llamada-texto {
+    grid-area: llamada;
+    font-size: var(--text-sm);
+    font-stretch: 72%;
+    font-weight: 600;
+    letter-spacing: 0.055em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .cinta-player__llamada-detalle {
+    grid-area: detalle;
+    color: var(--polvo);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .cinta-player[data-state="playing"] .cinta-player__llamada {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  .cinta-player[data-state="loading"] .cinta-player__llamada-icono {
+    opacity: 0.45;
+  }
+
+  .cinta-player[data-state="error"] {
+    border-color: var(--grasa);
+  }
+
+  .cinta-player[data-state="error"] .cinta-player__llamada-icono {
+    color: var(--grasa);
+  }
+
+  .cinta-player__velo {
+    position: absolute;
+    z-index: var(--z-base);
+    inset: auto 0 0;
+    height: clamp(6.5rem, 28%, 10rem);
+    pointer-events: none;
+    background: linear-gradient(
+      to top,
+      color-mix(in oklab, var(--fondo) 94%, transparent),
+      transparent
+    );
+    transition: opacity var(--dur-short) var(--ease-out);
+  }
+
+  .cinta-player__mandos {
+    position: absolute;
+    z-index: var(--z-raised);
+    inset: auto 0 0;
+    display: grid;
+    gap: var(--space-2xs);
+    padding: var(--space-xs) var(--space-sm) max(var(--space-xs), env(safe-area-inset-bottom));
+    transition:
+      opacity var(--dur-short) var(--ease-out),
+      transform var(--dur-short) var(--ease-out);
+  }
+
+  .cinta-player[data-state="playing"][data-controls="hidden"] .cinta-player__mandos,
+  .cinta-player[data-state="playing"][data-controls="hidden"] .cinta-player__velo {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cinta-player[data-state="playing"][data-controls="hidden"] .cinta-player__mandos {
+    transform: translateY(var(--space-xs));
+  }
+
+  .cinta-player__avance {
+    position: relative;
+    height: 2.75rem;
+  }
+
+  .cinta-player__riel {
+    position: absolute;
+    inset: 50% 0 auto;
+    height: var(--rule-hair);
+    overflow: visible;
+    background: color-mix(in oklab, var(--papel) 24%, transparent);
+  }
+
+  .cinta-player__cargado,
+  .cinta-player__visto {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+  }
+
+  .cinta-player__cargado {
+    background: color-mix(in oklab, var(--papel) 52%, transparent);
+    transform: scaleX(var(--cargado));
+  }
+
+  .cinta-player__visto {
+    background: var(--ambar);
+    transform: scaleX(var(--visto));
+  }
+
+  .cinta-player__rango {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 2.75rem;
+    margin: 0;
+    appearance: none;
+    color: var(--ambar);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .cinta-player__rango::-webkit-slider-runnable-track {
+    height: 2.75rem;
+    background: transparent;
+  }
+
+  .cinta-player__rango::-moz-range-track {
+    height: 2.75rem;
+    background: transparent;
+  }
+
+  .cinta-player__rango::-webkit-slider-thumb {
+    width: var(--space-sm);
+    height: var(--space-sm);
+    margin-block-start: calc((2.75rem - var(--space-sm)) / 2);
+    appearance: none;
+    background: var(--ambar);
+    border: 0;
+    border-radius: var(--radius-none);
+  }
+
+  .cinta-player__rango::-moz-range-thumb {
+    width: var(--space-sm);
+    height: var(--space-sm);
+    background: var(--ambar);
+    border: 0;
+    border-radius: var(--radius-none);
+  }
+
+  .cinta-player__rango:focus-visible {
+    outline: var(--rule-focus) solid var(--ambar);
+    outline-offset: 0;
+  }
+
+  .cinta-player__rango:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .cinta-player__transporte {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .cinta-player__mando {
+    display: inline-flex;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    padding-inline: var(--space-xs);
+    color: var(--polvo);
+    font-family: var(--f-edge);
+    font-size: var(--text-xs);
+    font-stretch: 72%;
+    font-weight: 500;
+    letter-spacing: 0.045em;
+    line-height: 1;
+    white-space: nowrap;
+    transition:
+      color var(--dur-micro) var(--ease-out),
+      transform var(--dur-micro) var(--ease-out);
+  }
+
+  .cinta-player__mando--principal {
+    color: var(--papel);
+  }
+
+  .cinta-player__mando-palabra {
+    color: var(--papel);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cinta-player__mando:hover,
+    .cinta-player.is-hover .cinta-player__mando--principal {
+      color: var(--papel);
+    }
+  }
+
+  .cinta-player__mando:focus-visible {
+    outline: var(--rule-focus) solid var(--ambar);
+    outline-offset: 0;
+  }
+
+  .cinta-player__mando:active,
+  .cinta-player.is-active .cinta-player__mando--principal {
+    transform: translateY(1px);
+  }
+
+  .cinta-player__mando:disabled,
+  .cinta-player.is-disabled .cinta-player__mando {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .cinta-player__icono {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+    fill: currentColor;
+  }
+
+  .cinta-player__trazo {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    stroke-width: 1.35;
+  }
+
+  .cinta-player__icono-pausa,
+  .cinta-player__icono-mudo {
+    display: none;
+  }
+
+  .cinta-player:is([data-state="playing"], [data-state="loading"]) .cinta-player__icono-play {
+    display: none;
+  }
+
+  .cinta-player:is([data-state="playing"], [data-state="loading"]) .cinta-player__icono-pausa,
+  .cinta-player[data-sonido="off"] .cinta-player__icono-mudo {
+    display: block;
+  }
+
+  .cinta-player__tiempo {
+    display: inline-flex;
+    gap: var(--space-2xs);
+    color: var(--papel);
+    font-family: var(--f-edge);
+    font-size: var(--text-xs);
+    font-stretch: 76%;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.025em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .cinta-player__acciones {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    margin-inline-start: auto;
+  }
+
+  .cinta-player__estado-punto {
+    width: var(--space-2xs);
+    height: var(--space-2xs);
+    flex: 0 0 auto;
+    background: var(--polvo);
+  }
+
+  .cinta-player[data-sonido="on"] [data-player-sonido] .cinta-player__estado-punto,
+  .cinta-player[data-texto="on"] [data-player-texto] .cinta-player__estado-punto {
+    background: var(--ambar);
+  }
+
+  .cinta-player__cc {
+    position: relative;
+    display: grid;
+    width: 1rem;
+    height: 0.8rem;
+    place-items: center;
+    border: var(--rule-hair) solid currentColor;
+    font-size: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .cinta-player[data-texto="off"] .cinta-player__cc::after {
+    content: "";
+    position: absolute;
+    inset: 50% -0.15rem auto;
+    height: var(--rule-hair);
+    background: currentColor;
+    transform: rotate(-38deg);
+  }
+
+  .cinta-player:fullscreen,
+  .cinta-player:-webkit-full-screen {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    aspect-ratio: auto;
+    border: 0;
+  }
+
+  .cinta-player:not([data-enhanced]) .cinta-player__lienzo,
+  .cinta-player:not([data-enhanced]) .cinta-player__velo,
+  .cinta-player:not([data-enhanced]) .cinta-player__mandos {
+    display: none;
+  }
+
+  @container (max-width: 38rem) {
+    .cinta-player__mandos {
+      padding-inline: var(--space-xs);
+    }
+
+    .cinta-player__mando {
+      padding-inline: var(--space-2xs);
+    }
+
+    .cinta-player__mando-palabra,
+    .cinta-player__estado-punto {
+      display: none;
+    }
+
+    .cinta-player__llamada {
+      padding: var(--space-sm) var(--space-md);
+    }
+  }
+
+  @container (max-width: 20rem) {
+    .cinta-player__tiempo > span:nth-child(n + 2) {
+      display: none;
+    }
+  }
+
+  @media (pointer: coarse) {
+    .cinta-player__mando,
+    .cinta-player__rango,
+    .cinta-player__avance {
+      min-height: 3rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cinta-player__llamada,
+    .cinta-player__velo,
+    .cinta-player__mandos,
+    .cinta-player__mando {
+      transform: none;
+    }
+  }
+</style>
