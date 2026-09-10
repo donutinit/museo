@@ -671,6 +671,14 @@ const controlId = `cinta-avance-${slug}`;
     box-shadow: inset 0 0 0 calc(var(--rule-focus) * 2) var(--fondo);
   }
 
+  @media (hover: hover) and (pointer: fine) {
+    .cinta-player__lienzo:hover .cinta-player__llamada,
+    .cinta-player.is-hover .cinta-player__llamada { opacity: 0.9; }
+  }
+
+  .cinta-player__lienzo:active .cinta-player__llamada,
+  .cinta-player.is-active .cinta-player__llamada { transform: scale(0.98); }
+
   .cinta-player__llamada {
     display: grid;
     grid-template-areas:
@@ -836,6 +844,7 @@ const controlId = `cinta-avance-${slug}`;
     background: var(--ambar);
     border: 0;
     border-radius: var(--radius-none);
+    transition: transform var(--dur-micro) var(--ease-out);
   }
 
   .cinta-player__rango::-moz-range-thumb {
@@ -844,7 +853,16 @@ const controlId = `cinta-avance-${slug}`;
     background: var(--ambar);
     border: 0;
     border-radius: var(--radius-none);
+    transition: transform var(--dur-micro) var(--ease-out);
   }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cinta-player__rango:hover::-webkit-slider-thumb { transform: scale(1.15); }
+    .cinta-player__rango:hover::-moz-range-thumb { transform: scale(1.15); }
+  }
+
+  .cinta-player__rango:active::-webkit-slider-thumb { transform: scale(0.9); }
+  .cinta-player__rango:active::-moz-range-thumb { transform: scale(0.9); }
 
   .cinta-player__rango:focus-visible {
     outline: var(--rule-focus) solid var(--ambar);
@@ -879,9 +897,7 @@ const controlId = `cinta-avance-${slug}`;
     letter-spacing: 0.045em;
     line-height: 1;
     white-space: nowrap;
-    transition:
-      color var(--dur-micro) var(--ease-out),
-      transform var(--dur-micro) var(--ease-out);
+    transition: transform var(--dur-micro) var(--ease-out);
   }
 
   .cinta-player__mando[hidden] { display: none; }
@@ -1056,6 +1072,16 @@ const controlId = `cinta-avance-${slug}`;
     .cinta-player__mandos,
     .cinta-player__mando {
       transform: none;
+    }
+
+    .cinta-player__rango::-webkit-slider-thumb {
+      transform: none;
+      transition: none;
+    }
+
+    .cinta-player__rango::-moz-range-thumb {
+      transform: none;
+      transition: none;
     }
   }
 </style>

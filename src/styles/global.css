@@ -459,13 +459,16 @@ main { flex: 1 0 auto; width: 100%; min-width: 0; }
 }
 .paso a:last-child { text-align: right; }
 .paso-titulo {
+  display: block;
   font-family: var(--f-edge);
   font-size: clamp(0.9375rem, 2.2vw, 1.25rem);
   font-stretch: 72%;
   font-weight: 500;
   color: color-mix(in oklab, var(--papel) 80%, transparent);
   transition: color var(--dur-micro) var(--ease-out);
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .paso a:hover .paso-titulo,
 .paso a:focus-visible .paso-titulo { color: var(--papel); }

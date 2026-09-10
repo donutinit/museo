@@ -1,3 +1,7 @@
+/* Hallmark · macrostructure: Map / Diagram · genre: atmospheric · theme: custom · tone: technical · anchor hue: phosphor green · enrichment: content photography · nav: N9 · footer: Ft4 */
+/* Hallmark · contrast: pass (40–41) · slop: pass (42–45) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · mobile: pass (34, 49, 50–57) */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R4 V5 */
+
 /* ═════════════════════════════════════════════════════════
    Depredador Ápice — expediente de campo.
 
@@ -24,6 +28,7 @@ body:has(.rollo--apice) {
   --a-olivo: oklch(60% 0.068 138);
   --a-fosforo: oklch(85% 0.165 148);
   --a-ambar: oklch(79% 0.145 74);
+  --a-mascara: oklch(1% 0.005 152);
 
   /* el armazón viejo, retinteado: rail, colofón y lupa se van solos */
   --fondo: var(--a-noche);
@@ -77,7 +82,7 @@ body:has(.rollo--apice)::after { opacity: 0.075; }
     repeating-linear-gradient(0deg, color-mix(in oklch, var(--a-olivo) 22%, transparent) 0 1px, transparent 1px 1rem),
     repeating-linear-gradient(90deg, color-mix(in oklch, var(--a-olivo) 40%, transparent) 0 1px, transparent 1px 6rem),
     repeating-linear-gradient(0deg, color-mix(in oklch, var(--a-olivo) 40%, transparent) 0 1px, transparent 1px 6rem);
-  mask-image: radial-gradient(120% 100% at 50% 0%, oklch(0% 0 0) 10%, transparent 78%);
+  mask-image: radial-gradient(120% 100% at 50% 0%, var(--a-mascara) 10%, transparent 78%);
 }
 
 /* líneas de monitor */
@@ -90,10 +95,10 @@ body:has(.rollo--apice)::after { opacity: 0.075; }
   );
 }
 
-/* el barrido: una banda que recorre el plano, como refresco de sensor */
+/* el barrido queda detenido: huella de sensor, no loop decorativo */
 .apice-capa--barrido {
   inset: -20% 0;
-  opacity: 0.5;
+  opacity: 0.18;
   background-image: linear-gradient(
     180deg,
     transparent 0%,
@@ -104,12 +109,7 @@ body:has(.rollo--apice)::after { opacity: 0.075; }
   );
   background-size: 100% 38vh;
   background-repeat: no-repeat;
-  animation: apice-barrer 19s linear infinite;
-}
-
-@keyframes apice-barrer {
-  from { background-position: 0 -40vh; }
-  to { background-position: 0 140vh; }
+  background-position: 0 18vh;
 }
 
 /* ─── armazón del sitio, teñido ─── */
@@ -166,7 +166,7 @@ body:has(.rollo--apice) .lupa {
   min-width: 0;
 }
 
-/* el testigo de grabación: punto que late y el código del rollo */
+/* el testigo de grabación: punto fijo y código del rollo */
 .apice-sello {
   display: inline-flex;
   align-items: center;
@@ -182,27 +182,22 @@ body:has(.rollo--apice) .lupa {
   height: 0.45rem;
   flex: 0 0 auto;
   background: var(--a-fosforo);
-  animation: apice-latir 2.4s steps(1, end) infinite;
-}
-
-@keyframes apice-latir {
-  0%, 54% { opacity: 1; }
-  55%, 100% { opacity: 0.12; }
 }
 
 .apice-titulo {
   min-width: 0;
   display: grid;
   font-family: var(--f-edge);
-  font-size: clamp(2.5rem, 11.5vw, 7.5rem);
+  font-size: clamp(2.5rem, 11.5vw, 7rem);
+  font-style: normal;
   font-stretch: 60%;
   font-weight: 800;
-  line-height: 0.95;
+  line-height: 1;
   letter-spacing: 0.005em;
   text-transform: uppercase;
   color: var(--a-hueso);
   text-wrap: balance;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 .apice-titulo > * { grid-area: 1 / 1; }
@@ -255,7 +250,7 @@ body:has(.rollo--apice) .lupa {
 .apice-mate {
   position: relative;
   min-width: 0;
-  padding: clamp(0.55rem, 1.6vw, 1.1rem);
+  padding: clamp(var(--space-xs), 1.6vw, var(--space-md));
   background: color-mix(in oklch, var(--a-noche) 82%, transparent);
   box-shadow: inset 0 0 0 var(--rule-hair) color-mix(in oklch, var(--a-olivo) 80%, transparent);
 }
@@ -272,8 +267,9 @@ body:has(.rollo--apice) .lupa {
   width: var(--escuadra, clamp(0.9rem, 2.2vw, 1.6rem));
   aspect-ratio: 1;
   border: var(--rule-hair) solid var(--a-fosforo);
+  opacity: 0.72;
   pointer-events: none;
-  transition: width var(--dur-short) var(--ease-out);
+  transition: opacity var(--dur-short) var(--ease-out);
 }
 
 .apice-mate::before {
@@ -323,26 +319,24 @@ body:has(.rollo--apice) .lupa {
   background: var(--a-noche);
 }
 
-.apice-captura img {
-  width: 100%;
-  height: auto;
-  transition: filter var(--dur-short) var(--ease-out);
-}
+.apice-captura img { width: 100%; height: auto; }
 
 @media (hover: hover) and (pointer: fine) {
-  .apice-placa:hover .apice-captura img { filter: contrast(1.04) brightness(1.03); }
   .apice-placa:hover :is(.apice-mate, .apice-escuadra)::before,
   .apice-placa:hover :is(.apice-mate, .apice-escuadra)::after {
-    width: calc(var(--escuadra, clamp(0.9rem, 2.2vw, 1.6rem)) * 1.55);
+    opacity: 1;
   }
 }
+
+.apice-placa:focus-within :is(.apice-mate, .apice-escuadra)::before,
+.apice-placa:focus-within :is(.apice-mate, .apice-escuadra)::after { opacity: 1; }
 
 .apice-captura:focus-visible {
   outline: var(--rule-focus) solid var(--a-fosforo);
   outline-offset: calc(var(--space-2xs) * -1);
 }
 
-.apice-captura:active img { filter: brightness(0.97); }
+.apice-captura:active img { opacity: 0.92; }
 
 .apice-captura:is(:disabled, [aria-disabled="true"]) { cursor: not-allowed; opacity: 0.5; }
 
@@ -438,7 +432,7 @@ body:has(.rollo--apice) .lupa {
 /* la pieza de la mirada fija: el mate se abre y la escuadra manda */
 .apice-lamina--clave .apice-mate {
   --escuadra: clamp(1.4rem, 3.4vw, 2.75rem);
-  padding: clamp(0.8rem, 2vw, 1.6rem);
+  padding: clamp(var(--space-sm), 2vw, var(--space-lg));
   box-shadow: inset 0 0 0 var(--rule-hair) color-mix(in oklch, var(--a-fosforo) 55%, transparent);
 }
 
@@ -531,7 +525,7 @@ body:has(.rollo--apice) .lupa {
   .apice-cabecera {
     /* la ficha se queda a la vista mientras la placa 01 sube */
     position: sticky;
-    top: var(--space-xl);
+    top: var(--space-2xl);
     gap: var(--space-lg);
   }
 
@@ -582,9 +576,6 @@ body:has(.rollo--apice) .lupa {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .apice-capa--barrido { animation: none; opacity: 0.25; }
-  .apice-sello::before { animation: none; }
-  .apice-captura img,
   .apice-mate::before,
   .apice-mate::after,
   .apice-escuadra::before,

@@ -9,6 +9,51 @@
     "brief": "/video/* · sala de proyección de una sola ventana"
   },
   {
+    "date": "2026-09-10",
+    "macrostructure": "Catalogue",
+    "theme": "custom",
+    "theme_axes": "light / classical-serif / cool (highland blue)",
+    "vibe": "caliza, horizonte, filas, mediodía",
+    "enrichment": "content photography",
+    "brief": "E-Bike Camp · rollo fotográfico en filas justificadas"
+  },
+  {
+    "date": "2026-09-10",
+    "macrostructure": "Long Document",
+    "theme": "custom",
+    "theme_axes": "dark / classical-serif / warm (rust)",
+    "vibe": "concreto, andamio, óxido, despedida",
+    "enrichment": "content photography",
+    "brief": "Cerrando Ciclos · acta de baja fotográfica"
+  },
+  {
+    "date": "2026-09-10",
+    "macrostructure": "Marquee Hero",
+    "theme": "custom",
+    "theme_axes": "light / display-heavy / cool (turquoise)",
+    "vibe": "cielo, trayectoria, listón, salto",
+    "enrichment": "content photography",
+    "brief": "Bike Park Esfera · cronofotografía de un salto"
+  },
+  {
+    "date": "2026-09-10",
+    "macrostructure": "Map / Diagram",
+    "theme": "custom",
+    "theme_axes": "dark / display-heavy / chromatic-other (phosphor)",
+    "vibe": "noche, telemetría, vigilancia, expediente",
+    "enrichment": "content photography",
+    "brief": "Depredador Ápice · expediente fotográfico nocturno"
+  },
+  {
+    "date": "2026-09-10",
+    "macrostructure": "Narrative Workflow",
+    "theme": "custom",
+    "theme_axes": "light / display-heavy / chromatic-other (olive)",
+    "vibe": "papel, ruta, pliegues, cansancio",
+    "enrichment": "content photography",
+    "brief": "Marchas Eternas · mapa fotográfico de ruta"
+  },
+  {
     "date": "2026-09-08",
     "macrostructure": "Photographic",
     "theme": "custom",

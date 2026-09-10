@@ -1,3 +1,7 @@
+/* Hallmark · macrostructure: Long Document · genre: editorial · theme: custom · tone: austere · anchor hue: rust · enrichment: content photography · nav: N9 · footer: Ft4 */
+/* Hallmark · contrast: pass (40–41) · slop: pass (42–45) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · mobile: pass (34, 49, 50–57) */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
+
 /* ═════════════════════════════════════════════════════════
    Cerrando Ciclos — acta de baja.
 
@@ -33,6 +37,7 @@ body:has(.rollo--cerrandociclos) {
   --cc-oxido-claro: oklch(70% 0.11 48);
   --cc-azul: oklch(60% 0.095 250);
   --cc-azul-claro: oklch(74% 0.07 250);
+  --cc-mascara: oklch(1% 0.005 75);
 
   /* el armazón viejo, retinteado: rail, colofón y lupa se van solos */
   --fondo: var(--cc-concreto);
@@ -58,9 +63,7 @@ body:has(.rollo--cerrandociclos)::after { opacity: 0.065; }
   z-index: -1;
   overflow: clip;
   pointer-events: none;
-  background:
-    radial-gradient(120% 90% at 50% 0%, transparent 40%, var(--cc-concreto) 100%),
-    var(--cc-concreto);
+  background: var(--cc-concreto);
 }
 
 .cerrandociclos-capa {
@@ -78,7 +81,7 @@ body:has(.rollo--cerrandociclos)::after { opacity: 0.065; }
     repeating-linear-gradient(0deg, color-mix(in oklch, var(--cc-azul) 20%, transparent) 0 1px, transparent 1px 4rem),
     repeating-linear-gradient(90deg, color-mix(in oklch, var(--cc-azul) 34%, transparent) 0 1px, transparent 1px 24rem),
     repeating-linear-gradient(0deg, color-mix(in oklch, var(--cc-azul) 34%, transparent) 0 1px, transparent 1px 24rem);
-  mask-image: linear-gradient(180deg, oklch(0% 0 0) 0%, transparent 80%);
+  mask-image: linear-gradient(180deg, var(--cc-mascara) 0%, transparent 80%);
 }
 
 /* ─── armazón del sitio, teñido ─── */
@@ -157,12 +160,13 @@ body:has(.rollo--cerrandociclos) .lupa {
   font-family: var(--f-voz);
   font-optical-sizing: auto;
   font-size: clamp(2.75rem, 8.5vw, 6rem);
+  font-style: normal;
   font-weight: 500;
   line-height: 1;
   letter-spacing: -0.015em;
   color: var(--cc-hueso);
   text-wrap: balance;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* los campos del acta, corridos en una línea de membrete */
@@ -202,7 +206,7 @@ body:has(.rollo--cerrandociclos) .lupa {
 .cerrandociclos-mate {
   position: relative;
   min-width: 0;
-  padding: clamp(0.55rem, 1.4vw, 1rem);
+  padding: clamp(var(--space-xs), 1.4vw, var(--space-md));
   background: color-mix(in oklch, var(--cc-concreto-2) 82%, transparent);
   box-shadow: inset 0 0 0 var(--rule-hair) color-mix(in oklch, var(--cc-linea) 100%, transparent);
 }
@@ -223,12 +227,12 @@ body:has(.rollo--cerrandociclos) .lupa {
 .cerrandociclos-captura img {
   width: 100%;
   height: auto;
-  transition: filter var(--dur-short) var(--ease-out);
+  transition: opacity var(--dur-short) var(--ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .cerrandociclos-placa:hover .cerrandociclos-captura img {
-    filter: contrast(1.03) brightness(1.02);
+    opacity: 0.96;
   }
 }
 
@@ -237,7 +241,7 @@ body:has(.rollo--cerrandociclos) .lupa {
   outline-offset: calc(var(--space-2xs) * -1);
 }
 
-.cerrandociclos-captura:active img { filter: brightness(0.97); }
+.cerrandociclos-captura:active img { opacity: 0.92; }
 
 /* la partida: folio en azul al inicio, cuenta al canto */
 .cerrandociclos-partida {

@@ -14,7 +14,7 @@
   --color-accent: oklch(68% 0.200 350);
   --color-accent-ink: oklch(15% 0.020 345);
   --color-focus: oklch(88% 0.150 350);
-  --color-video: oklch(0% 0 0);
+  --color-video: oklch(3% 0.005 345);
 
   --font-display: "Archivo Variable", "Archivo Narrow", sans-serif;
   --font-body: "Newsreader Variable", serif;

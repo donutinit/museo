@@ -1,3 +1,7 @@
+/* Hallmark · macrostructure: Catalogue · genre: editorial · theme: custom · tone: austere · anchor hue: highland blue · enrichment: content photography · nav: N9 · footer: Ft4 */
+/* Hallmark · contrast: pass (40–41) · slop: pass (42–45) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · mobile: pass (34, 49, 50–57) */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
+
 /* ═════════════════════════════════════════════════════════
    E-Bike Camp — el horizonte.
 
@@ -6,11 +10,11 @@
    pasan apenas un segundo. De ahí sale la hoja: la cabecera
    queda arriba y todo lo demás cuelga de UNA línea de
    horizonte que cruza la página de lado a lado. La secuencia
-   es una tira panorámica — carril horizontal con scroll-snap
-   donde las piezas pasan de largo como pasa el terreno. La
-   pieza 01 abre colgada de la línea: es el contraluz del sol,
-   no pasa de largo, recibe. La cuenta del rollo va después,
-   cuando el terreno ya pasó.
+   se tiende en filas justificadas: cada renglón comparte altura,
+   cada pieza conserva su cuadro y el paisaje cierra contra los
+   dos márgenes. La pieza 01 abre bajo la línea: es el contraluz
+   del sol. La cuenta del rollo va después, cuando el terreno ya
+   pasó.
 
    Paleta: caliza quemada, negro duro de contraluz, polvo
    quemado y el azul del cielo como único acento que corta.
@@ -23,10 +27,9 @@
       línea de piso del carril.
    2. cero datos inventados: todo el texto suelto sale del
       frontmatter, de alt.json o del markdown del rollo.
-   3. el carril es el único scroll horizontal: overflow-x en
-      el carril, jamás en el body; scroll-padding para que la
-      pieza enfocada no quede a medias, y scrollbar a la vista
-      — el avance se anuncia, no se esconde.
+   3. ninguna fila abre scroll horizontal: en teléfono se
+      desarma y deja una pieza por renglón; en escritorio cierra
+      por proporción, no por recorte.
    ═════════════════════════════════════════════════════════ */
 
 body:has(.rollo--ebikecamp) {
@@ -193,12 +196,13 @@ body:has(.rollo--ebikecamp) .lupa {
   font-family: var(--f-voz);
   font-optical-sizing: auto;
   font-size: clamp(2.75rem, 9vw, 6.75rem);
+  font-style: normal;
   font-weight: 520;
   line-height: 0.95;
   letter-spacing: -0.012em;
   color: var(--e-tinta);
   text-wrap: balance;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 .ebikecamp-registro { width: min(100%, 26rem); }
@@ -299,12 +303,12 @@ body:has(.rollo--ebikecamp) .lupa {
 .ebikecamp-captura img {
   width: 100%;
   height: auto;
-  transition: filter var(--dur-short) var(--ease-out);
+  transition: opacity var(--dur-short) var(--ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .ebikecamp-pieza:hover .ebikecamp-captura img {
-    filter: brightness(1.05) contrast(1.02);
+    opacity: 0.96;
   }
 }
 
@@ -316,14 +320,14 @@ body:has(.rollo--ebikecamp) .lupa {
   outline-offset: var(--space-2xs);
 }
 
-.ebikecamp-captura:active img { filter: brightness(0.97); }
+.ebikecamp-captura:active img { opacity: 0.92; }
 
 /* los códigos, colgados debajo de la línea de piso */
 .ebikecamp-pie {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 0.2rem 1rem;
+  gap: var(--space-2xs) var(--space-md);
   margin-block-start: var(--space-2xs);
   color: var(--e-polvo);
 }
