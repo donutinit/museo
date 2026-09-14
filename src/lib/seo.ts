@@ -96,6 +96,9 @@ export const cinta = (v: VideoEntry) => ({
   thumbnailUrl: absoluta(v.poster),
   contentUrl: absoluta(v.src),
   dateCreated: v.recordedAt,
+  // Google lo exige. No hay fecha de subida aparte: la cinta sale al archivo
+  // cuando se filmó, con la hora de Monterrey (UTC-6, sin horario de verano).
+  uploadDate: `${v.recordedAt}T00:00:00-06:00`,
   duration: duracionISO(v.durationLabel),
   genre: kindLabel[v.kind],
   inLanguage: 'es-MX',
