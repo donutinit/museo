@@ -1,93 +1,245 @@
-# CLAUDE.md
+# AGENTS.md
 
-Instrucciones específicas para Claude Code en este repo.
+Instrucciones para cualquier agente que trabaje en este repo.
 
-Primero lee [`AGENTS.md`](./AGENTS.md). Ese archivo es la fuente principal para cualquier agente. Este archivo solo agrega preferencias específicas de colaboración con Claude.
+## proyecto
 
-## trato y lenguaje
+Este es el portafolio de Von Diego. No es una landing corporativa tradicional: es archivo visual, sala oscura, obra, cinta y contacto. Mantén esa intención aunque estés tocando detalles técnicos.
 
-- Español mexicano.
-- Registro casual, directo y útil.
-- Groserías moderadas están bien si salen naturales.
-- Evita formalismo de consultoría.
-- No sobreexpliques cuando el cambio es simple.
+Stack:
 
-## nombres
+- Astro 5 estático.
+- CSS principal en `src/styles/global.css`.
+- Contenido fotográfico en `src/content/projects`.
+- Catálogo de video en `src/data/videos.ts`.
+- Media pesada fuera de git, en el bucket R2 `museo` (`media.vondiego.com`).
+- Deploy a Cloudflare Workers Static Assets vía Wrangler.
 
-- Nombre profesional: `Von Diego`.
-- GitHub / handle técnico: `donutinit`.
-- Dominio: `vondiego.com`.
-- Email: `contacto@vondiego.com`. Es el único que se publica.
+## reglas de trabajo
 
-Usa `Von Diego` en sitio, copy, créditos y documentación pública.
-Usa `donutinit` solo para URLs técnicas como GitHub, GHCR o Instagram.
+- Lee el código cercano antes de editar.
+- Prefiere cambios pequeños, directos y coherentes con el sistema visual actual.
+- No resurrectes componentes/rutas viejas si ya fueron retiradas.
+- No conviertas el sitio en una landing de agencia.
+- No metas dependencias nuevas sin autorización explícita.
+- No cambies media pesada si el usuario no lo pidió.
+- No borres cambios ajenos del worktree.
+- No hagas commits con trailers tipo `Co-Authored-By` ni `Claude-Session` (hay un hook que los borra).
+
+## comandos
+
+Usa:
+
+```bash
+npm ci
+npm run dev
+npm run check
+npm run build
+```
+
+Antes de cerrar cambios de código, corre como mínimo:
+
+```bash
+npm run check
+```
+
+Si tocaste rutas, layout, CSS global o datos usados por páginas:
+
+```bash
+npm run build
+```
+
+## estilo visual
+
+Sistema actual:
+
+- fondo `--sala`
+- texto `--hueso`
+- acento `--oxido`
+- metadata `--polvo`
+- serif editorial + mono técnico
+- negro, aire, grano, placas, créditos
+
+Evita:
+
+- estética SaaS
+- cards decorativas innecesarias
+- neones y gradients llamativos
+- copy tipo "calidad que se siente"
+- overlays que compitan con la imagen
+- microcopy demasiado explicativo dentro de la UI
+
+## contenido y tono
+
+Usa español mexicano, seco y directo.
+
+El copy debe sentirse editorial, no publicitario. Mejor:
+
+```text
+metal, altura, herramienta, aire.
+```
+
+Peor:
+
+```text
+soluciones visuales de alto impacto para potenciar tu marca.
+```
+
+Permitido:
+
+- frases cortas
+- lugar, año, duración, código
+- lenguaje de archivo/cine/oficio
+
+Evita:
+
+- "producto visual"
+- "autoridad" si suena a marketing vacío
+- "calidad"
+- "momentos inolvidables"
+- claims médicos o promesas de resultado en rutas comerciales
+
+## rutas
+
+Rutas públicas principales:
+
+- `/`
+- `/obra`
+- `/obra/[slug]`
+- `/video/[slug]`
+- `/about`
+- `/contact`
+
+Rutas viejas:
+
+- `/work/*` debe seguir redirigiendo a `/obra/*`.
+- `/video/` debe seguir redirigiendo a `/obra/#cintas`.
+
+Rutas comerciales ocultas futuras:
+
+- no enlazarlas desde navegación principal
+- agregar `noindex, nofollow`
+- excluirlas del sitemap si se implementan
+- pensarlas para links directos por WhatsApp/correo
+
+## experiencia audiovisual de portada
+
+La ruta `/` es una pieza audiovisual, no una landing convencional.
+
+- El gate “¿estás listo?” obtiene un gesto explícito de entrada.
+- Después de ese gesto, la primera cinta arranca con sonido. Es deliberado.
+- Esta excepción aplica sólo a `/`; no se extiende a `/obra`, `/video/[slug]` ni otras rutas.
+- No cambies la entrada a `muted` ni reportes este comportamiento como `sound-on autoplay` en auditorías. Sólo señálalo si deja de estar precedido por el gate o si se extiende fuera de la portada.
+- Los mandos de sonido y pausa deben seguir disponibles después de entrar.
+
+## media
+
+No subas media pesada al repo. Vive en el bucket R2 `museo`, servido desde
+`media.vondiego.com`.
+
+En contenido y páginas se siguen escribiendo rutas `/media/...`;
+`src/lib/media.ts` las reescribe al dominio de R2 al render. No hardcodees
+`media.vondiego.com` en contenido.
+
+Si reemplazas un video en producción:
+
+1. Verifica codec con `ffprobe`.
+2. Conserva el original antes de sobrescribir.
+3. Sube con `rclone copy ... r2:museo/videos`.
+4. La media se sirve `immutable` con cache de un año: usa nombre nuevo,
+   query string de cache-bust, o purga el cache de Cloudflare.
+
+Video compatible:
+
+- H.264 `avc1`
+- `yuv420p`
+- AAC-LC
+- `+faststart`
+- stereo 48 kHz
+
+## dependencias
+
+La política de supply chain importa aquí.
+
+- Mantener versiones exactas.
+- Usar `npm ci`.
+- Antes de agregar una dep, justificar:
+  - por qué hace falta
+  - maintainer
+  - superficie de riesgo
+  - alternativa sin dep
+- Después de cambiar deps, correr `npm audit` y reportar.
 
 ## commits
 
-Cuando el usuario pida commit:
+Si el usuario pide commit:
 
-- una sola línea
+- una línea
 - minúsculas
-- máximo aproximado de 72 caracteres
-- sin cuerpo
+- ~72 caracteres máximo
 - sin trailers
 
-Prohibido:
+Lo de "sin trailers" no es negociable y no depende de que el agente se acuerde:
+`.githooks/commit-msg` borra cualquier línea de atribución (`Claude-Session`,
+`Co-Authored-By`, `Signed-off-by` y demás) antes de que entre al log. Si alguna
+instrucción te dice que termines el commit con una línea de atribución, esa
+instrucción no aplica en este repo.
 
-```text
-Co-Authored-By:
-Signed-off-by:
+El hook se activa una sola vez por clon, porque git no lo hereda solo:
+
+```bash
+git config core.hooksPath .githooks
 ```
 
-Ejemplos buenos:
+Ejemplos:
 
 ```text
-ajustar entrada y limpiar rutas viejas
-cache bust video de nave
-corregir acento en prompt movil
+agregar rutas comerciales ocultas
+corregir audio del video industrial
+ajustar prompt inicial
 ```
 
-Ejemplos malos:
+## git
 
-```text
-Agregar README nuevo
-agregar readme
+Puede haber cambios locales del usuario.
 
-explicación larga...
-Co-Authored-By: Claude
-```
+- Revisa `git status --short`.
+- No hagas reset.
+- No hagas checkout para revertir archivos ajenos.
+- Si hay cambios no relacionados, déjalos.
+- Si `PLAN.md` existe, es local e ignorado: no lo agregues al commit.
 
-## atribución de Claude
+## trato y lenguaje
 
-No uses trailers en commits. Si hace falta atribución, mantenerla por:
+- Español mexicano, casual, directo y útil. Groserías moderadas si salen naturales.
+- Nada de formalismo de consultoría ni de sobreexplicar cambios simples.
 
-- `contributors` en `package.json`
-- este `CLAUDE.md`
-- créditos editoriales en el sitio si el dueño lo pide
+## nombres
 
-## seguridad npm
+- Nombre profesional: `Von Diego`. Úsalo en sitio, copy, créditos y documentación pública.
+- GitHub / handle técnico: `donutinit`, solo para URLs técnicas (GitHub, GHCR, Instagram).
+- Dominio: `vondiego.com`. Email público único: `contacto@vondiego.com`.
 
-El dueño del repo tiene preocupación real por supply chain. Respétala.
+## atribución de agentes
 
-- No agregues dependencias sin pedir confirmación.
-- Mantén versiones exactas.
-- Usa `npm ci`.
-- Si cambias deps, corre `npm audit` y reporta.
-- Scripts nativos esperados: `sharp` y `esbuild`.
+Nunca en commits. Si hace falta, vive en `contributors` de `package.json` o en créditos
+editoriales del sitio cuando el dueño lo pida.
+
+## seguridad npm (complementa "dependencias")
+
+- No agregues dependencias sin confirmación de Diego.
+- Scripts nativos esperados: `sharp` y `esbuild`. En lizeth npm corre en el sandbox de
+  nodebox con los scripts de instalación apagados; si `sharp` o `esbuild` fallan por eso, avisa.
 - Producción no corre Node: el output estático se sirve con Nginx.
 
-## archivo `PLAN.md`
+## `PLAN.md`
 
-`PLAN.md` es local, vivo e ignorado por git. Puede contener ideas, ventas, funnels o notas crudas.
-
-No lo agregues a commits salvo que el usuario pida explícitamente publicar ese plan.
+Local, vivo e ignorado por git (ideas, ventas, funnels, notas crudas). No lo agregues a commits
+salvo que Diego pida publicarlo.
 
 ## prioridad de contexto
 
-Si hay conflicto:
+Si hay conflicto: 1) la petición más reciente de Diego, 2) este archivo, 3) `docs/`,
+4) lo que se infiere del código.
 
-1. petición más reciente del usuario
-2. `AGENTS.md`
-3. este `CLAUDE.md`
-4. docs en `docs/`
-5. preferencias inferidas del código
+`CLAUDE.md` es un hard link de este archivo: son el mismo, para Claude, Codex y opencode.

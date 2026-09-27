@@ -208,3 +208,38 @@ Puede haber cambios locales del usuario.
 - No hagas checkout para revertir archivos ajenos.
 - Si hay cambios no relacionados, déjalos.
 - Si `PLAN.md` existe, es local e ignorado: no lo agregues al commit.
+
+## trato y lenguaje
+
+- Español mexicano, casual, directo y útil. Groserías moderadas si salen naturales.
+- Nada de formalismo de consultoría ni de sobreexplicar cambios simples.
+
+## nombres
+
+- Nombre profesional: `Von Diego`. Úsalo en sitio, copy, créditos y documentación pública.
+- GitHub / handle técnico: `donutinit`, solo para URLs técnicas (GitHub, GHCR, Instagram).
+- Dominio: `vondiego.com`. Email público único: `contacto@vondiego.com`.
+
+## atribución de agentes
+
+Nunca en commits. Si hace falta, vive en `contributors` de `package.json` o en créditos
+editoriales del sitio cuando el dueño lo pida.
+
+## seguridad npm (complementa "dependencias")
+
+- No agregues dependencias sin confirmación de Diego.
+- Scripts nativos esperados: `sharp` y `esbuild`. En lizeth npm corre en el sandbox de
+  nodebox con los scripts de instalación apagados; si `sharp` o `esbuild` fallan por eso, avisa.
+- Producción no corre Node: el output estático se sirve con Nginx.
+
+## `PLAN.md`
+
+Local, vivo e ignorado por git (ideas, ventas, funnels, notas crudas). No lo agregues a commits
+salvo que Diego pida publicarlo.
+
+## prioridad de contexto
+
+Si hay conflicto: 1) la petición más reciente de Diego, 2) este archivo, 3) `docs/`,
+4) lo que se infiere del código.
+
+`CLAUDE.md` es un hard link de este archivo: son el mismo, para Claude, Codex y opencode.
