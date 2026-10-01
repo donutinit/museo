@@ -606,9 +606,13 @@ const controlId = `cinta-avance-${slug}`;
     width: var(--cinta-ancho, min(100%, calc(82svh * var(--cinta-razon))));
     aspect-ratio: var(--cinta-aspect);
     max-height: var(--cinta-alto-max, 82svh);
-    margin-block-start: var(--cinta-margen-arriba, clamp(var(--space-lg), 6vh, var(--space-2xl)));
+    /* el pie: la franja bajo el cuadro donde cae el subtítulo. Sólo se aparta
+       cuando hay texto que pintar; sin texto, el cuadro se queda con todo. */
+    --cinta-pie: 0rem;
+    margin-block: var(--cinta-margen-arriba, clamp(var(--space-lg), 6vh, var(--space-2xl))) var(--cinta-pie);
     margin-inline: auto;
-    overflow: clip;
+    /* se recorta a los lados; hacia abajo no, porque de ahí cuelga el subtítulo */
+    overflow: clip visible;
     container-type: inline-size;
     color: var(--papel);
     background: var(--color-video);
@@ -631,16 +635,19 @@ const controlId = `cinta-avance-${slug}`;
     font-family: var(--f-voz);
   }
 
+  .cinta-player[data-texto="on"] { --cinta-pie: 4.5rem; }
+
+  /* El subtítulo va debajo del cuadro, no encima: en una entrevista la cara
+     ocupa el centro y en teléfono el cuadro es tan bajo que cualquier renglón
+     adentro la tapa. */
   .cinta-player__subtitulo {
     position: absolute;
     z-index: var(--z-raised);
-    inset: auto 50% clamp(5rem, 10cqi, 7rem) auto;
+    inset: calc(100% + var(--space-xs)) 50% auto auto;
     width: max-content;
-    max-width: min(42ch, calc(100% - (var(--space-lg) * 2)));
-    padding: var(--space-2xs) var(--space-xs);
+    max-width: min(42ch, 100%);
     transform: translateX(50%);
     color: var(--papel);
-    background: color-mix(in oklab, var(--fondo) 86%, transparent);
     font-family: var(--f-voz);
     font-size: clamp(0.875rem, 2.4cqi, 1.125rem);
     font-weight: 400;
@@ -1025,6 +1032,22 @@ const controlId = `cinta-avance-${slug}`;
     margin: 0;
     aspect-ratio: auto;
     border: 0;
+    overflow: clip;
+  }
+
+  /* A pantalla completa no hay "debajo": el subtítulo baja al borde y sólo
+     sube lo necesario para no quedar tapado cuando aparecen los mandos. */
+  .cinta-player:fullscreen .cinta-player__subtitulo,
+  .cinta-player:-webkit-full-screen .cinta-player__subtitulo {
+    inset: auto 50% max(var(--space-md), env(safe-area-inset-bottom)) auto;
+    max-width: min(42ch, calc(100% - (var(--space-lg) * 2)));
+    padding: var(--space-2xs) var(--space-xs);
+    background: color-mix(in oklab, var(--fondo) 86%, transparent);
+  }
+
+  .cinta-player:fullscreen[data-controls="visible"] .cinta-player__subtitulo,
+  .cinta-player:-webkit-full-screen[data-controls="visible"] .cinta-player__subtitulo {
+    bottom: 7.5rem;
   }
 
   .cinta-player:not([data-enhanced]) .cinta-player__lienzo,

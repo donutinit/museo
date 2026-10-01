@@ -504,7 +504,8 @@ body:has(.video-page) > .colofon {
 }
 
 .video-page__escena .cinta-player {
-  --video-alto: max(0px, calc(100cqb - var(--space-2xl)));
+  /* el alto disponible, menos el pie que el player aparta para el subtítulo */
+  --video-alto: max(0px, calc(100cqb - var(--space-2xl) - var(--cinta-pie, 0rem)));
   --cinta-ancho: min(100cqi, calc(var(--video-alto) * var(--cinta-razon)));
   --cinta-alto-max: var(--video-alto);
   --cinta-margen-arriba: 0;
@@ -1050,15 +1051,16 @@ button.cuadro { display: block; text-align: left; }
 }
 
 /* En portada los subtítulos se pintan fuera del `<video>` para que sigan
-   derechos cuando una cinta apaisada gira en teléfono. */
+   derechos cuando una cinta apaisada gira en teléfono.
+
+   Van abajo, con la copia, nunca arriba: la parte alta del cuadro es donde
+   están las caras. En angosto se apilan encima de la copia; en ancho bajan al
+   centro, a la altura de "ver la cinta", que es la franja que la línea deja
+   libre. */
 .placa-subtitulo {
-  position: absolute;
-  z-index: 3;
-  top: clamp(4.75rem, 12vh, 7rem);
-  left: 50%;
+  justify-self: center;
   width: max-content;
-  max-width: min(36rem, calc(100% - (var(--margen) * 2)));
-  transform: translateX(-50%);
+  max-width: 100%;
   padding: 0.45rem 0.7rem;
   color: var(--papel);
   background: color-mix(in oklab, var(--fondo) 84%, transparent);
@@ -1071,6 +1073,16 @@ button.cuadro { display: block; text-align: left; }
   pointer-events: none;
 }
 .placa-subtitulo:empty { display: none; }
+
+@media (min-width: 60rem) {
+  .placa-subtitulo {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    max-width: 36rem;
+    transform: translateX(-50%);
+  }
+}
 
 /* la copia se monta sobre la cinta, con el mínimo velo para que se lea */
 .placa--cinta .placa-copia {
