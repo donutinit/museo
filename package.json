@@ -13,6 +13,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
+    "dev:von": "astro dev --config astro.von.config.mjs",
+    "build:von": "astro build --config astro.von.config.mjs",
     "derivados": "node scripts/derivados.mjs"
   },
   "dependencies": {

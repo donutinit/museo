@@ -7,7 +7,40 @@ el sitio se sirve desde Workers Static Assets; la media desde un bucket R2.
 | pieza | nombre | hostname |
 |---|---|---|
 | worker | `museo` | `www.vondiego.com` |
+| worker | `museo-von` | `von.vondiego.com` |
 | bucket r2 | `museo` | `media.vondiego.com` |
+
+## von
+
+`von.vondiego.com` es el mismo archivo con piel de gitweb. Es un segundo sitio
+dentro de este repo: sus páginas viven en `von/`, pero lee los mismos rollos,
+el mismo catálogo de cintas y la misma media. Un rollo nuevo sale en los dos.
+
+| | sitio principal | von |
+|---|---|---|
+| config de astro | `astro.config.mjs` | `astro.von.config.mjs` |
+| páginas | `src/pages` | `von/pages` |
+| `public/` | `public/` | `von/public/` |
+| salida | `dist/` | `dist-von/` |
+| config de wrangler | `wrangler.jsonc` | `wrangler.von.jsonc` |
+
+```bash
+npm run dev:von
+npm run build:von
+npx wrangler@4.129.0 deploy --config wrangler.von.jsonc
+```
+
+El push a `main` despliega los dos, primero `museo` y luego `museo-von`.
+
+El dominio se agrega una sola vez, a mano, después del primer deploy:
+dashboard → Workers & Pages → `museo-von` → Settings → Domains & Routes →
+Add → Custom domain → `von.vondiego.com`.
+
+von no tiene sitemap: cada página apunta su canónico a la misma pieza en
+`www.vondiego.com`, que es la que debe quedar en el índice.
+
+Los textos de `/about/` y `/contact/` están copiados en `von/textos/`. Si se
+cambia el manifiesto en `src/pages/about.astro`, hay que cambiarlo también ahí.
 
 ## deploy manual (desde local)
 

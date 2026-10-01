@@ -1,0 +1,17 @@
+---
+import Gitweb from '../layouts/Gitweb.astro';
+import Renglones from '../components/Renglones.astro';
+import leeme from '../textos/README.md?raw';
+import { REPO } from '../lib/git';
+---
+
+<Gitweb
+  vista="blob"
+  objeto="README.md"
+  titulo="Manifiesto | Von Diego"
+  descripcion="Von Diego es fotógrafo y videasta en Monterrey. Conoce su trabajo en retrato, documentación, obra personal, video y montaje."
+  canonica="/about/"
+>
+  <div class="ruta"><a href="/tree/">[{REPO}]</a> / README.md</div>
+  <Renglones texto={leeme} />
+</Gitweb>

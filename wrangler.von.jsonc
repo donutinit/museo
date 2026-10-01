@@ -1,0 +1,14 @@
+{
+  // von.vondiego.com: el mismo archivo con piel de gitweb.
+  // Igual que `museo`: `assets` sin `main` = solo archivos.
+  // El dominio se agrega una sola vez desde el dashboard (ver docs/03).
+  "name": "museo-von",
+  "compatibility_date": "2026-09-06",
+  "assets": {
+    "directory": "./dist-von",
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

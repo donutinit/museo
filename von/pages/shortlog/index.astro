@@ -1,0 +1,29 @@
+---
+import Gitweb from '../../layouts/Gitweb.astro';
+import Shortlog from '../../components/Shortlog.astro';
+import { bitacora, refsDe, REPO } from '../../lib/git';
+
+const log = await bitacora();
+---
+
+<Gitweb vista="shortlog" canonica="/obra/">
+  <a class="titulo" href="/">{REPO}</a>
+  <Shortlog log={log} refs={refsDe(log)} anclas />
+
+  <script>
+    // el buscador de la cabecera cae aquí: filtra la bitácora sin salir de la página
+    const consulta = new URLSearchParams(window.location.search).get('s')?.trim() ?? '';
+    const plano = (t: string) => t.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+
+    if (consulta) {
+      const campo = document.querySelector<HTMLInputElement>('.buscar input[name="s"]');
+      if (campo) campo.value = consulta;
+
+      const aguja = plano(consulta);
+      // se quitan, no se esconden: así las franjas alternas siguen parejas
+      for (const fila of document.querySelectorAll<HTMLElement>('[data-fila]')) {
+        if (!plano(fila.textContent ?? '').includes(aguja)) fila.remove();
+      }
+    }
+  </script>
+</Gitweb>

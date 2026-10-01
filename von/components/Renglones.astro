@@ -1,0 +1,26 @@
+---
+interface Props {
+  /** El archivo tal cual, sin procesar. */
+  texto: string;
+}
+
+const { texto } = Astro.props;
+
+const escapar = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/** Un archivo de texto no tiene enlaces, pero una dirección de correo debe poder tocarse. */
+const conCorreo = (t: string) =>
+  escapar(t).replace(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g, (c) => `<a href="mailto:${c}">${c}</a>`);
+
+// Se arma como cadena: dentro de un `pre-wrap` cualquier espacio del template
+// se pintaría como parte del archivo.
+const renglones = texto.replace(/\n+$/, '').split('\n');
+const html = renglones
+  .map((linea, i) => {
+    const n = i + 1;
+    return `<div class="pre"><a id="l${n}" href="#l${n}" class="nl">${String(n).padStart(4, ' ')}</a> ${conCorreo(linea)}</div>`;
+  })
+  .join('');
+---
+
+<div class="cuerpo" set:html={html} />

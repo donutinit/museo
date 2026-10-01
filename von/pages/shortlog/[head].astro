@@ -1,0 +1,27 @@
+---
+import Gitweb from '../../layouts/Gitweb.astro';
+import Shortlog from '../../components/Shortlog.astro';
+import { bitacora, refsDe, HEADS, type Head } from '../../lib/git';
+
+export function getStaticPaths() {
+  return HEADS.map((head) => ({ params: { head } }));
+}
+
+const head = Astro.params.head as Head;
+const log = await bitacora();
+const suyas = log.filter((e) => e.head === head);
+---
+
+<Gitweb vista="shortlog" objeto={head} canonica="/obra/">
+  <Fragment slot="sub">
+    {HEADS.map((h, i) => (
+      <>
+        {i > 0 && <span>&nbsp;&sdot;&nbsp;</span>}
+        {h === head ? <span>{h}</span> : <a href={`/shortlog/${h}/`}>{h}</a>}
+      </>
+    ))}
+  </Fragment>
+
+  <a class="titulo" href="/shortlog/">{head}</a>
+  <Shortlog log={suyas} refs={refsDe(log)} />
+</Gitweb>

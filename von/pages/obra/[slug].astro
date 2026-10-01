@@ -1,0 +1,106 @@
+---
+import Gitweb from '../../layouts/Gitweb.astro';
+import { render, type CollectionEntry } from 'astro:content';
+import { media, srcset, medidaDe, altDe } from '../../../src/lib/media';
+import { oficio } from '../../../src/lib/archivo';
+import { rollos, REPO } from '../../lib/git';
+
+export async function getStaticPaths() {
+  const todos = await rollos();
+  return todos.map((proyecto, i) => ({
+    params: { slug: proyecto.id },
+    props: {
+      proyecto,
+      anterior: todos[i - 1] ?? null,
+      siguiente: todos[i + 1] ?? null,
+    },
+  }));
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  anterior: CollectionEntry<'projects'> | null;
+  siguiente: CollectionEntry<'projects'> | null;
+}
+
+const { proyecto, anterior, siguiente }: Props = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+const piezas = Array.from({ length: data.photoCount }, (_, i) => {
+  const nn = String(i + 1).padStart(2, '0');
+  const ruta = `${data.photosDir}${data.photosPrefix}-${nn}.jpg`;
+  const medida = medidaDe(ruta);
+  return {
+    nn,
+    archivo: `${data.photosPrefix}-${nn}.jpg`,
+    src: media(ruta),
+    conjunto: srcset(ruta),
+    w: medida?.[0],
+    h: medida?.[1],
+    alt: altDe(ruta, `${data.title}, pieza ${i + 1}`),
+  };
+});
+
+const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location ? ` en ${data.location}` : ''}, ${data.year}. ${data.photoCount} piezas del archivo de Von Diego.`;
+---
+
+<Gitweb
+  vista="tree"
+  objeto={proyecto.id}
+  titulo={`${data.title} | Von Diego`}
+  descripcion={descripcion}
+  canonica={`/obra/${proyecto.id}/`}
+  imagen={data.poster}
+>
+  <Fragment slot="sub">
+    {anterior ? <a href={`/obra/${anterior.id}/`} title={anterior.data.title}>prev</a> : <span>prev</span>}
+    <span>&nbsp;&sdot;&nbsp;</span>
+    {siguiente ? <a href={`/obra/${siguiente.id}/`} title={siguiente.data.title}>next</a> : <span>next</span>}
+  </Fragment>
+
+  <div class="ruta"><a href="/tree/">[{REPO}]</a> / {proyecto.id} /</div>
+
+  <div class="titulo">{data.title}</div>
+  <div class="ficha-cab">
+    <table>
+      <tr><td>rollo</td><td class="sha">{data.photosPrefix}</td></tr>
+      <tr><td>oficio</td><td>{oficio[data.type]}</td></tr>
+      <tr><td>año</td><td>{data.year}</td></tr>
+      {data.location && <tr><td>lugar</td><td>{data.location.toLowerCase()}</td></tr>}
+      {data.client && <tr><td>cliente</td><td>{data.client.toLowerCase()}</td></tr>}
+      <tr><td>piezas</td><td>{data.photoCount}</td></tr>
+    </table>
+  </div>
+
+  <div class="cuerpo"><Content /></div>
+
+  <div class="lista-cab">{data.photoCount} piezas:</div>
+
+  {piezas.map((pieza, i) => (
+    <>
+      <div class="parche" id={`p${pieza.nn}`}>
+        <a href={pieza.src}>{proyecto.id}/{pieza.archivo}</a>
+      </div>
+      <div class="parche-ext">
+        {pieza.nn} de {data.photoCount}{pieza.w && pieza.h && ` · ${pieza.w}×${pieza.h}`}
+      </div>
+      <div class="lamina">
+        <a href={pieza.src}>
+          <img
+            src={pieza.src}
+            srcset={pieza.conjunto}
+            sizes={pieza.w && pieza.h ? `min(96vw, ${Math.round((92 * pieza.w) / pieza.h)}vh)` : '96vw'}
+            alt={pieza.alt}
+            width={pieza.w}
+            height={pieza.h}
+            style={pieza.w && pieza.h ? `--r:${(pieza.w / pieza.h).toFixed(4)};--w:${pieza.w}px` : undefined}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchpriority={i === 0 ? 'high' : undefined}
+          />
+        </a>
+      </div>
+    </>
+  ))}
+</Gitweb>

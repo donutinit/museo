@@ -1,0 +1,59 @@
+---
+import { media } from '../../src/lib/media';
+import type { Entrada } from '../lib/git';
+
+interface Props {
+  log: Entrada[];
+  /** Insignias por entrada, de `refsDe()`. */
+  refs: Map<string, { head?: string; tag?: string }>;
+  /** Si la lista viene recortada: a dónde lleva la fila de puntos. */
+  resto?: string;
+  /** Marca la primera fila de cada año para que los tags tengan dónde caer. */
+  anclas?: boolean;
+}
+
+const { log, refs, resto, anclas = false } = Astro.props;
+
+const vistos = new Set<string>();
+const ancla = (e: Entrada) => {
+  const a = e.dia.slice(0, 4);
+  if (!anclas || vistos.has(a)) return undefined;
+  vistos.add(a);
+  return `y${a}`;
+};
+---
+
+<table class="lista">
+  {log.map((e) => {
+    const r = refs.get(e.href);
+    return (
+      <tr id={ancla(e)} data-fila>
+        <td class="fecha"><i>{e.dia}</i></td>
+        <td class="autor"><i>{e.oficio}</i></td>
+        <td class="asunto">
+          <a class="item fuerte" href={e.href}>{e.titulo}</a>
+          {r && (
+            <span class="refs">
+              {r.head && <span class="head"><a href={`/shortlog/${r.head}/`}>{r.head}</a></span>}
+              {r.tag && <span class="tag"><a href={`/shortlog/#y${r.tag}`}>{r.tag}</a></span>}
+            </span>
+          )}
+        </td>
+        <td class="enlaces">
+          {e.raw ? (
+            <>
+              <a href={e.href}>blob</a>&nbsp;|&nbsp;<a href={media(e.raw)}>raw</a>
+            </>
+          ) : (
+            <a href={e.href}>tree</a>
+          )}
+        </td>
+      </tr>
+    );
+  })}
+  {resto && (
+    <tr>
+      <td colspan="4"><a href={resto}>...</a></td>
+    </tr>
+  )}
+</table>

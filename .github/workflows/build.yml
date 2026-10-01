@@ -41,6 +41,10 @@ jobs:
       - name: build
         run: npm run build
 
+      # von: el mismo archivo con piel de gitweb. sale a dist-von/
+      - name: build von
+        run: npm run build:von
+
       # despliega dist/ a Workers Static Assets.
       # requiere el secret CLOUDFLARE_API_TOKEN con permisos:
       #   Workers Scripts:Edit + Account Settings:Read
@@ -52,3 +56,13 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '4.129.0'
+
+      # despliega dist-von/ al worker `museo-von` (von.vondiego.com).
+      # va después del sitio principal: si von falla, www ya salió.
+      - name: deploy von
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.129.0'
+          command: deploy --config wrangler.von.jsonc

@@ -1,0 +1,6 @@
+# los índices del sitio principal no existen aquí: caen a la bitácora.
+# OJO: solo las rutas exactas. /obra/<slug> y /video/<slug> son páginas reales.
+/obra           /shortlog/foto/     301
+/obra/          /shortlog/foto/     301
+/video          /shortlog/cinta/    301
+/video/         /shortlog/cinta/    301

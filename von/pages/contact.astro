@@ -1,0 +1,17 @@
+---
+import Gitweb from '../layouts/Gitweb.astro';
+import Renglones from '../components/Renglones.astro';
+import contacto from '../textos/CONTACTO.md?raw';
+import { REPO } from '../lib/git';
+---
+
+<Gitweb
+  vista="blob"
+  objeto="CONTACTO.md"
+  titulo="Contacto | Von Diego"
+  descripcion="Contacto directo con Von Diego para fotografía de retrato, eventos, documentación y producción de video en Monterrey, Nuevo León."
+  canonica="/contact/"
+>
+  <div class="ruta"><a href="/tree/">[{REPO}]</a> / CONTACTO.md</div>
+  <Renglones texto={contacto} />
+</Gitweb>

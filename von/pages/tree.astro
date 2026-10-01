@@ -1,0 +1,49 @@
+---
+import Gitweb from '../layouts/Gitweb.astro';
+import { media } from '../../src/lib/media';
+import { bitacora, REPO } from '../lib/git';
+
+// como cualquier árbol: primero los directorios, luego los archivos, por nombre
+const porNombre = (a: { nombre: string }, b: { nombre: string }) => a.nombre.localeCompare(b.nombre);
+const log = await bitacora();
+const directorios = log.filter((e) => e.head === 'foto').sort(porNombre);
+const archivos = log.filter((e) => e.head === 'cinta').sort(porNombre);
+
+const textos = [
+  { nombre: 'CONTACTO.md', href: '/contact/' },
+  { nombre: 'README.md', href: '/about/' },
+];
+---
+
+<Gitweb vista="tree" canonica="/obra/">
+  <div class="ruta"><a href="/tree/">[{REPO}]</a> /</div>
+
+  <table class="lista">
+    {directorios.map((d) => (
+      <tr>
+        <td class="modo">drwxr-xr-x</td>
+        <td class="peso">{d.medida}</td>
+        <td><a class="item" href={d.href}>{d.nombre}</a></td>
+        <td class="enlaces"><a href={d.href}>tree</a></td>
+      </tr>
+    ))}
+    {archivos.map((a) => (
+      <tr>
+        <td class="modo">-rw-r--r--</td>
+        <td class="peso">{a.medida}</td>
+        <td><a class="item" href={a.href}>{a.nombre}</a></td>
+        <td class="enlaces">
+          <a href={a.href}>blob</a>&nbsp;|&nbsp;<a href={media(a.raw!)}>raw</a>
+        </td>
+      </tr>
+    ))}
+    {textos.map((t) => (
+      <tr>
+        <td class="modo">-rw-r--r--</td>
+        <td class="peso">-</td>
+        <td><a class="item" href={t.href}>{t.nombre}</a></td>
+        <td class="enlaces"><a href={t.href}>blob</a></td>
+      </tr>
+    ))}
+  </table>
+</Gitweb>

@@ -1,0 +1,97 @@
+---
+import '../styles/gitweb.css';
+import Logo from '../components/Logo.astro';
+import { media } from '../../src/lib/media';
+import { HOST, REPO, SITIO_PRINCIPAL, DESCRIPCION } from '../lib/git';
+
+interface Props {
+  /** La vista, como la nombra gitweb: summary, shortlog, tree, blob. */
+  vista: string;
+  /** Lo que se está viendo dentro de la vista: `apice`, `README.md`. */
+  objeto?: string;
+  /** Título para tarjetas sociales; el `<title>` siempre va en clave de repo. */
+  titulo?: string;
+  descripcion?: string;
+  /** La misma pieza en el sitio principal: a ella apunta el canónico. */
+  canonica?: string;
+  imagen?: string;
+  noindex?: boolean;
+}
+
+const {
+  vista,
+  objeto,
+  titulo = 'Von Diego',
+  descripcion = 'Archivo de foto y video de Von Diego en Monterrey, leído como repositorio.',
+  canonica,
+  imagen = '/media/video-posters/entrevista-yolanda.jpg',
+  noindex = false,
+} = Astro.props;
+
+const tituloPagina = `${HOST} - ${REPO}/${vista}${objeto ? ` - ${objeto}` : ''}`;
+const canonical = canonica ? new URL(canonica, SITIO_PRINCIPAL) : undefined;
+const propia = new URL(Astro.url.pathname, Astro.site);
+
+const pestanas = [
+  { href: '/', label: 'summary' },
+  { href: '/shortlog/', label: 'shortlog' },
+  { href: '/tree/', label: 'tree' },
+  { href: '/about/', label: 'manifiesto' },
+  { href: '/contact/', label: 'contacto' },
+];
+const aqui = Astro.url.pathname === '/' ? '/' : `${Astro.url.pathname.replace(/\/$/, '')}/`;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{tituloPagina}</title>
+    <meta name="description" content={descripcion} />
+    <meta name="author" content="Von Diego" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/atom+xml" title={`${REPO} - log - Atom feed`} href="/atom.xml" />
+    <link rel="preconnect" href="https://media.vondiego.com" />
+
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={propia} />
+    <meta property="og:site_name" content="Von Diego" />
+    <meta property="og:image" content={media(imagen)} />
+    <meta property="og:locale" content="es_MX" />
+  </head>
+
+  <body>
+    <div class="cab">
+      <a class="logo" href={SITIO_PRINCIPAL} title="sitio principal"><Logo /></a>
+      <a href={SITIO_PRINCIPAL}>{HOST}</a>&nbsp;/&nbsp;<a href="/">{REPO}</a>&nbsp;/&nbsp;{vista}
+    </div>
+
+    <form class="buscar" method="get" action="/shortlog/" role="search">
+      <label>search: <input type="text" name="s" /></label>
+    </form>
+
+    <div class="pestanas">
+      {pestanas.map((p, i) => (
+        <>
+          {i > 0 && <span>&nbsp;|&nbsp;</span>}
+          {p.href === aqui ? <span>{p.label}</span> : <a href={p.href}>{p.label}</a>}
+        </>
+      ))}
+      <br />
+      <slot name="sub" />
+      <br />
+    </div>
+
+    <slot />
+
+    <div class="pie">
+      <div class="pie-texto">{DESCRIPCION}</div>
+      <a class="feed" href="/atom.xml" title="log Atom feed">Atom</a>
+    </div>
+  </body>
+</html>

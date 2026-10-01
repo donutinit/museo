@@ -1,0 +1,56 @@
+---
+import Gitweb from '../layouts/Gitweb.astro';
+import Shortlog from '../components/Shortlog.astro';
+import { Content as Leeme } from '../textos/README.md';
+import { bitacora, heads, tags, refsDe, CORREO, DESCRIPCION, SITIO_PRINCIPAL } from '../lib/git';
+
+const log = await bitacora();
+const refs = refsDe(log);
+const ramas = heads(log);
+const marcas = tags(log);
+
+// gitweb enseña las últimas 16 y deja el resto tras una fila de puntos
+const VISIBLES = 16;
+---
+
+<Gitweb vista="summary" canonica="/">
+  <div class="titulo">&nbsp;</div>
+  <table>
+    <tr><td>description</td><td>{DESCRIPCION}</td></tr>
+    <tr><td>owner</td><td><a href={`mailto:${CORREO}`}>{CORREO}</a></td></tr>
+    <tr><td>last&nbsp;change</td><td>{log[0]?.dia}</td></tr>
+    <tr><td>URL</td><td>{Astro.site?.origin}</td></tr>
+    <tr><td></td><td><a href={SITIO_PRINCIPAL}>{SITIO_PRINCIPAL}</a></td></tr>
+  </table>
+
+  <div class="titulo">README.md</div>
+  <div class="leeme"><Leeme /></div>
+
+  <a class="titulo" href="/shortlog/">shortlog</a>
+  <Shortlog log={log.slice(0, VISIBLES)} refs={refs} resto={log.length > VISIBLES ? '/shortlog/' : undefined} />
+
+  <a class="titulo" href="/shortlog/">heads</a>
+  <table class="lista">
+    {ramas.map((r) => (
+      <tr>
+        <td class="fecha"><i>{r.punta.dia}</i></td>
+        <td><a class="item fuerte" href={`/shortlog/${r.nombre}/`}>{r.nombre}</a></td>
+        <td class="enlaces">
+          <a href={`/shortlog/${r.nombre}/`}>shortlog</a>&nbsp;|&nbsp;<a href="/tree/">tree</a>
+        </td>
+      </tr>
+    ))}
+  </table>
+
+  <a class="titulo" href="/shortlog/">tags</a>
+  <table class="lista">
+    {marcas.map((t) => (
+      <tr>
+        <td class="fecha"><i>{t.punta.dia}</i></td>
+        <td><a class="item fuerte" href={t.punta.href}>{t.nombre}</a></td>
+        <td class="asunto"><a class="item" href={t.punta.href}>{t.punta.titulo}</a></td>
+        <td class="enlaces"><a href={`/shortlog/#y${t.nombre}`}>shortlog</a></td>
+      </tr>
+    ))}
+  </table>
+</Gitweb>

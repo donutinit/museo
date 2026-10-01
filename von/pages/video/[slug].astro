@@ -1,0 +1,81 @@
+---
+import Gitweb from '../../layouts/Gitweb.astro';
+import { cintasPorFecha, kindLabel, subtitulosDe } from '../../../src/data/videos';
+import { media, medidaDe } from '../../../src/lib/media';
+import { medidaCinta } from '../../../src/lib/archivo';
+import { descripcionCinta } from '../../../src/lib/seo';
+import { tieneSubtitulos } from '../../lib/subtitulos';
+import { REPO } from '../../lib/git';
+
+export function getStaticPaths() {
+  return cintasPorFecha.map((cinta, i) => ({
+    params: { slug: cinta.slug },
+    props: {
+      cinta,
+      anterior: cintasPorFecha[i - 1] ?? null,
+      siguiente: cintasPorFecha[i + 1] ?? null,
+    },
+  }));
+}
+
+const { cinta, anterior, siguiente } = Astro.props;
+const [w, h] = medidaCinta(cinta.aspect);
+const [pw, ph] = medidaDe(cinta.poster) ?? [w, h];
+const subtitulos = tieneSubtitulos(cinta.slug);
+---
+
+<Gitweb
+  vista="blob"
+  objeto={`${cinta.slug}.mp4`}
+  titulo={`${cinta.title} | Von Diego`}
+  descripcion={descripcionCinta(cinta)}
+  canonica={`/video/${cinta.slug}/`}
+  imagen={cinta.poster}
+>
+  <Fragment slot="sub">
+    <a href={media(cinta.src)}>raw</a>
+    <span>&nbsp;|&nbsp;</span>
+    {anterior ? <a href={`/video/${anterior.slug}/`} title={anterior.title}>prev</a> : <span>prev</span>}
+    <span>&nbsp;&sdot;&nbsp;</span>
+    {siguiente ? <a href={`/video/${siguiente.slug}/`} title={siguiente.title}>next</a> : <span>next</span>}
+  </Fragment>
+
+  <div class="ruta"><a href="/tree/">[{REPO}]</a> / {cinta.slug}.mp4</div>
+
+  <div class="titulo">{cinta.title}</div>
+  <div class="ficha-cab">
+    <table>
+      <tr><td>cinta</td><td class="sha">{cinta.slug}</td></tr>
+      <tr><td>oficio</td><td>{kindLabel[cinta.kind].toLowerCase()}</td></tr>
+      <tr><td>año</td><td>{cinta.year}</td></tr>
+      <tr><td>corre</td><td>{cinta.durationLabel}</td></tr>
+      <tr><td>cuadro</td><td>{cinta.aspect}</td></tr>
+      <tr><td>formato</td><td>h.264 aac</td></tr>
+    </table>
+  </div>
+
+  {cinta.caption && <div class="cuerpo">{cinta.caption}</div>}
+
+  <div class="cinta">
+    <video
+      controls
+      playsinline
+      preload="none"
+      poster={media(cinta.poster)}
+      width={pw}
+      height={ph}
+      style={`--r:${(w / h).toFixed(4)}`}
+    >
+      <source src={media(cinta.src)} type="video/mp4" />
+      {subtitulos && (
+        <track
+          kind="captions"
+          src={subtitulosDe(cinta.slug)}
+          srclang="es"
+          label="Español"
+          default={!cinta.captionsBurned}
+        />
+      )}
+    </video>
+  </div>
+</Gitweb>
