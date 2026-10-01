@@ -320,15 +320,148 @@ a.nl[href]:visited {
 
 /* ─── cinta ────────────────────────────────────────────── */
 
+/* el cuadro y todo lo que cuelga de él miden lo mismo: la barra de avance
+   termina donde termina la imagen. El alto se topa para que cuadro, mandos y
+   subtítulos quepan en la ventana sin scrollear. */
 .cinta {
+  box-sizing: content-box;
+  width: min(calc(100% - 16px), calc(max(12rem, 100vh - 20rem) * var(--r)));
   padding: 8px;
 }
 
 .cinta video {
   display: block;
-  width: min(100%, calc(80vh * var(--r)));
+  width: 100%;
   height: auto;
   background-color: #000000;
+}
+
+.cinta video:not([controls]) {
+  cursor: pointer;
+}
+
+.cinta-stat,
+.cinta-trozo {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+/* la línea de un diffstat: lo visto en verde, lo que falta en rojo */
+.cinta-stat {
+  display: flex;
+  padding-top: 4px;
+  white-space: pre;
+}
+
+.cinta-barra {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.cinta-mas {
+  color: #008800;
+}
+
+.cinta-menos {
+  color: #cc0000;
+}
+
+/* el deslizador de verdad va encima, invisible: se arrastra y se teclea */
+.cinta-barra input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.cinta-barra input:disabled {
+  cursor: default;
+}
+
+.cinta-barra:focus-within {
+  outline: 1px dotted #000000;
+}
+
+.cinta-acciones {
+  padding: 4px 0;
+}
+
+.cinta-acciones button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #0000cc;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cinta-acciones button:hover,
+.cinta-acciones button:active {
+  color: #880000;
+}
+
+.cinta-acciones label {
+  margin-left: 1.5ex;
+  white-space: nowrap;
+}
+
+.cinta-acciones input {
+  margin: 0 0.5ex 0 0;
+  vertical-align: middle;
+}
+
+.cinta-estado {
+  display: inline-block;
+  margin-left: 1.5ex;
+  color: #555555;
+  font-style: italic;
+}
+
+.error {
+  background-color: yellow;
+  color: red;
+  font-style: normal;
+}
+
+/* los subtítulos, debajo del cuadro, como trozo de diff. El alto se aparta de
+   antemano para que nada brinque cuando entra un renglón. */
+.cinta-trozo {
+  min-height: 4.5em;
+  margin-top: 2px;
+  border-top: 1px dotted #ffe0ff;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.cinta-trozo div:empty {
+  display: none;
+}
+
+.cinta-arrobas {
+  color: #990099;
+}
+
+.cinta-quita {
+  color: #cc0000;
+}
+
+.cinta-pone {
+  color: #008800;
+}
+
+.cinta-pone[data-viva='false'] {
+  color: #404040;
+}
+
+/* la ficha de la cinta va después del player: necesita su propia raya arriba */
+.cinta + .ficha-cab {
+  border-top-width: 1px;
 }
 
 /* ─── pie ──────────────────────────────────────────────── */
@@ -425,5 +558,13 @@ a.feed[href]:hover {
 
   .pestanas {
     line-height: 2;
+  }
+
+  .cinta-acciones {
+    line-height: 2.4;
+  }
+
+  .cinta-stat {
+    padding-block: 10px;
   }
 }

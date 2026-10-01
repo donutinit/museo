@@ -1,5 +1,6 @@
 ---
 import Gitweb from '../../layouts/Gitweb.astro';
+import Cinta from '../../components/Cinta.astro';
 import { cintasPorFecha, kindLabel, subtitulosDe } from '../../../src/data/videos';
 import { media, medidaDe } from '../../../src/lib/media';
 import { medidaCinta } from '../../../src/lib/archivo';
@@ -19,9 +20,10 @@ export function getStaticPaths() {
 }
 
 const { cinta, anterior, siguiente } = Astro.props;
-const [w, h] = medidaCinta(cinta.aspect);
-const [pw, ph] = medidaDe(cinta.poster) ?? [w, h];
+const [pw, ph] = medidaDe(cinta.poster) ?? medidaCinta(cinta.aspect);
 const subtitulos = tieneSubtitulos(cinta.slug);
+/** `00:53` → `0:53`, como lo pinta el player una vez que carga. */
+const corre = cinta.durationLabel.replace(/^0(?=\d:)/, '');
 ---
 
 <Gitweb
@@ -43,6 +45,16 @@ const subtitulos = tieneSubtitulos(cinta.slug);
   <div class="ruta"><a href="/tree/">[{REPO}]</a> / {cinta.slug}.mp4</div>
 
   <div class="titulo">{cinta.title}</div>
+  <Cinta
+    src={media(cinta.src)}
+    poster={media(cinta.poster)}
+    subtitulos={subtitulos ? subtitulosDe(cinta.slug) : undefined}
+    quemados={cinta.captionsBurned}
+    corre={corre}
+    ancho={pw}
+    alto={ph}
+  />
+
   <div class="ficha-cab">
     <table>
       <tr><td>cinta</td><td class="sha">{cinta.slug}</td></tr>
@@ -55,27 +67,4 @@ const subtitulos = tieneSubtitulos(cinta.slug);
   </div>
 
   {cinta.caption && <div class="cuerpo">{cinta.caption}</div>}
-
-  <div class="cinta">
-    <video
-      controls
-      playsinline
-      preload="none"
-      poster={media(cinta.poster)}
-      width={pw}
-      height={ph}
-      style={`--r:${(w / h).toFixed(4)}`}
-    >
-      <source src={media(cinta.src)} type="video/mp4" />
-      {subtitulos && (
-        <track
-          kind="captions"
-          src={subtitulosDe(cinta.slug)}
-          srclang="es"
-          label="Español"
-          default={!cinta.captionsBurned}
-        />
-      )}
-    </video>
-  </div>
 </Gitweb>

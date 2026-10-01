@@ -1,0 +1,336 @@
+---
+/**
+ * El player de von: una cinta leída como parche.
+ *
+ * El avance es la línea de un diffstat (`+` lo visto, `-` lo que falta), los
+ * mandos son enlaces y casillas como los de gitweb, y los subtítulos salen
+ * debajo del cuadro como un trozo de diff: lo que se acaba de decir entra con
+ * `+`, lo anterior sale con `-`.
+ *
+ * Sin JavaScript queda el `<video controls>` del navegador, que ya funciona.
+ */
+interface Props {
+  src: string;
+  poster: string;
+  /** Ruta del `.vtt`, si la cinta tiene. */
+  subtitulos?: string;
+  /** Los subtítulos ya vienen quemados en la imagen: no se pintan otra vez. */
+  quemados?: boolean;
+  /** `0:53`, para enseñar la duración antes de que cargue la cinta. */
+  corre: string;
+  ancho: number;
+  alto: number;
+}
+
+const { src, poster, subtitulos, quemados = false, corre, ancho, alto } = Astro.props;
+const conTexto = Boolean(subtitulos) && !quemados;
+---
+
+<div class="cinta" data-cinta style={`--r:${(ancho / alto).toFixed(4)}`}>
+  <video controls playsinline preload="none" poster={poster} width={ancho} height={alto}>
+    <source src={src} type="video/mp4" />
+    {subtitulos && (
+      <track kind="captions" src={subtitulos} srclang="es" label="Español" default={!quemados} />
+    )}
+    Tu navegador no puede reproducir esta cinta.
+  </video>
+
+  <div class="cinta-mandos" data-mandos hidden>
+    <div class="cinta-stat">
+      <span data-tiempo>0:00 / {corre}</span>
+      <span aria-hidden="true">&nbsp;|&nbsp;</span>
+      <span class="cinta-barra" data-barra>
+        <span class="cinta-mas" data-mas aria-hidden="true"></span><span class="cinta-menos" data-menos aria-hidden="true"></span>
+        <input
+          type="range"
+          min="0"
+          max="1000"
+          step="1"
+          value="0"
+          aria-label="Posición de la cinta"
+          aria-valuetext={`0:00 de ${corre}`}
+          disabled
+          data-rango
+        />
+      </span>
+    </div>
+
+    <div class="cinta-acciones">
+      <button type="button" data-correr>correr</button>
+      <span aria-hidden="true">&nbsp;|&nbsp;</span>
+      <button type="button" data-pantalla>pantalla</button>
+      <label><input type="checkbox" checked data-sonido />sonido</label>
+      {conTexto && <label><input type="checkbox" checked data-texto />texto</label>}
+      <span class="cinta-estado" role="status" data-estado></span>
+    </div>
+
+    {conTexto && (
+      <div class="cinta-trozo" data-trozo aria-hidden="true">
+        <div class="cinta-arrobas" data-arrobas></div>
+        <div class="cinta-quita" data-quita></div>
+        <div class="cinta-pone" data-pone></div>
+      </div>
+    )}
+  </div>
+</div>
+
+<script>
+  import { velar, dormir } from '../../src/lib/vela';
+
+  type VideoPantalla = HTMLVideoElement & { webkitEnterFullscreen?: () => void };
+  type Renglon = { texto: string; desde: number };
+
+  /** `83.2` → `1:23` */
+  const reloj = (segundos: number) => {
+    if (!Number.isFinite(segundos) || segundos < 0) return '0:00';
+    const s = Math.floor(segundos);
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-cinta]').forEach((cinta) => {
+    const video = cinta.querySelector<VideoPantalla>('video');
+    const mandos = cinta.querySelector<HTMLElement>('[data-mandos]');
+    const tiempo = cinta.querySelector<HTMLElement>('[data-tiempo]');
+    const barra = cinta.querySelector<HTMLElement>('[data-barra]');
+    const mas = cinta.querySelector<HTMLElement>('[data-mas]');
+    const menos = cinta.querySelector<HTMLElement>('[data-menos]');
+    const rango = cinta.querySelector<HTMLInputElement>('[data-rango]');
+    const correr = cinta.querySelector<HTMLButtonElement>('[data-correr]');
+    const pantalla = cinta.querySelector<HTMLButtonElement>('[data-pantalla]');
+    const sonido = cinta.querySelector<HTMLInputElement>('[data-sonido]');
+    const estado = cinta.querySelector<HTMLElement>('[data-estado]');
+    if (
+      !video || !mandos || !tiempo || !barra || !mas || !menos ||
+      !rango || !correr || !pantalla || !sonido || !estado
+    ) return;
+
+    // sólo existen si la cinta trae subtítulos que no estén quemados
+    const texto = cinta.querySelector<HTMLInputElement>('[data-texto]');
+    const trozo = cinta.querySelector<HTMLElement>('[data-trozo]');
+    const arrobas = cinta.querySelector<HTMLElement>('[data-arrobas]');
+    const quita = cinta.querySelector<HTMLElement>('[data-quita]');
+    const pone = cinta.querySelector<HTMLElement>('[data-pone]');
+    const pista = video.textTracks[0];
+
+    const total = tiempo.textContent?.split('/')[1]?.trim() ?? '0:00';
+    let columnas = 0;
+    let fallo = false;
+
+    // ─── el diffstat ───
+    const pintarAvance = () => {
+      const dura = video.duration;
+      const hay = Number.isFinite(dura) && dura > 0;
+      const visto = hay ? Math.min(video.currentTime / dura, 1) : 0;
+      const llenas = Math.round(visto * columnas);
+
+      mas.textContent = '+'.repeat(llenas);
+      menos.textContent = '-'.repeat(Math.max(columnas - llenas, 0));
+      rango.value = String(Math.round(visto * 1000));
+
+      const ahora = reloj(video.currentTime);
+      const fin = hay ? reloj(dura) : total;
+      tiempo.textContent = `${ahora} / ${fin}`;
+      rango.setAttribute('aria-valuetext', `${ahora} de ${fin}`);
+    };
+
+    /** Cuántos signos caben: el ancho de la barra entre el ancho de uno. */
+    const medir = () => {
+      const regla = document.createElement('span');
+      regla.textContent = '+'.repeat(20);
+      regla.style.cssText = 'position:absolute;visibility:hidden;white-space:pre';
+      barra.append(regla);
+      const signo = regla.getBoundingClientRect().width / 20;
+      regla.remove();
+      columnas = signo > 0 ? Math.max(Math.floor(barra.clientWidth / signo), 1) : 0;
+      pintarAvance();
+    };
+
+    // ─── el trozo: los subtítulos como diff ───
+    let antes: Renglon | null = null;
+    let ahora: Renglon | null = null;
+    let viva = false;
+    let brinco = false;
+
+    const pintarTrozo = () => {
+      if (!trozo || !arrobas || !quita || !pone) return;
+      const prendido = Boolean(texto?.checked);
+      trozo.hidden = !prendido;
+      if (!prendido || !ahora) {
+        arrobas.textContent = quita.textContent = pone.textContent = '';
+        return;
+      }
+      arrobas.textContent = `@@ ${antes ? `-${reloj(antes.desde)} ` : ''}+${reloj(ahora.desde)} @@`;
+      quita.textContent = antes ? `-${antes.texto}` : '';
+      pone.textContent = `${viva ? '+' : ' '}${ahora.texto}`;
+      pone.dataset.viva = String(viva);
+    };
+
+    const leerPista = () => {
+      const activas = Array.from(pista?.activeCues ?? []) as VTTCue[];
+      const dicho = activas
+        .map((c) => c.text.replace(/\s+/g, ' ').trim())
+        .filter(Boolean)
+        .join(' ');
+
+      if (!dicho) {
+        viva = false;
+      } else if (dicho !== ahora?.texto) {
+        // tras un brinco, el renglón que estaba ya no es el que venía antes de éste
+        antes = brinco ? null : ahora;
+        brinco = false;
+        ahora = { texto: dicho, desde: activas[0].startTime };
+        viva = true;
+      } else {
+        viva = true;
+      }
+      pintarTrozo();
+    };
+
+    /** En el cuadro propio el texto lo pinta el trozo; a pantalla completa, el navegador. */
+    const modoPista = (nativa = false) => {
+      if (!pista) return;
+      pista.mode = !texto?.checked ? 'disabled' : nativa ? 'showing' : 'hidden';
+    };
+
+    // ─── los mandos ───
+    const decir = (mensaje: string, error = false) => {
+      estado.textContent = mensaje;
+      estado.classList.toggle('error', error);
+    };
+
+    const tronar = () => {
+      fallo = true;
+      correr.textContent = 'reintentar';
+      decir('la cinta no cargó', true);
+    };
+
+    const alternar = async () => {
+      if (!video.paused && !video.ended) {
+        video.pause();
+        return;
+      }
+      if (fallo) {
+        fallo = false;
+        video.load();
+      }
+      if (video.ended) video.currentTime = 0;
+      decir('cargando cinta');
+      try {
+        await video.play();
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        tronar();
+      }
+    };
+
+    const aPantalla = async () => {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else if (video.requestFullscreen) await video.requestFullscreen();
+        else video.webkitEnterFullscreen?.();
+      } catch {
+        decir('no se pudo abrir pantalla completa', true);
+      }
+    };
+
+    /** A pantalla completa mandan los controles del navegador; de vuelta, los de aquí. */
+    const pantallaNativa = (nativa: boolean) => {
+      video.controls = nativa;
+      modoPista(nativa);
+    };
+
+    video.addEventListener('click', () => {
+      if (!video.controls) void alternar();
+    });
+    correr.addEventListener('click', () => void alternar());
+    pantalla.addEventListener('click', () => void aPantalla());
+    sonido.addEventListener('change', () => {
+      video.muted = !sonido.checked;
+      if (sonido.checked && video.volume === 0) video.volume = 1;
+    });
+    texto?.addEventListener('change', () => {
+      modoPista(document.fullscreenElement === video);
+      leerPista();
+    });
+
+    rango.addEventListener('input', () => {
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+      video.currentTime = (Number(rango.value) / 1000) * video.duration;
+      pintarAvance();
+    });
+
+    cinta.addEventListener('keydown', (evento) => {
+      const donde = evento.target as HTMLElement;
+      if (evento.ctrlKey || evento.metaKey || evento.altKey) return;
+      const tecla = evento.key.toLowerCase();
+      const enCampo = donde instanceof HTMLInputElement || donde instanceof HTMLButtonElement;
+
+      if (tecla === 'k' || (tecla === ' ' && !enCampo)) {
+        evento.preventDefault();
+        void alternar();
+      } else if (tecla === 'm') {
+        sonido.click();
+      } else if (tecla === 'c') {
+        texto?.click();
+      } else if (tecla === 'f') {
+        void aPantalla();
+      } else if (
+        (tecla === 'arrowleft' || tecla === 'arrowright') &&
+        donde !== rango &&
+        Number.isFinite(video.duration)
+      ) {
+        evento.preventDefault();
+        const salto = tecla === 'arrowleft' ? -5 : 5;
+        video.currentTime = Math.min(Math.max(video.currentTime + salto, 0), video.duration);
+      }
+    });
+
+    video.addEventListener('loadedmetadata', () => {
+      rango.disabled = false;
+      modoPista(document.fullscreenElement === video);
+      pintarAvance();
+    });
+    video.addEventListener('waiting', () => decir('cargando cinta'));
+    video.addEventListener('playing', () => {
+      correr.textContent = 'pausa';
+      decir('');
+      velar();
+    });
+    video.addEventListener('pause', () => {
+      dormir();
+      if (!video.ended && !fallo) correr.textContent = 'correr';
+    });
+    video.addEventListener('ended', () => {
+      dormir();
+      correr.textContent = 'otra vez';
+      decir('fin de cinta');
+      pintarAvance();
+    });
+    video.addEventListener('error', tronar);
+    // con `<source>`, el error de carga cae en la fuente y no sube al video
+    video.querySelector('source')?.addEventListener('error', tronar);
+    video.addEventListener('timeupdate', pintarAvance);
+    video.addEventListener('seeking', () => {
+      brinco = true;
+      pintarAvance();
+    });
+    video.addEventListener('volumechange', () => {
+      sonido.checked = !video.muted && video.volume > 0;
+    });
+    pista?.addEventListener('cuechange', leerPista);
+
+    document.addEventListener('fullscreenchange', () => {
+      pantallaNativa(document.fullscreenElement === video);
+    });
+    video.addEventListener('webkitbeginfullscreen', () => pantallaNativa(true));
+    video.addEventListener('webkitendfullscreen', () => pantallaNativa(false));
+
+    // todo listo: se apagan los controles del navegador y entran los propios
+    video.controls = false;
+    mandos.hidden = false;
+    modoPista();
+    new ResizeObserver(medir).observe(barra);
+    medir();
+    pintarTrozo();
+  });
+</script>

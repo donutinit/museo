@@ -32,9 +32,10 @@ npx wrangler@4.129.0 deploy --config wrangler.von.jsonc
 
 El push a `main` despliega los dos, primero `museo` y luego `museo-von`.
 
-El dominio se agrega una sola vez, a mano, después del primer deploy:
-dashboard → Workers & Pages → `museo-von` → Settings → Domains & Routes →
-Add → Custom domain → `von.vondiego.com`.
+El dominio ya está conectado (sept 2026). No lo hace el deploy: si algún día
+hay que rehacerlo, es una sola vez, a mano, en el dashboard → Workers & Pages →
+`museo-von` → Settings → Domains & Routes → Add → Custom domain →
+`von.vondiego.com`.
 
 von no tiene sitemap: cada página apunta su canónico a la misma pieza en
 `www.vondiego.com`, que es la que debe quedar en el índice.
