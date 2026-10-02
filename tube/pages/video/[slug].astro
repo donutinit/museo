@@ -1,0 +1,94 @@
+---
+import Tube from '../../layouts/Tube.astro';
+import Reproductor from '../../components/Reproductor.astro';
+import Acciones from '../../components/Acciones.astro';
+import Compacta from '../../components/Compacta.astro';
+import Icono from '../../components/Icono.astro';
+import { subtitulosDe } from '../../../src/data/videos';
+import { media } from '../../../src/lib/media';
+import { descripcionCinta } from '../../../src/lib/seo';
+import { tieneSubtitulos } from '../../../von/lib/subtitulos';
+import { canal, corrida, CORREO, type Entrada } from '../../lib/canal';
+
+export async function getStaticPaths() {
+  const todo = await canal();
+  return todo
+    .filter((e) => e.cinta)
+    .map((e) => ({
+      params: { slug: e.slug },
+      // a continuación: primero lo que es de su misma clase, luego el resto del canal
+      props: {
+        e,
+        siguientes: [
+          ...todo.filter((o) => o !== e && o.clase === e.clase),
+          ...todo.filter((o) => o !== e && o.clase !== e.clase),
+        ],
+      },
+    }));
+}
+
+interface Props {
+  e: Entrada;
+  siguientes: Entrada[];
+}
+
+const { e, siguientes }: Props = Astro.props;
+const cinta = e.cinta!;
+const subtitulos = tieneSubtitulos(cinta.slug) ? subtitulosDe(cinta.slug) : undefined;
+---
+
+<Tube
+  titulo={cinta.title}
+  descripcion={descripcionCinta(cinta)}
+  canonica={e.href}
+  imagen={cinta.poster}
+  vista="ver"
+>
+  <div class="ver">
+    <div class="ver-principal">
+      <Reproductor
+        src={media(cinta.src)}
+        poster={media(cinta.poster)}
+        titulo={cinta.title}
+        subtitulos={subtitulos}
+        quemados={cinta.captionsBurned}
+        corre={corrida(cinta.durationLabel)}
+        ancho={e.pw}
+        alto={e.ph}
+      />
+
+      <h1 class="ver-titulo">{cinta.title}</h1>
+
+      <Acciones>
+        <a class="pastilla" href={media(cinta.src)}>
+          <Icono nombre="archivo" lado={20} /><span>Abrir .mp4</span>
+        </a>
+      </Acciones>
+
+      <div class="descripcion">
+        <p class="descripcion-cab">
+          {e.oficio} • <time datetime={e.dia} data-hace>{e.diaCorto}</time>
+        </p>
+        {cinta.caption && <p>{cinta.caption}</p>}
+        <dl>
+          <div><dt>Filmado</dt><dd>{e.diaCorto}</dd></div>
+          <div><dt>Corre</dt><dd>{corrida(cinta.durationLabel)}</dd></div>
+          <div><dt>Cuadro</dt><dd>{cinta.aspect}</dd></div>
+          <div><dt>Formato</dt><dd>H.264, AAC</dd></div>
+          {subtitulos && (
+            <div><dt>Subtítulos</dt><dd>{cinta.captionsBurned ? 'Español, en la imagen' : 'Español'}</dd></div>
+          )}
+        </dl>
+      </div>
+
+      <p class="comentarios">
+        Los comentarios están desactivados. Para decir algo, escribe a{' '}
+        <a href={`mailto:${CORREO}`}>{CORREO}</a>.
+      </p>
+    </div>
+
+    <aside class="ver-lado" aria-label="A continuación">
+      {siguientes.map((s) => <Compacta e={s} />)}
+    </aside>
+  </div>
+</Tube>

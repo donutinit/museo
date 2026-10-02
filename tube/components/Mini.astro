@@ -1,0 +1,50 @@
+---
+/**
+ * La miniatura: siempre 16:9, como en cualquier sitio de videos, pero sin
+ * recortar la foto. Si el original no es apaisado se pinta entero sobre su
+ * propio desenfoque, que es lo que hace el sitio de verdad con un video parado.
+ */
+import { media, srcset, MEDIA_BASE } from '../../src/lib/media';
+import type { Entrada } from '../lib/canal';
+
+interface Props {
+  e: Entrada;
+  sizes: string;
+  eager?: boolean;
+  /** En listas y resultados todo va en 16:9, también los shorts. */
+  apaisada?: boolean;
+}
+
+const { e, sizes, eager = false, apaisada = false } = Astro.props;
+// en la portada un short va en su propio cuadro parado; lo demás, en 16:9
+const parado = e.clase === 'short' && !apaisada;
+const entero = !parado && Math.abs(e.pw / e.ph - 16 / 9) > 0.02;
+const chica = `${MEDIA_BASE}/w400${e.poster.slice('/media'.length)}`;
+---
+
+<a
+  class:list={['mini', { 'mini-parada': parado, 'mini-pila': e.clase === 'playlist' }]}
+  href={e.href}
+  tabindex="-1"
+  aria-hidden="true"
+  data-previa={e.clase === 'video' ? media(e.cinta!.src) : undefined}
+>
+  {entero && <img class="mini-fondo" src={chica} alt="" loading="lazy" decoding="async" />}
+  <img
+    class:list={['mini-foto', { 'mini-entera': entero }]}
+    src={media(e.poster)}
+    srcset={srcset(e.poster)}
+    sizes={sizes}
+    alt=""
+    width={e.pw}
+    height={e.ph}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+  />
+  <span class="insignia">
+    {e.clase === 'playlist' && (
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h12M4 12h12M4 17h7" /></svg>
+    )}
+    {e.insignia}
+  </span>
+</a>

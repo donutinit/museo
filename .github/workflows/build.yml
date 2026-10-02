@@ -49,6 +49,10 @@ jobs:
       - name: build dev
         run: npm run build:dev
 
+      # tube: el mismo archivo con piel de sitio de videos. sale a dist-tube/
+      - name: build tube
+        run: npm run build:tube
+
       # despliega dist/ a Workers Static Assets.
       # requiere el secret CLOUDFLARE_API_TOKEN con permisos:
       #   Workers Scripts:Edit + Account Settings:Read
@@ -79,3 +83,12 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '4.129.0'
           command: deploy --config wrangler.dev.jsonc
+
+      # despliega dist-tube/ al worker `museo-tube` (tube.vondiego.com).
+      - name: deploy tube
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.129.0'
+          command: deploy --config wrangler.tube.jsonc

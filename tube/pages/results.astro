@@ -1,0 +1,74 @@
+---
+/**
+ * El buscador de la cabecera cae aquí. El sitio es estático, así que la página
+ * trae todo el canal y el script deja sólo lo que coincide con `search_query`.
+ * Sin JavaScript se ve el canal entero, que tampoco es mal resultado.
+ */
+import Tube from '../layouts/Tube.astro';
+import Mini from '../components/Mini.astro';
+import { canal, llano, CANAL } from '../lib/canal';
+
+const todo = await canal();
+const clase = { video: 'Video', short: 'Short', playlist: 'Playlist' };
+---
+
+<Tube titulo="Resultados" descripcion="Buscar en el archivo de foto y video de Von Diego." canonica="/obra/" noindex buscando>
+  <div class="resultados">
+    <p class="resultados-cab" data-cab hidden></p>
+
+    {todo.map((e) => (
+      <article
+        class="resultado"
+        data-resultado
+        data-busca={llano(`${e.titulo} ${e.oficio} ${clase[e.clase]} ${e.fecha.getUTCFullYear()} ${e.slug} ${e.texto}`)}
+      >
+        <Mini e={e} sizes="(max-width: 40rem) 100vw, 360px" apaisada />
+        <div class="resultado-texto">
+          <h2><a href={e.href}>{e.titulo}</a></h2>
+          <p class="resultado-meta">
+            {clase[e.clase]} • {e.oficio} • <time datetime={e.dia} data-hace>{e.diaCorto}</time>
+          </p>
+          <p class="resultado-canal">
+            <a class="avatar avatar-24" href="/about/" tabindex="-1" aria-hidden="true">V</a>
+            <a href="/about/">{CANAL}</a>
+          </p>
+          {e.texto && <p class="resultado-resumen">{e.cinta ? e.texto : e.rollo!.body?.split('\n').find((l) => l.trim())}</p>}
+        </div>
+      </article>
+    ))}
+
+    <div class="vacio" data-vacio hidden>
+      <h2>No se encontraron resultados</h2>
+      <p>Prueba con otra palabra: un nombre, un oficio o un año.</p>
+    </div>
+  </div>
+</Tube>
+
+<script>
+  const llano = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+  const consulta = new URLSearchParams(location.search).get('search_query')?.trim() ?? '';
+  const campo = document.querySelector<HTMLInputElement>('[data-buscador]');
+  const cab = document.querySelector<HTMLElement>('[data-cab]');
+  const vacio = document.querySelector<HTMLElement>('[data-vacio]');
+
+  if (consulta) {
+    if (campo) campo.value = consulta;
+    document.title = `${consulta} - ${document.title.split(' - ').pop()}`;
+
+    // todas las palabras tienen que aparecer, en cualquier orden
+    const palabras = llano(consulta).split(/\s+/).filter(Boolean);
+    let hay = 0;
+    document.querySelectorAll<HTMLElement>('[data-resultado]').forEach((r) => {
+      const va = palabras.every((p) => r.dataset.busca?.includes(p));
+      r.hidden = !va;
+      if (va) hay += 1;
+    });
+
+    if (vacio) vacio.hidden = hay > 0;
+    if (cab && hay > 0) {
+      cab.textContent = `${hay} ${hay === 1 ? 'resultado' : 'resultados'} para "${consulta}"`;
+      cab.hidden = false;
+    }
+  }
+</script>

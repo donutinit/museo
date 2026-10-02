@@ -8,6 +8,7 @@ jspm_packages/
 dist/
 dist-von/
 dist-dev/
+dist-tube/
 build/
 out/
 .astro/

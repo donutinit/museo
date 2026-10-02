@@ -1,0 +1,14 @@
+---
+// La marca donde el sitio de videos pone la suya: la pastilla roja con el
+// triángulo de correr, el nombre apretado y el país en superíndice.
+import { SITIO } from '../lib/canal';
+---
+
+<a class="logo" href="/" aria-label={`${SITIO}, inicio`}>
+  <svg viewBox="0 0 30 21" width="30" height="21" aria-hidden="true">
+    <rect width="30" height="21" rx="6.5" fill="#ff0033" />
+    <path fill="#ffffff" d="M12 6v9l8-4.5z" />
+  </svg>
+  <span class="logo-texto">{SITIO}</span>
+  <sup>MX</sup>
+</a>

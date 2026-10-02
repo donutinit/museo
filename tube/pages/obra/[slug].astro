@@ -1,0 +1,281 @@
+---
+/**
+ * Un rollo visto como playlist: la foto en el lugar del video, las demás en el
+ * panel de la derecha. Cada foto tiene su ancla (`#p03`), así que se puede
+ * mandar el enlace de una sola.
+ *
+ * Sin JavaScript la lista sigue sirviendo: cada renglón abre la foto original.
+ */
+import { render } from 'astro:content';
+import Tube from '../../layouts/Tube.astro';
+import Acciones from '../../components/Acciones.astro';
+import Compacta from '../../components/Compacta.astro';
+import Icono from '../../components/Icono.astro';
+import { media, srcset, MEDIA_BASE, ANCHOS } from '../../../src/lib/media';
+import { oficio } from '../../../src/lib/archivo';
+import { canal, piezasDe, CANAL, CORREO, type Entrada } from '../../lib/canal';
+
+export async function getStaticPaths() {
+  const todo = await canal();
+  return todo
+    .filter((e) => e.rollo)
+    .map((e) => ({
+      params: { slug: e.slug },
+      props: { e, otras: todo.filter((o) => o !== e && o.clase === 'playlist') },
+    }));
+}
+
+interface Props {
+  e: Entrada;
+  otras: Entrada[];
+}
+
+const { e, otras }: Props = Astro.props;
+const rollo = e.rollo!;
+const { data } = rollo;
+const { Content } = await render(rollo);
+const piezas = piezasDe(rollo);
+const [primera] = piezas;
+
+const resto = (ruta: string) => ruta.slice('/media'.length);
+const SIZES = '(max-width: 63.5rem) 100vw, 66vw';
+
+const datos = {
+  base: MEDIA_BASE,
+  anchos: ANCHOS,
+  piezas: piezas.map((p) => [resto(p.ruta), p.w ?? 0, p.h ?? 0, p.alt]),
+};
+
+const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location ? ` en ${data.location}` : ''}, ${data.year}. ${data.photoCount} piezas del archivo de Von Diego.`;
+---
+
+<Tube titulo={data.title} descripcion={descripcion} canonica={e.href} imagen={data.poster} vista="ver">
+  <div class="ver">
+    <div class="ver-principal">
+      <div class="rep rep-fotos" data-pase tabindex="0" aria-label={`Fotos de ${data.title}`}>
+        <div class="pase-cuadro" data-cuadro>
+          <img
+            src={media(primera.ruta)}
+            srcset={srcset(primera.ruta)}
+            sizes={SIZES}
+            alt={primera.alt}
+            width={primera.w}
+            height={primera.h}
+            fetchpriority="high"
+            decoding="async"
+          />
+        </div>
+
+        <button class="pase-lado pase-ant" type="button" aria-label="Foto anterior" data-ant hidden>
+          <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path class="trazo" d="M15 5l-7 7 7 7" /></svg>
+        </button>
+        <button class="pase-lado pase-sig" type="button" aria-label="Foto siguiente" data-sig hidden>
+          <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path class="trazo" d="M9 5l7 7-7 7" /></svg>
+        </button>
+
+        <div class="rep-mandos rep-mandos-fijos" data-mandos hidden>
+          <div class="rep-fila">
+            <span class="rep-tiempo" data-cuenta aria-live="polite">1 / {piezas.length}</span>
+            <span class="rep-hueco"></span>
+            <button type="button" aria-label="Pantalla completa (f)" data-pantalla>
+              <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                <path class="trazo" d="M5 9.5V5h4.5M14.5 5H19v4.5M19 14.5V19h-4.5M9.5 19H5v-4.5" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <h1 class="ver-titulo">{data.title}</h1>
+
+      <Acciones>
+        <a class="pastilla" href={media(primera.ruta)} data-original>
+          <Icono nombre="archivo" lado={20} /><span>Abrir original</span>
+        </a>
+      </Acciones>
+
+      <div class="descripcion">
+        <p class="descripcion-cab">
+          {e.oficio} • <time datetime={e.dia} data-hace>{e.diaCorto}</time>
+        </p>
+        <div class="descripcion-prosa"><Content /></div>
+        <dl>
+          <div><dt>Publicado</dt><dd>{e.diaCorto}</dd></div>
+          {data.location && <div><dt>Lugar</dt><dd>{data.location}</dd></div>}
+          {data.client && <div><dt>Cliente</dt><dd>{data.client}</dd></div>}
+          <div><dt>Fotos</dt><dd>{data.photoCount}</dd></div>
+        </dl>
+      </div>
+
+      <p class="comentarios">
+        Los comentarios están desactivados. Para decir algo, escribe a{' '}
+        <a href={`mailto:${CORREO}`}>{CORREO}</a>.
+      </p>
+    </div>
+
+    <aside class="ver-lado">
+      <section class="panel" aria-label="Playlist">
+        <header class="panel-cab">
+          <h2>{data.title}</h2>
+          <p>{CANAL} • <span data-panel-cuenta>1</span> / {piezas.length}</p>
+        </header>
+
+        <ol class="panel-lista" data-lista>
+          {piezas.map((p, i) => (
+            <li>
+              <a href={media(p.ruta)} data-p={i} aria-current={i === 0 ? 'true' : undefined}>
+                <span class="panel-num">{i + 1}</span>
+                <img
+                  src={`${MEDIA_BASE}/w400${resto(p.ruta)}`}
+                  alt=""
+                  width={p.w}
+                  height={p.h}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span class="panel-texto">
+                  <span class="panel-titulo">{p.archivo}</span>
+                  {p.w && p.h && <span class="panel-meta">{p.w} × {p.h}</span>}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <h2 class="lado-cab">Más playlists</h2>
+      {otras.map((o) => <Compacta e={o} />)}
+    </aside>
+  </div>
+
+  <script is:inline type="application/json" id="pase-datos" set:html={JSON.stringify(datos).replace(/</g, '\\u003c')} />
+</Tube>
+
+<script>
+  type Pieza = [resto: string, w: number, h: number, alt: string];
+  interface Datos { base: string; anchos: number[]; piezas: Pieza[] }
+
+  const SIZES = '(max-width: 63.5rem) 100vw, 66vw';
+  const pase = document.querySelector<HTMLElement>('[data-pase]');
+  const crudo = document.getElementById('pase-datos')?.textContent;
+
+  if (pase && crudo) {
+    const datos: Datos = JSON.parse(crudo);
+    const cuadro = pase.querySelector<HTMLElement>('[data-cuadro]')!;
+    const cuenta = pase.querySelector<HTMLElement>('[data-cuenta]')!;
+    const mandos = pase.querySelector<HTMLElement>('[data-mandos]')!;
+    const ant = pase.querySelector<HTMLButtonElement>('[data-ant]')!;
+    const sig = pase.querySelector<HTMLButtonElement>('[data-sig]')!;
+    const pantalla = pase.querySelector<HTMLButtonElement>('[data-pantalla]')!;
+    const lista = document.querySelector<HTMLElement>('[data-lista]')!;
+    const panelCuenta = document.querySelector<HTMLElement>('[data-panel-cuenta]');
+    const original = document.querySelector<HTMLAnchorElement>('[data-original]');
+    const filas = Array.from(lista.querySelectorAll<HTMLAnchorElement>('[data-p]'));
+    const total = datos.piezas.length;
+    let actual = 0;
+
+    const conjunto = (resto: string, ancho: number) => {
+      if (!ancho) return '';
+      const chicos = datos.anchos.filter((a) => a < ancho).map((a) => `${datos.base}/w${a}${resto} ${a}w`);
+      return chicos.length ? [...chicos, `${datos.base}${resto} ${ancho}w`].join(', ') : '';
+    };
+
+    const ancla = (i: number) => `#p${String(i + 1).padStart(2, '0')}`;
+
+    const pintar = (i: number, anotar = true) => {
+      actual = (i + total) % total;
+      const [resto, w, h, alt] = datos.piezas[actual];
+
+      const img = new Image();
+      img.alt = alt;
+      if (w && h) {
+        img.width = w;
+        img.height = h;
+      }
+      img.decoding = 'async';
+      img.sizes = SIZES;
+      const set = conjunto(resto, w);
+      if (set) img.srcset = set;
+      img.src = datos.base + resto;
+      cuadro.replaceChildren(img);
+
+      cuenta.textContent = `${actual + 1} / ${total}`;
+      if (panelCuenta) panelCuenta.textContent = String(actual + 1);
+      if (original) original.href = datos.base + resto;
+
+      filas.forEach((a, n) => {
+        if (n === actual) {
+          a.setAttribute('aria-current', 'true');
+          // sólo mueve el panel, nunca la página
+          lista.scrollTo({ top: a.offsetTop - lista.clientHeight / 2 + a.clientHeight / 2 });
+        } else {
+          a.removeAttribute('aria-current');
+        }
+      });
+
+      // la foto queda en la dirección, sin llenar el historial de pasos
+      if (anotar) history.replaceState(null, '', ancla(actual));
+
+      // la que sigue ya viene en camino
+      const [otro, ow] = datos.piezas[(actual + 1) % total];
+      const previa = new Image();
+      previa.sizes = SIZES;
+      const oset = conjunto(otro, ow);
+      if (oset) previa.srcset = oset;
+      previa.src = datos.base + otro;
+    };
+
+    const aPantalla = async () => {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else await pase.requestFullscreen?.();
+      } catch { /* el navegador dijo que no */ }
+    };
+
+    lista.addEventListener('click', (e) => {
+      const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('[data-p]');
+      if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      pintar(Number(a.dataset.p));
+    });
+
+    ant.addEventListener('click', () => pintar(actual - 1));
+    sig.addEventListener('click', () => pintar(actual + 1));
+    cuadro.addEventListener('click', () => pintar(actual + 1));
+    pantalla.addEventListener('click', () => void aPantalla());
+
+    pase.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const tecla = e.key.toLowerCase();
+      if (tecla === 'arrowright' || tecla === 'arrowleft') {
+        e.preventDefault();
+        pintar(actual + (tecla === 'arrowright' ? 1 : -1));
+      } else if (tecla === 'f') {
+        void aPantalla();
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      pase.classList.toggle('rep-completa', document.fullscreenElement === pase);
+    });
+
+    const deAncla = () => {
+      const n = Number(/^#p(\d+)$/.exec(location.hash)?.[1]);
+      return n >= 1 && n <= total ? n - 1 : -1;
+    };
+    window.addEventListener('hashchange', () => {
+      const i = deAncla();
+      if (i >= 0 && i !== actual) pintar(i, false);
+    });
+
+    mandos.hidden = false;
+    if (total > 1) {
+      ant.hidden = false;
+      sig.hidden = false;
+    }
+    if (!pase.requestFullscreen) pantalla.hidden = true;
+
+    const llegada = deAncla();
+    if (llegada > 0) pintar(llegada, false);
+  }
+</script>

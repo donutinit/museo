@@ -1,0 +1,60 @@
+---
+/**
+ * La fila bajo el título: el canal a la izquierda, las acciones a la derecha.
+ * Suscribirse lleva al canal de verdad; compartir usa la hoja del sistema o,
+ * si no hay, copia el enlace.
+ */
+import Icono from './Icono.astro';
+import { CANAL, ARROBA, YOUTUBE } from '../lib/canal';
+---
+
+<div class="acciones">
+  <div class="acciones-canal">
+    <a class="avatar avatar-40" href="/about/" tabindex="-1" aria-hidden="true">V</a>
+    <div>
+      <a class="acciones-nombre" href="/about/">{CANAL}</a>
+      <p>{ARROBA}</p>
+    </div>
+    <a class="pastilla pastilla-llena" href={YOUTUBE} rel="me">Suscribirse</a>
+  </div>
+
+  <div class="acciones-fin">
+    <button class="pastilla" type="button" data-compartir hidden>
+      <Icono nombre="compartir" lado={20} /><span>Compartir</span>
+    </button>
+    <slot />
+  </div>
+</div>
+
+<script>
+  const tostada = document.querySelector<HTMLElement>('[data-tostada]');
+  let reloj = 0;
+
+  const avisar = (mensaje: string) => {
+    if (!tostada) return;
+    tostada.textContent = mensaje;
+    tostada.hidden = false;
+    clearTimeout(reloj);
+    reloj = window.setTimeout(() => { tostada.hidden = true; }, 3200);
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('[data-compartir]').forEach((boton) => {
+    if (!navigator.share && !navigator.clipboard) return;
+    boton.hidden = false;
+
+    boton.addEventListener('click', async () => {
+      const datos = { title: document.title, url: location.href };
+      try {
+        if (navigator.share) await navigator.share(datos);
+        else {
+          await navigator.clipboard.writeText(datos.url);
+          avisar('Se copió el vínculo al portapapeles');
+        }
+      } catch (error) {
+        // cerrar la hoja de compartir no es un error
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        avisar('No se pudo copiar. Copia la dirección de la barra del navegador.');
+      }
+    });
+  });
+</script>

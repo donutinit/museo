@@ -1,0 +1,8 @@
+# los índices del sitio principal no existen aquí: caen a la portada.
+# OJO: solo las rutas exactas. /obra/<slug> y /video/<slug> son páginas reales.
+/obra           /#playlists         301
+/obra/          /#playlists         301
+/video          /                   301
+/video/         /                   301
+/shorts         /#shorts            301
+/shorts/        /#shorts            301

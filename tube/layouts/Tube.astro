@@ -1,0 +1,254 @@
+---
+import '../styles/tube.css';
+import Logo from '../components/Logo.astro';
+import Icono from '../components/Icono.astro';
+import { media } from '../../src/lib/media';
+import { PERFILES } from '../../src/lib/seo';
+import {
+  canal, oficios, SITIO, CANAL, YOUTUBE, SITIO_PRINCIPAL, SITIO_VON, SITIO_DEV, REPO,
+} from '../lib/canal';
+
+interface Props {
+  /** Sin título, la pestaña lleva sólo el nombre del sitio. */
+  titulo?: string;
+  descripcion?: string;
+  /** La misma pieza en el sitio principal: a ella apunta el canónico. */
+  canonica?: string;
+  imagen?: string;
+  noindex?: boolean;
+  /** `ver`: página de un video o una playlist. La guía se guarda y sólo sale al pedirla. */
+  vista?: 'feed' | 'ver';
+  /** La página de resultados: en el teléfono el campo de buscar va abierto. */
+  buscando?: boolean;
+}
+
+const {
+  titulo,
+  descripcion = 'El archivo de foto y video de Von Diego en Monterrey, visto como canal: las cintas son videos y shorts, los rollos son playlists.',
+  canonica,
+  imagen = '/media/video-posters/entrevista-yolanda.jpg',
+  noindex = false,
+  vista = 'feed',
+  buscando = false,
+} = Astro.props;
+
+const tituloPagina = titulo ? `${titulo} - ${SITIO}` : SITIO;
+const canonical = canonica ? new URL(canonica, SITIO_PRINCIPAL) : undefined;
+const propia = new URL(Astro.url.pathname, Astro.site);
+
+const ruta = Astro.url.pathname.replace(/\/$/, '') || '/';
+const todo = await canal();
+
+const principal = [
+  { href: '/', label: 'Inicio', icono: 'inicio', activa: ruta === '/' },
+  { href: '/#shorts', label: 'Shorts', icono: 'shorts', activa: false },
+  { href: '/#playlists', label: 'Playlists', icono: 'playlists', activa: false },
+  { href: '/about/', label: 'Canal', icono: 'canal', activa: ruta === '/about' },
+] as const;
+
+const otros = PERFILES.filter((p) => p !== YOUTUBE).map((p) => {
+  const sitio = new URL(p).hostname.replace(/^www\./, '').split('.')[0];
+  return { href: p, label: { instagram: 'Instagram', github: 'GitHub' }[sitio] ?? sitio };
+});
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>{tituloPagina}</title>
+    <meta name="description" content={descripcion} />
+    <meta name="author" content="Von Diego" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0f0f0f" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <link rel="preconnect" href="https://media.vondiego.com" />
+
+    <meta property="og:title" content={titulo ?? SITIO} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={propia} />
+    <meta property="og:site_name" content={SITIO} />
+    <meta property="og:image" content={media(imagen)} />
+    <meta property="og:locale" content="es_MX" />
+  </head>
+
+  <body data-vista={vista}>
+    <a class="salto" href="#contenido">Saltar al contenido</a>
+
+    <header class:list={['cab', { 'cab-busca': buscando }]} data-cab>
+      <div class="cab-inicio">
+        <button class="redondo" type="button" aria-label="Guía" aria-expanded="false" aria-controls="guia" data-guia-boton hidden>
+          <Icono nombre="menu" />
+        </button>
+        <Logo />
+      </div>
+
+      <form class="buscador" method="get" action="/results/" role="search">
+        <input
+          type="search"
+          name="search_query"
+          placeholder="Buscar"
+          aria-label="Buscar"
+          autocomplete="off"
+          data-buscador
+        />
+        <button type="submit" aria-label="Buscar"><Icono nombre="buscar" /></button>
+      </form>
+
+      <div class="cab-fin">
+        <a class="pastilla pastilla-linea" href="/contact/">
+          <Icono nombre="correo" lado={20} />
+          <span>Contacto</span>
+        </a>
+      </div>
+    </header>
+
+    <div class="velo" data-velo hidden></div>
+
+    <nav class="guia" id="guia" aria-label="Guía" data-guia>
+      <div class="guia-cab">
+        <button class="redondo" type="button" aria-label="Cerrar la guía" data-guia-cerrar>
+          <Icono nombre="menu" />
+        </button>
+        <Logo />
+      </div>
+
+      <div class="guia-tramo">
+        {principal.map((p) => (
+          <a class="guia-fila" href={p.href} aria-current={p.activa ? 'page' : undefined}>
+            <Icono nombre={p.icono} /><span>{p.label}</span>
+          </a>
+        ))}
+        <a class="guia-fila" href="/contact/" aria-current={ruta === '/contact' ? 'page' : undefined}>
+          <Icono nombre="correo" /><span>Contacto</span>
+        </a>
+      </div>
+
+      <div class="guia-tramo guia-larga">
+        <h2>Explorar</h2>
+        {oficios(todo).map((o) => (
+          <a class="guia-fila" href={`/results/?search_query=${encodeURIComponent(o)}`}>
+            <Icono nombre="oficio" /><span>{o}</span>
+          </a>
+        ))}
+      </div>
+
+      <div class="guia-tramo guia-larga">
+        <h2>Más de {CANAL}</h2>
+        <a class="guia-fila" href={SITIO_PRINCIPAL}><Icono nombre="fuera" /><span>Sala oscura</span></a>
+        <a class="guia-fila" href={SITIO_VON}><Icono nombre="fuera" /><span>Repositorio</span></a>
+        <a class="guia-fila" href={SITIO_DEV}><Icono nombre="fuera" /><span>Software</span></a>
+      </div>
+
+      <div class="guia-pie guia-larga">
+        <p>
+          <a href="/about/">Acerca de</a>
+          <a href="/contact/">Contacto</a>
+          <a href={`${REPO}/blob/main/LICENSE`}>Derechos de autor</a>
+          <a href={REPO}>Código</a>
+        </p>
+        <p>
+          <a href={YOUTUBE} rel="me">YouTube</a>
+          {otros.map((o) => <a href={o.href} rel="me">{o.label}</a>)}
+        </p>
+        <p class="guia-copy">© Von Diego</p>
+      </div>
+    </nav>
+
+    <main id="contenido">
+      <slot />
+    </main>
+
+    <nav class="barra" aria-label="Principal">
+      {principal.map((p) => (
+        <a href={p.href} aria-current={p.activa ? 'page' : undefined}>
+          <Icono nombre={p.icono} /><span>{p.label}</span>
+        </a>
+      ))}
+    </nav>
+
+    <div class="tostada" role="status" data-tostada hidden></div>
+
+    <script>
+      // ─── "hace 4 meses": la fecha exacta queda de respaldo en el título ───
+      const hace = new Intl.RelativeTimeFormat('es', { numeric: 'always' });
+      document.querySelectorAll<HTMLTimeElement>('time[data-hace]').forEach((t) => {
+        const dias = (Date.now() - Date.parse(t.dateTime)) / 864e5;
+        if (!Number.isFinite(dias)) return;
+        const [n, unidad] =
+          dias < 7 ? ([dias, 'day'] as const)
+          : dias < 30 ? ([dias / 7, 'week'] as const)
+          : dias < 365 ? ([dias / 30.44, 'month'] as const)
+          : ([dias / 365.25, 'year'] as const);
+        t.title = t.textContent ?? '';
+        t.textContent = n < 1 ? 'hoy' : hace.format(-Math.floor(n), unidad);
+      });
+
+      // ─── la guía ───
+      const boton = document.querySelector<HTMLButtonElement>('[data-guia-boton]');
+      const cerrar = document.querySelector<HTMLButtonElement>('[data-guia-cerrar]');
+      const guia = document.querySelector<HTMLElement>('[data-guia]');
+      const velo = document.querySelector<HTMLElement>('[data-velo]');
+
+      if (boton && cerrar && guia && velo) {
+        boton.hidden = false;
+        // en pantalla ancha y fuera de un video, la guía está en la página y el botón la encoge
+        const fija = () =>
+          document.body.dataset.vista === 'feed' && window.matchMedia('(min-width: 82rem)').matches;
+
+        const cajon = (abierto: boolean) => {
+          guia.classList.toggle('guia-abierta', abierto);
+          velo.hidden = !abierto;
+          boton.setAttribute('aria-expanded', String(abierto));
+          if (abierto) cerrar.focus();
+          else boton.focus();
+        };
+
+        boton.addEventListener('click', () => {
+          if (fija()) {
+            const chica = document.body.classList.toggle('guia-chica');
+            boton.setAttribute('aria-expanded', String(!chica));
+          } else {
+            cajon(true);
+          }
+        });
+        cerrar.addEventListener('click', () => cajon(false));
+        velo.addEventListener('click', () => cajon(false));
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && guia.classList.contains('guia-abierta')) cajon(false);
+        });
+        boton.setAttribute('aria-expanded', String(fija()));
+      }
+
+      // ─── en el teléfono el campo de buscar está guardado: la lupa lo saca ───
+      const cab = document.querySelector<HTMLElement>('[data-cab]');
+      const buscador = document.querySelector<HTMLInputElement>('[data-buscador]');
+      const fijo = cab?.classList.contains('cab-busca');
+
+      buscador?.form?.addEventListener('submit', (e) => {
+        if (!cab || !buscador || buscador.offsetParent) return;
+        e.preventDefault();
+        cab.classList.add('cab-busca');
+        buscador.focus();
+      });
+      buscador?.addEventListener('blur', () => {
+        if (!fijo && !buscador.value) cab?.classList.remove('cab-busca');
+      });
+
+      // ─── `/`: al buscador, como en el sitio de verdad ───
+      document.addEventListener('keydown', (e) => {
+        const donde = e.target as HTMLElement;
+        if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+        if (donde instanceof HTMLInputElement || donde instanceof HTMLTextAreaElement) return;
+        e.preventDefault();
+        cab?.classList.add('cab-busca');
+        buscador?.focus();
+      });
+    </script>
+  </body>
+</html>

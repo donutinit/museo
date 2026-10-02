@@ -1,0 +1,34 @@
+---
+import Tube from '../layouts/Tube.astro';
+import CanalCab from '../components/CanalCab.astro';
+import { PERFILES } from '../../src/lib/seo';
+import { Content as Contacto } from '../../von/textos/CONTACTO.md';
+import { CANAL, SITIO_PRINCIPAL, SITIO_VON, SITIO_DEV } from '../lib/canal';
+
+const sinEsquema = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '');
+const vinculos = [SITIO_PRINCIPAL, SITIO_VON, SITIO_DEV, ...PERFILES];
+---
+
+<Tube
+  titulo={`${CANAL}: información`}
+  descripcion="Contacto directo con Von Diego para fotografía de retrato, eventos, documentación y producción de video en Monterrey, Nuevo León."
+  canonica="/contact/"
+>
+  <div class="canal">
+    <CanalCab pestana="informacion" />
+
+    <section class="canal-tramo" aria-labelledby="t-informacion">
+      <h2 id="t-informacion">Información</h2>
+      <div class="canal-prosa"><Contacto /></div>
+    </section>
+
+    <section class="canal-tramo" aria-labelledby="t-vinculos">
+      <h2 id="t-vinculos">Vínculos</h2>
+      <ul class="vinculos">
+        {vinculos.map((v) => (
+          <li><a href={v} rel={PERFILES.includes(v) ? 'me' : undefined}>{sinEsquema(v)}</a></li>
+        ))}
+      </ul>
+    </section>
+  </div>
+</Tube>

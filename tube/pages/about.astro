@@ -1,0 +1,34 @@
+---
+import Tube from '../layouts/Tube.astro';
+import CanalCab from '../components/CanalCab.astro';
+import Tarjeta from '../components/Tarjeta.astro';
+// el manifiesto vive una sola vez fuera del sitio principal, en von/textos
+import { Content as Leeme } from '../../von/textos/README.md';
+import { canal, CANAL } from '../lib/canal';
+
+const todo = await canal();
+const RECIENTES = 4;
+const recientes = todo.filter((e) => e.clase !== 'short').slice(0, RECIENTES);
+---
+
+<Tube
+  titulo={CANAL}
+  descripcion="Von Diego es fotógrafo y videasta en Monterrey. Conoce su trabajo en retrato, documentación, obra personal, video y montaje."
+  canonica="/about/"
+>
+  <div class="canal">
+    <CanalCab pestana="inicio" />
+
+    <section class="canal-tramo" aria-labelledby="t-descripcion">
+      <h2 id="t-descripcion">Descripción</h2>
+      <div class="canal-prosa"><Leeme /></div>
+    </section>
+
+    <section class="canal-tramo" aria-labelledby="t-recientes">
+      <h2 id="t-recientes">Lo más reciente</h2>
+      <div class="rejilla">
+        {recientes.map((e) => <Tarjeta e={e} />)}
+      </div>
+    </section>
+  </div>
+</Tube>

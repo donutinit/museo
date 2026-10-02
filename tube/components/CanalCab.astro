@@ -1,0 +1,62 @@
+---
+/**
+ * La cabecera del canal: la franja, el avatar, el nombre y las pestañas.
+ * Las cuentas salen del archivo; suscriptores no hay porque no existen.
+ */
+import { media, srcset } from '../../src/lib/media';
+import { canal, deClase, cuenta, CANAL, ARROBA, YOUTUBE } from '../lib/canal';
+
+interface Props {
+  pestana: 'inicio' | 'informacion';
+}
+
+const { pestana } = Astro.props;
+const todo = await canal();
+const cintas = todo.filter((e) => e.cinta).length;
+const playlists = deClase(todo, 'playlist').length;
+
+// la franja: los últimos rollos en tira, como una hoja de contacto
+const FRANJA = 6;
+const franja = deClase(todo, 'playlist').slice(0, FRANJA);
+
+const pestanas = [
+  { href: '/about/', label: 'Inicio', activa: pestana === 'inicio' },
+  { href: '/#videos', label: 'Videos', activa: false },
+  { href: '/#shorts', label: 'Shorts', activa: false },
+  { href: '/#playlists', label: 'Playlists', activa: false },
+  { href: '/contact/', label: 'Información', activa: pestana === 'informacion' },
+];
+---
+
+<div class="canal-franja" aria-hidden="true">
+  {franja.map((e, i) => (
+    <img
+      src={media(e.poster)}
+      srcset={srcset(e.poster)}
+      sizes="(max-width: 40rem) 34vw, 220px"
+      alt=""
+      width={e.pw}
+      height={e.ph}
+      fetchpriority={i === 0 ? 'high' : undefined}
+      decoding="async"
+    />
+  ))}
+</div>
+
+<header class="canal-cab">
+  <span class="avatar avatar-grande" aria-hidden="true">V</span>
+  <div>
+    <h1>{CANAL}</h1>
+    <p class="canal-meta">
+      <strong>{ARROBA}</strong> • {cuenta(cintas, 'video', 'videos')} • {cuenta(playlists, 'playlist', 'playlists')}
+    </p>
+    <p class="canal-lema">Foto, video y montaje. Monterrey, MX.</p>
+    <a class="pastilla pastilla-llena" href={YOUTUBE} rel="me">Suscribirse</a>
+  </div>
+</header>
+
+<nav class="canal-pestanas" aria-label="Canal">
+  {pestanas.map((p) => (
+    <a href={p.href} aria-current={p.activa ? 'page' : undefined}>{p.label}</a>
+  ))}
+</nav>

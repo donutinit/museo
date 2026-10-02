@@ -17,6 +17,8 @@
     "build:von": "astro build --config astro.von.config.mjs",
     "dev:dev": "astro dev --config astro.dev.config.mjs",
     "build:dev": "astro build --config astro.dev.config.mjs",
+    "dev:tube": "astro dev --config astro.tube.config.mjs",
+    "build:tube": "astro build --config astro.tube.config.mjs",
     "derivados": "node scripts/derivados.mjs"
   },
   "dependencies": {

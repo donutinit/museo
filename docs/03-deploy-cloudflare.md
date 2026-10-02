@@ -9,6 +9,7 @@ el sitio se sirve desde Workers Static Assets; la media desde un bucket R2.
 | worker | `museo` | `www.vondiego.com` |
 | worker | `museo-von` | `von.vondiego.com` |
 | worker | `museo-dev` | `dev.vondiego.com` |
+| worker | `museo-tube` | `tube.vondiego.com` |
 | bucket r2 | `museo` | `media.vondiego.com` |
 
 ## von
@@ -31,7 +32,7 @@ npm run build:von
 npx wrangler@4.129.0 deploy --config wrangler.von.jsonc
 ```
 
-El push a `main` despliega los tres: `museo`, `museo-von` y `museo-dev`.
+El push a `main` despliega los cuatro: `museo`, `museo-von`, `museo-dev` y `museo-tube`.
 
 El dominio ya está conectado (sept 2026). No lo hace el deploy: si algún día
 hay que rehacerlo, es una sola vez, a mano, en el dashboard → Workers & Pages →
@@ -75,6 +76,37 @@ que rehacerlo, es una sola vez, a mano, en el dashboard → Workers & Pages →
 No copia textos: el manifiesto y el contacto los lee de `von/textos/`, y los
 subtítulos de `public/captions/` a través de `von/lib/subtitulos.ts`. Tampoco
 tiene sitemap; el canónico de cada página apunta a `www.vondiego.com`.
+
+## tube
+
+`tube.vondiego.com` es el mismo archivo con piel de sitio de videos (el logo
+dice VonTube). Mismo trato que von y dev: sus páginas viven en `tube/` y no
+tiene contenido propio. Una cinta apaisada es un video, una cinta vertical es
+un short y un rollo es una playlist de fotos (`tube/lib/canal.ts`).
+
+| | tube |
+|---|---|
+| config de astro | `astro.tube.config.mjs` |
+| páginas | `tube/pages` |
+| `public/` | `tube/public/` |
+| salida | `dist-tube/` |
+| config de wrangler | `wrangler.tube.jsonc` |
+
+```bash
+npm run dev:tube
+npm run build:tube
+npx wrangler@4.129.0 deploy --config wrangler.tube.jsonc
+```
+
+El push a `main` lo despliega al final, después de los otros tres.
+
+No inventa números: no hay vistas, likes ni suscriptores. "Suscribirse" lleva
+al canal de YouTube que está en `PERFILES` (`src/lib/seo.ts`). El buscador de la
+cabecera cae en `/results/`, que trae todo el canal y filtra en el navegador.
+
+Igual que dev, lee el manifiesto y el contacto de `von/textos/` y los
+subtítulos a través de `von/lib/subtitulos.ts`. Sin sitemap; el canónico de
+cada página apunta a `www.vondiego.com`.
 
 ## deploy manual (desde local)
 

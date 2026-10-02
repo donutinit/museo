@@ -1,0 +1,38 @@
+---
+import Mini from './Mini.astro';
+import { CANAL, llano, type Entrada } from '../lib/canal';
+
+interface Props {
+  e: Entrada;
+  eager?: boolean;
+}
+
+const { e, eager = false } = Astro.props;
+const SIZES = {
+  video: '(max-width: 40rem) 100vw, (max-width: 70rem) 50vw, 400px',
+  playlist: '(max-width: 40rem) 100vw, (max-width: 70rem) 50vw, 400px',
+  short: '(max-width: 40rem) 46vw, 220px',
+};
+---
+
+<article
+  class:list={['tarjeta', `tarjeta-${e.clase}`]}
+  data-tarjeta
+  data-oficio={e.oficio}
+  data-busca={llano(`${e.titulo} ${e.oficio} ${e.fecha.getUTCFullYear()} ${e.slug} ${e.texto}`)}
+>
+  <Mini e={e} sizes={SIZES[e.clase]} eager={eager} />
+  <div class="tarjeta-pie">
+    {e.clase !== 'short' && <a class="avatar" href="/about/" tabindex="-1" aria-hidden="true">V</a>}
+    <div class="tarjeta-texto">
+      <h3><a href={e.href}>{e.titulo}</a></h3>
+      {e.clase !== 'short' && (
+        <a class="tarjeta-canal" href="/about/">{CANAL}{e.clase === 'playlist' && ' • Playlist'}</a>
+      )}
+      <p class="tarjeta-meta">
+        {e.oficio} • <time datetime={e.dia} data-hace>{e.diaCorto}</time>
+      </p>
+      {e.clase === 'playlist' && <a class="tarjeta-mas" href={e.href}>Ver la playlist completa</a>}
+    </div>
+  </div>
+</article>

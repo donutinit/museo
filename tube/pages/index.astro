@@ -1,0 +1,110 @@
+---
+import Tube from '../layouts/Tube.astro';
+import Tarjeta from '../components/Tarjeta.astro';
+import Icono from '../components/Icono.astro';
+import { canal, deClase, oficios } from '../lib/canal';
+
+const todo = await canal();
+const videos = deClase(todo, 'video');
+const shorts = deClase(todo, 'short');
+const playlists = deClase(todo, 'playlist');
+---
+
+<Tube canonica="/">
+  <div class="fichas" role="toolbar" aria-label="Filtrar por oficio" data-fichas>
+    <button type="button" aria-pressed="true" data-ficha="">Todos</button>
+    {oficios(todo).map((o) => (
+      <button type="button" aria-pressed="false" data-ficha={o}>{o}</button>
+    ))}
+  </div>
+
+  <div class="feed">
+    <section id="videos" aria-labelledby="t-videos" data-tramo>
+      <h2 class="oculto" id="t-videos">Videos</h2>
+      <div class="rejilla">
+        {videos.map((e, i) => <Tarjeta e={e} eager={i < 3} />)}
+      </div>
+    </section>
+
+    <section class="estante" id="shorts" aria-labelledby="t-shorts" data-tramo>
+      <h2 id="t-shorts"><Icono nombre="shorts" /> Shorts</h2>
+      <div class="rejilla rejilla-shorts">
+        {shorts.map((e) => <Tarjeta e={e} />)}
+      </div>
+    </section>
+
+    <section class="estante" id="playlists" aria-labelledby="t-playlists" data-tramo>
+      <h2 id="t-playlists"><Icono nombre="playlists" /> Playlists</h2>
+      <div class="rejilla">
+        {playlists.map((e) => <Tarjeta e={e} />)}
+      </div>
+    </section>
+
+    <p class="vacio" data-vacio hidden>
+      No hay nada de ese oficio. Elige otra ficha o vuelve a Todos.
+    </p>
+  </div>
+</Tube>
+
+<script>
+  // ─── las fichas: filtran la portada por oficio ───
+  const fichas = document.querySelector<HTMLElement>('[data-fichas]');
+  const tramos = document.querySelectorAll<HTMLElement>('[data-tramo]');
+  const vacio = document.querySelector<HTMLElement>('[data-vacio]');
+
+  fichas?.addEventListener('click', (e) => {
+    const boton = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-ficha]');
+    if (!boton) return;
+    const oficio = boton.dataset.ficha ?? '';
+
+    fichas.querySelectorAll('[data-ficha]').forEach((b) => b.setAttribute('aria-pressed', String(b === boton)));
+
+    let hay = 0;
+    tramos.forEach((tramo) => {
+      let suyas = 0;
+      tramo.querySelectorAll<HTMLElement>('[data-tarjeta]').forEach((t) => {
+        const va = !oficio || t.dataset.oficio === oficio;
+        t.hidden = !va;
+        if (va) suyas += 1;
+      });
+      tramo.hidden = suyas === 0;
+      hay += suyas;
+    });
+    if (vacio) vacio.hidden = hay > 0;
+  });
+
+  // ─── la miniatura corre al señalarla, sin sonido, como en el sitio de verdad ───
+  const conPuntero = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ahorro = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+
+  if (conPuntero && !quieto && !ahorro) {
+    document.querySelectorAll<HTMLElement>('[data-previa]').forEach((mini) => {
+      let espera = 0;
+      let video: HTMLVideoElement | null = null;
+
+      mini.addEventListener('pointerenter', () => {
+        espera = window.setTimeout(() => {
+          video = document.createElement('video');
+          video.className = 'mini-previa';
+          video.muted = true;
+          video.playsInline = true;
+          video.loop = true;
+          video.src = mini.dataset.previa!;
+          mini.append(video);
+          void video.play().catch(() => {});
+        }, 700);
+      });
+
+      mini.addEventListener('pointerleave', () => {
+        clearTimeout(espera);
+        if (!video) return;
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+        video.remove();
+        video = null;
+      });
+    });
+  }
+</script>

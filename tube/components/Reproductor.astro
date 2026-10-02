@@ -1,0 +1,341 @@
+---
+/**
+ * El reproductor: la cinta con los mandos de un sitio de videos.
+ *
+ * Barra de avance roja, correr y pausa, silencio, subtítulos y pantalla
+ * completa, con los mismos atajos de teclado (k, m, c, f, flechas). Los
+ * subtítulos se pintan aquí mismo, sobre la imagen; si ya vienen quemados en
+ * la cinta no se pintan otra vez.
+ *
+ * Sin JavaScript queda el `<video controls>` del navegador, que ya funciona.
+ */
+interface Props {
+  src: string;
+  poster: string;
+  titulo: string;
+  /** Ruta del `.vtt`, si la cinta tiene. */
+  subtitulos?: string;
+  /** Los subtítulos ya vienen quemados en la imagen. */
+  quemados?: boolean;
+  /** `0:53`, para enseñar la duración antes de que cargue la cinta. */
+  corre: string;
+  ancho: number;
+  alto: number;
+}
+
+const { src, poster, titulo, subtitulos, quemados = false, corre, ancho, alto } = Astro.props;
+const conTexto = Boolean(subtitulos) && !quemados;
+const parado = alto > ancho;
+---
+
+<div class:list={['rep', { 'rep-parado': parado }]} data-rep style={`--r:${(ancho / alto).toFixed(4)}`}>
+  <video controls playsinline preload="none" poster={poster} width={ancho} height={alto} aria-label={titulo}>
+    <source src={src} type="video/mp4" />
+    {subtitulos && (
+      <track kind="captions" src={subtitulos} srclang="es" label="Español" default={!quemados} />
+    )}
+    Tu navegador no puede reproducir este video.
+  </video>
+
+  {conTexto && <div class="rep-texto" data-texto aria-hidden="true"></div>}
+
+  <button class="rep-inicio" type="button" aria-label={`Reproducir: ${titulo}`} data-inicio hidden>
+    <svg viewBox="0 0 68 48" width="68" height="48" aria-hidden="true">
+      <rect width="68" height="48" rx="14" />
+      <path d="M27 14v20l18-10z" />
+    </svg>
+  </button>
+
+  <p class="rep-aviso" role="status" data-aviso hidden></p>
+
+  <div class="rep-mandos" data-mandos hidden>
+    <input
+      class="rep-avance"
+      type="range"
+      min="0"
+      max="1000"
+      step="1"
+      value="0"
+      aria-label="Avance del video"
+      aria-valuetext={`0:00 de ${corre}`}
+      disabled
+      data-avance
+    />
+    <div class="rep-fila">
+      <button type="button" aria-label="Reproducir (k)" data-correr>
+        <svg class="i-correr" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+        <svg class="i-pausa" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" /></svg>
+      </button>
+      <button type="button" aria-label="Silenciar (m)" aria-pressed="false" data-mudo>
+        <svg class="i-sonido" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+          <path d="M4 9.5v5h3.5L12 19V5L7.5 9.5z" />
+          <path class="trazo" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11" />
+        </svg>
+        <svg class="i-mudo" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+          <path d="M4 9.5v5h3.5L12 19V5L7.5 9.5z" />
+          <path class="trazo" d="m15.5 9.5 5 5M20.5 9.5l-5 5" />
+        </svg>
+      </button>
+      <span class="rep-tiempo" data-tiempo>0:00 / {corre}</span>
+      <span class="rep-hueco"></span>
+      {conTexto && (
+        <button type="button" class="rep-cc" aria-label="Subtítulos (c)" aria-pressed="true" data-cc>
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+            <path class="trazo" d="M4.5 6.5h15v11h-15z" />
+            <path class="trazo" d="M10.5 10.6a2 2 0 1 0 0 2.8M16.5 10.6a2 2 0 1 0 0 2.8" />
+          </svg>
+        </button>
+      )}
+      <button type="button" aria-label="Pantalla completa (f)" data-pantalla>
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+          <path class="trazo" d="M5 9.5V5h4.5M14.5 5H19v4.5M19 14.5V19h-4.5M9.5 19H5v-4.5" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { velar, dormir } from '../../src/lib/vela';
+
+  type VideoPantalla = HTMLVideoElement & { webkitEnterFullscreen?: () => void };
+
+  /** `83.2` → `1:23` */
+  const reloj = (segundos: number) => {
+    if (!Number.isFinite(segundos) || segundos < 0) return '0:00';
+    const s = Math.floor(segundos);
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-rep]').forEach((rep) => {
+    const video = rep.querySelector<VideoPantalla>('video');
+    const mandos = rep.querySelector<HTMLElement>('[data-mandos]');
+    const inicio = rep.querySelector<HTMLButtonElement>('[data-inicio]');
+    const aviso = rep.querySelector<HTMLElement>('[data-aviso]');
+    const avance = rep.querySelector<HTMLInputElement>('[data-avance]');
+    const correr = rep.querySelector<HTMLButtonElement>('[data-correr]');
+    const mudo = rep.querySelector<HTMLButtonElement>('[data-mudo]');
+    const tiempo = rep.querySelector<HTMLElement>('[data-tiempo]');
+    const pantalla = rep.querySelector<HTMLButtonElement>('[data-pantalla]');
+    if (!video || !mandos || !inicio || !aviso || !avance || !correr || !mudo || !tiempo || !pantalla) return;
+
+    // sólo existen si la cinta trae subtítulos que no estén quemados
+    const cc = rep.querySelector<HTMLButtonElement>('[data-cc]');
+    const texto = rep.querySelector<HTMLElement>('[data-texto]');
+    const pista = video.textTracks[0];
+
+    const total = tiempo.textContent?.split('/')[1]?.trim() ?? '0:00';
+    let fallo = false;
+    let conTexto = Boolean(cc);
+    let guardar = 0;
+
+    // ─── avance ───
+    const pintar = () => {
+      const dura = video.duration;
+      const hay = Number.isFinite(dura) && dura > 0;
+      const visto = hay ? Math.min(video.currentTime / dura, 1) : 0;
+      avance.value = String(Math.round(visto * 1000));
+      avance.style.setProperty('--p', `${(visto * 100).toFixed(2)}%`);
+      const ahora = reloj(video.currentTime);
+      const fin = hay ? reloj(dura) : total;
+      tiempo.textContent = `${ahora} / ${fin}`;
+      avance.setAttribute('aria-valuetext', `${ahora} de ${fin}`);
+    };
+
+    // ─── subtítulos ───
+    const leer = () => {
+      if (!texto) return;
+      const dicho = conTexto
+        ? (Array.from(pista?.activeCues ?? []) as VTTCue[])
+            .map((c) => c.text.replace(/\s+/g, ' ').trim())
+            .filter(Boolean)
+            .join(' ')
+        : '';
+      texto.textContent = dicho;
+      texto.hidden = !dicho;
+    };
+
+    /** En el cuadro propio el texto se pinta aquí; con los controles del navegador, lo pinta él. */
+    const modoPista = (nativa = false) => {
+      if (!pista || !cc) return;
+      pista.mode = !conTexto ? 'disabled' : nativa ? 'showing' : 'hidden';
+    };
+
+    // ─── los mandos se guardan solos mientras corre ───
+    const asomar = () => {
+      rep.classList.remove('rep-quieto');
+      clearTimeout(guardar);
+      if (video.paused || video.ended) return;
+      guardar = window.setTimeout(() => {
+        // con el teclado encima de un mando no se esconden
+        if (!rep.querySelector(':focus-visible') || document.activeElement === video) rep.classList.add('rep-quieto');
+      }, 2600);
+    };
+
+    const decir = (mensaje: string) => {
+      aviso.textContent = mensaje;
+      aviso.hidden = !mensaje;
+    };
+
+    const tronar = () => {
+      fallo = true;
+      rep.dataset.estado = 'falla';
+      inicio.hidden = false;
+      inicio.setAttribute('aria-label', 'Reintentar');
+      decir('El video no cargó. Dale otra vez para reintentar.');
+    };
+
+    const alternar = async () => {
+      if (!video.paused && !video.ended) {
+        video.pause();
+        return;
+      }
+      if (fallo) {
+        fallo = false;
+        decir('');
+        video.load();
+      }
+      if (video.ended) video.currentTime = 0;
+      inicio.hidden = true;
+      rep.dataset.estado = 'carga';
+      try {
+        await video.play();
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        tronar();
+      }
+    };
+
+    const completa = () => document.fullscreenElement === rep;
+
+    const aPantalla = async () => {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else if (rep.requestFullscreen) await rep.requestFullscreen();
+        // el iPhone sólo sabe llevar el video solo a pantalla completa
+        else video.webkitEnterFullscreen?.();
+      } catch {
+        decir('No se pudo abrir pantalla completa.');
+      }
+    };
+
+    const silenciar = () => {
+      video.muted = !(video.muted || video.volume === 0);
+      if (!video.muted && video.volume === 0) video.volume = 1;
+    };
+
+    const subtitular = () => {
+      if (!cc) return;
+      conTexto = !conTexto;
+      cc.setAttribute('aria-pressed', String(conTexto));
+      modoPista();
+      leer();
+    };
+
+    video.addEventListener('click', () => {
+      if (!video.controls) void alternar();
+    });
+    video.addEventListener('dblclick', () => {
+      if (!video.controls) void aPantalla();
+    });
+    inicio.addEventListener('click', () => void alternar());
+    correr.addEventListener('click', () => void alternar());
+    mudo.addEventListener('click', silenciar);
+    cc?.addEventListener('click', subtitular);
+    pantalla.addEventListener('click', () => void aPantalla());
+
+    avance.addEventListener('input', () => {
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+      video.currentTime = (Number(avance.value) / 1000) * video.duration;
+      pintar();
+    });
+
+    rep.addEventListener('pointermove', asomar);
+    rep.addEventListener('pointerleave', () => {
+      if (!video.paused) rep.classList.add('rep-quieto');
+    });
+    rep.addEventListener('focusin', asomar);
+
+    rep.addEventListener('keydown', (evento) => {
+      const donde = evento.target as HTMLElement;
+      if (evento.ctrlKey || evento.metaKey || evento.altKey) return;
+      const tecla = evento.key.toLowerCase();
+      const enBoton = donde instanceof HTMLButtonElement;
+      asomar();
+
+      if (tecla === 'k' || (tecla === ' ' && !enBoton)) {
+        evento.preventDefault();
+        void alternar();
+      } else if (tecla === 'm') {
+        silenciar();
+      } else if (tecla === 'c') {
+        subtitular();
+      } else if (tecla === 'f') {
+        void aPantalla();
+      } else if (
+        (tecla === 'arrowleft' || tecla === 'arrowright') &&
+        donde !== avance &&
+        Number.isFinite(video.duration)
+      ) {
+        evento.preventDefault();
+        const salto = tecla === 'arrowleft' ? -5 : 5;
+        video.currentTime = Math.min(Math.max(video.currentTime + salto, 0), video.duration);
+      }
+    });
+
+    video.addEventListener('loadedmetadata', () => {
+      avance.disabled = false;
+      modoPista();
+      pintar();
+    });
+    video.addEventListener('waiting', () => { rep.dataset.estado = 'carga'; });
+    video.addEventListener('playing', () => {
+      rep.dataset.estado = 'corre';
+      correr.setAttribute('aria-label', 'Pausa (k)');
+      decir('');
+      velar();
+      asomar();
+    });
+    video.addEventListener('pause', () => {
+      dormir();
+      if (fallo) return;
+      rep.dataset.estado = 'pausa';
+      correr.setAttribute('aria-label', 'Reproducir (k)');
+      asomar();
+    });
+    video.addEventListener('ended', () => {
+      dormir();
+      rep.dataset.estado = 'fin';
+      correr.setAttribute('aria-label', 'Ver otra vez (k)');
+      pintar();
+      asomar();
+    });
+    video.addEventListener('error', tronar);
+    // con `<source>`, el error de carga cae en la fuente y no sube al video
+    video.querySelector('source')?.addEventListener('error', tronar);
+    video.addEventListener('timeupdate', pintar);
+    video.addEventListener('seeking', pintar);
+    video.addEventListener('volumechange', () => {
+      const callado = video.muted || video.volume === 0;
+      mudo.setAttribute('aria-pressed', String(callado));
+      mudo.setAttribute('aria-label', callado ? 'Activar sonido (m)' : 'Silenciar (m)');
+    });
+    pista?.addEventListener('cuechange', leer);
+
+    document.addEventListener('fullscreenchange', () => {
+      rep.classList.toggle('rep-completa', completa());
+    });
+    // en el iPhone mandan los controles del navegador; de vuelta, los de aquí
+    video.addEventListener('webkitbeginfullscreen', () => modoPista(true));
+    video.addEventListener('webkitendfullscreen', () => modoPista());
+
+    // todo listo: se apagan los controles del navegador y entran los propios
+    video.controls = false;
+    video.tabIndex = 0;
+    mandos.hidden = false;
+    inicio.hidden = false;
+    rep.dataset.estado = 'espera';
+    modoPista();
+    pintar();
+  });
+</script>

@@ -1,0 +1,20 @@
+---
+// La tarjeta angosta de la columna de la derecha: miniatura a un lado, texto al otro.
+import Mini from './Mini.astro';
+import { CANAL, type Entrada } from '../lib/canal';
+
+interface Props {
+  e: Entrada;
+}
+
+const { e } = Astro.props;
+---
+
+<article class="compacta">
+  <Mini e={e} sizes="168px" apaisada />
+  <div class="compacta-texto">
+    <h3><a href={e.href}>{e.titulo}</a></h3>
+    <p>{CANAL}</p>
+    <p>{e.oficio} • <time datetime={e.dia} data-hace>{e.diaCorto}</time></p>
+  </div>
+</article>
