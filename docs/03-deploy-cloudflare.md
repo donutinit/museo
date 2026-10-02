@@ -67,6 +67,11 @@ npx wrangler@4.129.0 deploy --config wrangler.dev.jsonc
 
 El push a `main` lo despliega al final, después de `museo` y `museo-von`.
 
+El dominio ya está conectado (oct 2026). No lo hace el deploy: si algún día hay
+que rehacerlo, es una sola vez, a mano, en el dashboard → Workers & Pages →
+`museo-dev` → Settings → Domains & Routes → Add → Custom domain →
+`dev.vondiego.com`.
+
 No copia textos: el manifiesto y el contacto los lee de `von/textos/`, y los
 subtítulos de `public/captions/` a través de `von/lib/subtitulos.ts`. Tampoco
 tiene sitemap; el canónico de cada página apunta a `www.vondiego.com`.
