@@ -1,0 +1,48 @@
+---
+import Gram from '../layouts/Gram.astro';
+import Historias from '../components/Historias.astro';
+import Publicacion from '../components/Publicacion.astro';
+import Avatar from '../components/Avatar.astro';
+import { publicaciones, USUARIO, NOMBRE, OTROS, REPO } from '../lib/perfil';
+
+const todo = await publicaciones();
+---
+
+<Gram canonica="/">
+  <div class="inicio">
+    <div class="inicio-feed">
+      <Historias todo={todo} />
+
+      <div class="feed">
+        {todo.map((e, i) => <Publicacion e={e} eager={i === 0} />)}
+      </div>
+
+      <p class="feed-fin">Ya viste todo. Es el archivo completo, del más nuevo al más viejo.</p>
+    </div>
+
+    <aside class="inicio-lado" aria-label="El mismo archivo">
+      <a class="lado-cuenta" href="/about/">
+        <Avatar lado={44} />
+        <span><strong>{USUARIO}</strong><span class="tenue">{NOMBRE}</span></span>
+      </a>
+
+      <h2>El mismo archivo en</h2>
+      <ul class="lado-lista">
+        {OTROS.map((o) => (
+          <li>
+            <span><strong>{o.nombre}</strong><span class="tenue">{o.nota}</span></span>
+            <a href={o.href}>Abrir</a>
+          </li>
+        ))}
+      </ul>
+
+      <p class="lado-pie">
+        <a href="/about/">Información</a>
+        <a href="/contact/">Contacto</a>
+        <a href={`${REPO}/blob/main/LICENSE`}>Licencia</a>
+        <a href={REPO}>Código</a>
+      </p>
+      <p class="lado-pie">© Von Diego</p>
+    </aside>
+  </div>
+</Gram>

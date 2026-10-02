@@ -10,6 +10,7 @@ el sitio se sirve desde Workers Static Assets; la media desde un bucket R2.
 | worker | `museo-von` | `von.vondiego.com` |
 | worker | `museo-dev` | `dev.vondiego.com` |
 | worker | `museo-tube` | `tube.vondiego.com` |
+| worker | `museo-ig` | `ig.vondiego.com` |
 | bucket r2 | `museo` | `media.vondiego.com` |
 
 ## von
@@ -32,7 +33,7 @@ npm run build:von
 npx wrangler@4.129.0 deploy --config wrangler.von.jsonc
 ```
 
-El push a `main` despliega los cuatro: `museo`, `museo-von`, `museo-dev` y `museo-tube`.
+El push a `main` despliega los cinco: `museo`, `museo-von`, `museo-dev`, `museo-tube` y `museo-ig`.
 
 El dominio ya está conectado (sept 2026). No lo hace el deploy: si algún día
 hay que rehacerlo, es una sola vez, a mano, en el dashboard → Workers & Pages →
@@ -110,6 +111,43 @@ al canal de YouTube que está en `PERFILES` (`src/lib/seo.ts`). El buscador de l
 cabecera cae en `/results/`, que trae todo el canal y filtra en el navegador.
 
 Igual que dev, lee el manifiesto y el contacto de `von/textos/` y los
+subtítulos a través de `von/lib/subtitulos.ts`. Sin sitemap; el canónico de
+cada página apunta a `www.vondiego.com`.
+
+## ig
+
+`ig.vondiego.com` es el mismo archivo con piel de red social de fotos (el logo
+dice Vongram). Mismo trato que von, dev y tube: sus páginas viven en `ig/` y no
+tiene contenido propio. Un rollo es una publicación en carrusel y también una
+historia; una cinta es un reel (`ig/lib/perfil.ts`).
+
+| | ig |
+|---|---|
+| config de astro | `astro.ig.config.mjs` |
+| páginas | `ig/pages` |
+| `public/` | `ig/public/` |
+| salida | `dist-ig/` |
+| config de wrangler | `wrangler.ig.jsonc` |
+
+```bash
+npm run dev:ig
+npm run build:ig
+npx wrangler@4.129.0 deploy --config wrangler.ig.jsonc
+```
+
+El push a `main` lo despliega al final, después de los otros cuatro.
+
+El dominio ya está conectado (oct 2026). No lo hace el deploy: si algún día hay
+que rehacerlo, es una sola vez, a mano, en el dashboard → Workers & Pages →
+`museo-ig` → Settings → Domains & Routes → Add → Custom domain →
+`ig.vondiego.com`.
+
+No inventa números: no hay seguidores, likes ni comentarios. "Seguir" lleva al
+perfil de Instagram que está en `PERFILES` (`src/lib/seo.ts`), de donde sale
+también el nombre de usuario. "Me gusta" se guarda en el navegador de quien lo
+toca (`localStorage`) y no sale de ahí.
+
+Igual que dev y tube, lee el manifiesto y el contacto de `von/textos/` y los
 subtítulos a través de `von/lib/subtitulos.ts`. Sin sitemap; el canónico de
 cada página apunta a `www.vondiego.com`.
 

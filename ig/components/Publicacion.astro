@@ -1,0 +1,191 @@
+---
+/**
+ * Una publicación: el encabezado con el usuario, la media, las acciones y el
+ * pie de foto. `sola` es la misma publicación en su propia página, con sus
+ * datos a la vista.
+ *
+ * "Me gusta" no cuenta nada ni avisa a nadie: se guarda en el navegador de
+ * quien lo toca, que es lo único honesto que puede hacer un sitio estático.
+ */
+import { render } from 'astro:content';
+import Avatar from './Avatar.astro';
+import Icono from './Icono.astro';
+import Carrusel from './Carrusel.astro';
+import Clip from './Clip.astro';
+import { USUARIO, corrida, cuenta, etiqueta, type Entrada } from '../lib/perfil';
+
+interface Props {
+  e: Entrada;
+  sola?: boolean;
+  eager?: boolean;
+}
+
+const { e, sola = false, eager = false } = Astro.props;
+const Notas = e.rollo ? (await render(e.rollo)).Content : undefined;
+const propia = new URL(e.href, Astro.site).toString();
+const sizes = sola ? '(max-width: 56rem) 100vw, 60vw' : '(max-width: 30rem) 100vw, 470px';
+---
+
+<article class:list={['pub', { 'pub-sola': sola }]} data-pub={e.slug}>
+  <header class="pub-cab">
+    <a href="/about/" tabindex="-1" aria-hidden="true"><Avatar lado={32} /></a>
+    <div class="pub-quien">
+      <p>
+        <a class="pub-usuario" href="/about/">{USUARIO}</a>
+        <span class="tenue" aria-hidden="true">•</span>
+        <a class="tenue" href={e.href}><time datetime={e.dia} data-hace>{e.diaCorto}</time></a>
+      </p>
+      {e.lugar && <p class="pub-lugar">{e.lugar}</p>}
+    </div>
+  </header>
+
+  <div class="pub-media" data-media>
+    {e.rollo ? <Carrusel e={e} sizes={sizes} eager={eager} /> : <Clip e={e} />}
+    <span class="pub-latido" aria-hidden="true" data-latido><Icono nombre="corazon" lado={96} /></span>
+  </div>
+
+  <div class="pub-acciones">
+    <button type="button" aria-label="Me gusta" aria-pressed="false" data-gusta><Icono nombre="corazon" /></button>
+    {!sola && <a href={e.href} aria-label={`Ver la publicación: ${e.titulo}`}><Icono nombre="comentario" /></a>}
+    <button type="button" aria-label="Compartir" data-compartir={propia} hidden><Icono nombre="mensajes" /></button>
+  </div>
+
+  <div class="pub-texto">
+    <div class="pub-linea">
+      <a class="pub-usuario" href="/about/">{USUARIO}</a>
+      {sola ? <h1>{e.titulo}</h1> : <a class="pub-titulo" href={e.href}>{e.titulo}</a>}
+      {!sola && <button class="pub-mas" type="button" data-mas hidden>más</button>}
+    </div>
+    <div class="pub-prosa">
+      {Notas ? <Notas /> : e.cinta?.caption && <p>{e.cinta.caption}</p>}
+      <p><a class="pub-etiqueta" href={`/explore/?q=${encodeURIComponent(etiqueta(e.oficio))}`}>#{etiqueta(e.oficio)}</a></p>
+    </div>
+  </div>
+
+  {sola && (
+    <dl class="pub-datos">
+      {e.rollo ? (
+        <>
+          <div><dt>Fotos</dt><dd>{e.rollo.data.photoCount}</dd></div>
+          {e.rollo.data.client && <div><dt>Cliente</dt><dd>{e.rollo.data.client}</dd></div>}
+          <div><dt>Publicado</dt><dd>{e.diaCorto}</dd></div>
+        </>
+      ) : (
+        <>
+          <div><dt>Corre</dt><dd>{corrida(e.cinta!.durationLabel)}</dd></div>
+          <div><dt>Cuadro</dt><dd>{e.cinta!.aspect}</dd></div>
+          <div><dt>Filmado</dt><dd>{e.diaCorto}</dd></div>
+        </>
+      )}
+    </dl>
+  )}
+
+  <p class="pub-pie">
+    {sola ? (
+      <>Los comentarios están desactivados. <a href="/contact/">Enviar mensaje</a></>
+    ) : (
+      <a href={e.href}>
+        {e.rollo ? `Ver las ${cuenta(e.rollo.data.photoCount, 'foto', 'fotos')}` : `Ver el reel, ${corrida(e.cinta!.durationLabel)}`}
+      </a>
+    )}
+  </p>
+</article>
+
+<script>
+  // ─── "me gusta": se guarda aquí, en este navegador, y en ningún otro lado ───
+  const LLAVE = 'vongram:gusta';
+  const leer = (): Set<string> => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(LLAVE) ?? '[]'));
+    } catch {
+      return new Set();
+    }
+  };
+  const guardar = (gusta: Set<string>) => {
+    try {
+      localStorage.setItem(LLAVE, JSON.stringify([...gusta]));
+    } catch { /* sin almacenamiento, dura lo que dure la página */ }
+  };
+  const gusta = leer();
+
+  const tostada = document.querySelector<HTMLElement>('[data-tostada]');
+  let reloj = 0;
+  const avisar = (mensaje: string) => {
+    if (!tostada) return;
+    tostada.textContent = mensaje;
+    tostada.hidden = false;
+    clearTimeout(reloj);
+    reloj = window.setTimeout(() => { tostada.hidden = true; }, 3000);
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-pub]').forEach((pub) => {
+    const slug = pub.dataset.pub!;
+    const boton = pub.querySelector<HTMLButtonElement>('[data-gusta]');
+    const media = pub.querySelector<HTMLElement>('[data-media]');
+    const latido = pub.querySelector<HTMLElement>('[data-latido]');
+    const compartir = pub.querySelector<HTMLButtonElement>('[data-compartir]');
+    const mas = pub.querySelector<HTMLButtonElement>('[data-mas]');
+
+    const pintar = (salta = false) => {
+      if (!boton) return;
+      const si = gusta.has(slug);
+      boton.setAttribute('aria-pressed', String(si));
+      boton.setAttribute('aria-label', si ? 'Ya no me gusta' : 'Me gusta');
+      if (salta) {
+        boton.classList.remove('salta');
+        void boton.offsetWidth;
+        boton.classList.add('salta');
+      }
+    };
+
+    boton?.addEventListener('click', () => {
+      if (gusta.has(slug)) gusta.delete(slug);
+      else gusta.add(slug);
+      guardar(gusta);
+      pintar(true);
+    });
+
+    // dos toques sobre la foto: me gusta, y el corazón late encima
+    media?.addEventListener('dblclick', (e) => {
+      if ((e.target as HTMLElement).closest('button, input')) return;
+      if (!gusta.has(slug)) {
+        gusta.add(slug);
+        guardar(gusta);
+      }
+      pintar(true);
+      if (latido) {
+        latido.classList.remove('late');
+        void latido.offsetWidth;
+        latido.classList.add('late');
+      }
+    });
+
+    if (compartir && (navigator.share || navigator.clipboard)) {
+      compartir.hidden = false;
+      compartir.addEventListener('click', async () => {
+        const url = compartir.dataset.compartir!;
+        try {
+          if (navigator.share) await navigator.share({ title: document.title, url });
+          else {
+            await navigator.clipboard.writeText(url);
+            avisar('Enlace copiado');
+          }
+        } catch (error) {
+          // cerrar la hoja de compartir no es un error
+          if (error instanceof DOMException && error.name === 'AbortError') return;
+          avisar('No se pudo copiar el enlace');
+        }
+      });
+    }
+
+    if (mas) {
+      mas.hidden = false;
+      mas.addEventListener('click', () => {
+        pub.classList.add('pub-abierta');
+        mas.hidden = true;
+      });
+    }
+
+    pintar();
+  });
+</script>

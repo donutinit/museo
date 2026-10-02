@@ -1,0 +1,191 @@
+---
+/**
+ * Un reel: la cinta que corre sola, sin sonido, cuando entra en cuadro.
+ *
+ * Tocarla la pausa; el botón de la esquina le pone sonido. Si trae subtítulos
+ * que no estén quemados en la imagen, salen sobre el cuadro. Sólo corre un
+ * reel a la vez.
+ *
+ * Sin JavaScript queda el `<video controls>` del navegador, que ya funciona.
+ */
+import { media, MEDIA_BASE } from '../../src/lib/media';
+import { subtitulosDe } from '../../src/data/videos';
+import { tieneSubtitulos } from '../../von/lib/subtitulos';
+import Icono from './Icono.astro';
+import { marco, type Entrada } from '../lib/perfil';
+
+interface Props {
+  e: Entrada;
+}
+
+const { e } = Astro.props;
+const cinta = e.cinta!;
+const razon = e.pw / e.ph;
+const r = marco([razon]);
+const entera = Math.abs(razon - r) > 0.02;
+const subtitulos = tieneSubtitulos(cinta.slug) ? subtitulosDe(cinta.slug) : undefined;
+const conTexto = Boolean(subtitulos) && !cinta.captionsBurned;
+---
+
+<div class="clip" data-clip style={`--r:${r.toFixed(4)}`}>
+  {entera && (
+    <img class="lamina-fondo" src={`${MEDIA_BASE}/w400${cinta.poster.slice('/media'.length)}`} alt="" loading="lazy" decoding="async" />
+  )}
+  <video controls muted loop playsinline preload="none" poster={media(cinta.poster)} width={e.pw} height={e.ph} aria-label={cinta.title}>
+    <source src={media(cinta.src)} type="video/mp4" />
+    {subtitulos && (
+      <track kind="captions" src={subtitulos} srclang="es" label="Español" default={!cinta.captionsBurned} />
+    )}
+    Tu navegador no puede reproducir este video.
+  </video>
+
+  {conTexto && <div class="clip-texto" data-texto aria-hidden="true" hidden></div>}
+
+  <span class="clip-centro" data-centro aria-hidden="true" hidden><Icono nombre="correr" lado={40} /></span>
+
+  <button class="clip-sonido" type="button" aria-label="Activar sonido" aria-pressed="false" data-sonido hidden>
+    <Icono nombre="mudo" lado={16} class="i-mudo" />
+    <Icono nombre="sonido" lado={16} class="i-sonido" />
+  </button>
+
+  <input class="clip-avance" type="range" min="0" max="1000" step="1" value="0" aria-label="Avance del reel" data-avance hidden />
+</div>
+
+<script>
+  const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ahorro = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+  const solos = !quieto && !ahorro;
+  const todos: HTMLVideoElement[] = [];
+
+  /** Lo que el visitante pausó a mano no vuelve a arrancar solo. */
+  const pausados = new WeakSet<HTMLVideoElement>();
+
+  /** El reel que el visitante echó a andar a mano: mientras siga en cuadro, manda él. */
+  let elegido: HTMLVideoElement | null = null;
+  const cuadros = new Map<HTMLVideoElement, number>();
+
+  // Pueden caber dos reels en pantalla: corre sólo el que está más al centro.
+  const repartir = () => {
+    let mejor: HTMLVideoElement | null = null;
+    let lejos = Infinity;
+    cuadros.forEach((visto, video) => {
+      if (visto < 0.6) return;
+      const caja = video.getBoundingClientRect();
+      const distancia = video === elegido ? -1 : Math.abs(caja.top + caja.height / 2 - window.innerHeight / 2);
+      if (distancia < lejos) {
+        lejos = distancia;
+        mejor = video;
+      }
+    });
+
+    const gana = mejor as HTMLVideoElement | null;
+    todos.forEach((video) => {
+      if (video !== gana && !video.paused) video.pause();
+    });
+    if (gana && gana.paused && !pausados.has(gana) && (solos || gana === elegido)) {
+      void gana.play().catch(() => {});
+    }
+  };
+
+  const enCuadro = new IntersectionObserver(
+    (vistas) => {
+      vistas.forEach((v) => {
+        const video = v.target as HTMLVideoElement;
+        cuadros.set(video, v.intersectionRatio);
+        if (v.intersectionRatio < 0.6 && video === elegido) elegido = null;
+      });
+      repartir();
+    },
+    { threshold: [0, 0.3, 0.6, 0.9] }
+  );
+
+  document.querySelectorAll<HTMLElement>('[data-clip]').forEach((clip) => {
+    const video = clip.querySelector<HTMLVideoElement>('video');
+    const centro = clip.querySelector<HTMLElement>('[data-centro]');
+    const sonido = clip.querySelector<HTMLButtonElement>('[data-sonido]');
+    const avance = clip.querySelector<HTMLInputElement>('[data-avance]');
+    if (!video || !centro || !sonido || !avance) return;
+
+    const texto = clip.querySelector<HTMLElement>('[data-texto]');
+    const pista = video.textTracks[0];
+    todos.push(video);
+
+    const alternar = () => {
+      if (video.paused) {
+        pausados.delete(video);
+        elegido = video;
+        void video.play().catch(() => {});
+      } else {
+        pausados.add(video);
+        if (elegido === video) elegido = null;
+        video.pause();
+      }
+    };
+
+    // un toque pausa; dos son un "me gusta" y no deben pausar nada
+    let toque = 0;
+    video.addEventListener('click', () => {
+      if (video.controls) return;
+      clearTimeout(toque);
+      toque = window.setTimeout(alternar, 220);
+    });
+    video.addEventListener('dblclick', () => clearTimeout(toque));
+
+    sonido.addEventListener('click', () => {
+      video.muted = !video.muted;
+      if (!video.muted) {
+        // pedirle sonido a un reel es elegirlo
+        pausados.delete(video);
+        elegido = video;
+        if (video.paused) void video.play().catch(() => {});
+      }
+    });
+
+    video.addEventListener('volumechange', () => {
+      sonido.setAttribute('aria-pressed', String(!video.muted));
+      sonido.setAttribute('aria-label', video.muted ? 'Activar sonido' : 'Silenciar');
+    });
+    video.addEventListener('play', () => {
+      centro.hidden = true;
+      // sólo corre un reel a la vez
+      todos.forEach((otro) => { if (otro !== video && !otro.paused) otro.pause(); });
+    });
+    video.addEventListener('pause', () => { centro.hidden = false; });
+
+    video.addEventListener('timeupdate', () => {
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+      const visto = video.currentTime / video.duration;
+      avance.value = String(Math.round(visto * 1000));
+      avance.style.setProperty('--p', `${(visto * 100).toFixed(2)}%`);
+    });
+    avance.addEventListener('input', () => {
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+      video.currentTime = (Number(avance.value) / 1000) * video.duration;
+    });
+
+    if (texto && pista) {
+      pista.mode = 'hidden';
+      pista.addEventListener('cuechange', () => {
+        const dicho = (Array.from(pista.activeCues ?? []) as VTTCue[])
+          .map((c) => c.text.replace(/\s+/g, ' ').trim())
+          .filter(Boolean)
+          .join(' ');
+        texto.textContent = dicho;
+        texto.hidden = !dicho;
+      });
+    }
+
+    // todo listo: se apagan los controles del navegador y entran los propios
+    video.controls = false;
+    video.tabIndex = 0;
+    video.addEventListener('keydown', (e) => {
+      if (e.key !== ' ' && e.key.toLowerCase() !== 'k') return;
+      e.preventDefault();
+      alternar();
+    });
+    sonido.hidden = false;
+    avance.hidden = false;
+    centro.hidden = false;
+    enCuadro.observe(video);
+  });
+</script>

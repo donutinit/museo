@@ -1,0 +1,41 @@
+---
+/**
+ * Un cuadro de la retícula del perfil o del buscador. Aquí sí se recorta: es
+ * una miniatura. La foto entera está a un toque.
+ */
+import { media, srcset } from '../../src/lib/media';
+import Icono from './Icono.astro';
+import { corrida, cuenta, indice, type Entrada } from '../lib/perfil';
+
+interface Props {
+  e: Entrada;
+  /** `reel`: cuadro parado de 9:16. */
+  forma?: 'retrato' | 'reel';
+  eager?: boolean;
+}
+
+const { e, forma = 'retrato', eager = false } = Astro.props;
+const dato = e.rollo ? cuenta(e.rollo.data.photoCount, 'foto', 'fotos') : corrida(e.cinta!.durationLabel);
+---
+
+<a
+  class:list={['tesela', `tesela-${forma}`]}
+  href={e.href}
+  data-tesela
+  data-clase={e.clase}
+  data-busca={indice(e)}
+  aria-label={`${e.titulo}, ${dato}`}
+>
+  <img
+    src={media(e.poster)}
+    srcset={srcset(e.poster)}
+    sizes="(max-width: 48rem) 34vw, 310px"
+    alt=""
+    width={e.pw}
+    height={e.ph}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+  />
+  <span class="tesela-marca"><Icono nombre={e.rollo ? 'carrusel' : 'reel'} lado={20} /></span>
+  <span class="tesela-capa"><strong>{e.titulo}</strong><span>{dato}</span></span>
+</a>

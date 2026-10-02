@@ -1,0 +1,8 @@
+---
+interface Props {
+  lado?: number;
+}
+const { lado = 32 } = Astro.props;
+---
+
+<span class="avatar" style={`--lado:${lado}px`} aria-hidden="true">V</span>

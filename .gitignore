@@ -9,6 +9,7 @@ dist/
 dist-von/
 dist-dev/
 dist-tube/
+dist-ig/
 build/
 out/
 .astro/

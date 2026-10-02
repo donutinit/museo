@@ -1,0 +1,69 @@
+---
+/**
+ * Buscar y explorar en una sola página, como en el teléfono: el campo arriba y
+ * todo el archivo en mosaico abajo. El sitio es estático, así que la página
+ * trae todo y el script deja sólo lo que coincide mientras se escribe.
+ * Las etiquetas de las publicaciones (`#retrato`) caen aquí con `?q=`.
+ */
+import Gram from '../layouts/Gram.astro';
+import Icono from '../components/Icono.astro';
+import Tesela from '../components/Tesela.astro';
+import { publicaciones } from '../lib/perfil';
+
+const todo = await publicaciones();
+---
+
+<Gram titulo="Buscar" descripcion="Buscar en el archivo de foto y video de Von Diego." canonica="/obra/" noindex>
+  <div class="explorar">
+    <form class="buscador" method="get" action="/explore/" role="search">
+      <Icono nombre="buscar" lado={16} />
+      <input type="search" name="q" placeholder="Buscar" aria-label="Buscar" autocomplete="off" data-buscador />
+    </form>
+
+    <div class="reticula reticula-mosaico" data-mosaico>
+      {todo.map((e, i) => (
+        <Tesela e={e} forma={e.clase === 'reel' && e.ph > e.pw ? 'reel' : 'retrato'} eager={i < 6} />
+      ))}
+    </div>
+
+    <div class="vacio" data-vacio hidden>
+      <h2>No se encontraron resultados</h2>
+      <p>Prueba con otra palabra: un nombre, un oficio o un año.</p>
+    </div>
+  </div>
+</Gram>
+
+<script>
+  const llano = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+  const campo = document.querySelector<HTMLInputElement>('[data-buscador]');
+  const teselas = document.querySelectorAll<HTMLElement>('[data-tesela]');
+  const vacio = document.querySelector<HTMLElement>('[data-vacio]');
+
+  const filtrar = (consulta: string) => {
+    // todas las palabras tienen que aparecer, en cualquier orden; el `#` de una etiqueta no cuenta
+    const palabras = llano(consulta).replace(/#/g, '').split(/\s+/).filter(Boolean);
+    let hay = 0;
+    teselas.forEach((t) => {
+      const va = palabras.every((p) => t.dataset.busca?.includes(p));
+      t.hidden = !va;
+      if (va) hay += 1;
+    });
+    if (vacio) vacio.hidden = hay > 0;
+  };
+
+  if (campo) {
+    const consulta = new URLSearchParams(location.search).get('q')?.trim() ?? '';
+    if (consulta) {
+      campo.value = consulta;
+      filtrar(consulta);
+    }
+    campo.addEventListener('input', () => filtrar(campo.value));
+    // el filtro ya corrió mientras se escribía: enviar sólo deja la consulta en la dirección
+    campo.form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = campo.value.trim();
+      history.replaceState(null, '', q ? `?q=${encodeURIComponent(q)}` : location.pathname);
+    });
+  }
+</script>

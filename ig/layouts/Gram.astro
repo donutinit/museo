@@ -1,0 +1,106 @@
+---
+import '../styles/gram.css';
+import Logo from '../components/Logo.astro';
+import Icono from '../components/Icono.astro';
+import Avatar from '../components/Avatar.astro';
+import { media } from '../../src/lib/media';
+import { SITIO, NOMBRE, USUARIO, SITIO_PRINCIPAL } from '../lib/perfil';
+
+interface Props {
+  /** Sin título, la pestaña lleva sólo el nombre del sitio. */
+  titulo?: string;
+  descripcion?: string;
+  /** La misma pieza en el sitio principal: a ella apunta el canónico. */
+  canonica?: string;
+  imagen?: string;
+  noindex?: boolean;
+}
+
+const {
+  titulo,
+  descripcion = 'El archivo de foto y video de Von Diego en Monterrey, visto como perfil: los rollos son publicaciones e historias, las cintas son reels.',
+  canonica,
+  imagen = '/media/video-posters/entrevista-yolanda.jpg',
+  noindex = false,
+} = Astro.props;
+
+const tituloPagina = titulo ? `${titulo} • ${SITIO}` : SITIO;
+const canonical = canonica ? new URL(canonica, SITIO_PRINCIPAL) : undefined;
+const propia = new URL(Astro.url.pathname, Astro.site);
+
+const ruta = Astro.url.pathname.replace(/\/$/, '') || '/';
+const enRuta = (base: string) => ruta === base || ruta.startsWith(`${base}/`);
+
+const nav = [
+  { href: '/', label: 'Inicio', icono: 'inicio', activa: ruta === '/' },
+  { href: '/explore/', label: 'Buscar', icono: 'buscar', activa: enRuta('/explore') },
+  { href: '/reels/', label: 'Reels', icono: 'reels', activa: enRuta('/reels') || enRuta('/video') },
+  { href: '/contact/', label: 'Mensajes', icono: 'mensajes', activa: enRuta('/contact') },
+] as const;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>{tituloPagina}</title>
+    <meta name="description" content={descripcion} />
+    <meta name="author" content="Von Diego" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <link rel="preconnect" href="https://media.vondiego.com" />
+
+    <meta property="og:title" content={titulo ?? `${NOMBRE} (@${USUARIO})`} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={propia} />
+    <meta property="og:site_name" content={SITIO} />
+    <meta property="og:image" content={media(imagen)} />
+    <meta property="og:locale" content="es_MX" />
+
+    {/* lo que sólo sirve con script (recortar un pie de foto, guardar fotos para después) se prende aquí */}
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+
+  <body>
+    <a class="salto" href="#contenido">Saltar al contenido</a>
+
+    <header class="tope">
+      <Logo />
+    </header>
+
+    <nav class="nav" aria-label="Principal">
+      <Logo />
+      {nav.map((n) => (
+        <a class="nav-fila" href={n.href} aria-current={n.activa ? 'page' : undefined}>
+          <Icono nombre={n.icono} /><span>{n.label}</span>
+        </a>
+      ))}
+      <a class="nav-fila" href="/about/" aria-current={enRuta('/about') ? 'page' : undefined}>
+        <Avatar lado={24} /><span>Perfil</span>
+      </a>
+    </nav>
+
+    <main id="contenido">
+      <slot />
+    </main>
+
+    <div class="tostada" role="status" data-tostada hidden></div>
+
+    <script>
+      // ─── "3 sem": la edad de la publicación, como la escribe la red ───
+      // De un año para atrás se queda la fecha, que es lo que hace el original.
+      document.querySelectorAll<HTMLTimeElement>('time[data-hace]').forEach((t) => {
+        const dias = Math.floor((Date.now() - Date.parse(t.dateTime)) / 864e5);
+        if (!Number.isFinite(dias) || dias >= 365) return;
+        t.title = t.textContent ?? '';
+        t.textContent = dias < 1 ? 'hoy' : dias < 7 ? `${dias} d` : `${Math.floor(dias / 7)} sem`;
+      });
+    </script>
+  </body>
+</html>

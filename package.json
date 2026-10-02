@@ -19,6 +19,8 @@
     "build:dev": "astro build --config astro.dev.config.mjs",
     "dev:tube": "astro dev --config astro.tube.config.mjs",
     "build:tube": "astro build --config astro.tube.config.mjs",
+    "dev:ig": "astro dev --config astro.ig.config.mjs",
+    "build:ig": "astro build --config astro.ig.config.mjs",
     "derivados": "node scripts/derivados.mjs"
   },
   "dependencies": {

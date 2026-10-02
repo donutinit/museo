@@ -1,0 +1,21 @@
+---
+import Gram from '../layouts/Gram.astro';
+import PerfilCab from '../components/PerfilCab.astro';
+import Tesela from '../components/Tesela.astro';
+import { publicaciones, NOMBRE, USUARIO } from '../lib/perfil';
+
+const todo = await publicaciones();
+---
+
+<Gram
+  titulo={`${NOMBRE} (@${USUARIO})`}
+  descripcion="Von Diego es fotógrafo y videasta en Monterrey. Conoce su trabajo en retrato, documentación, obra personal, video y montaje."
+  canonica="/about/"
+>
+  <div class="perfil">
+    <PerfilCab pestana="publicaciones" />
+    <div class="reticula">
+      {todo.map((e, i) => <Tesela e={e} eager={i < 6} />)}
+    </div>
+  </div>
+</Gram>

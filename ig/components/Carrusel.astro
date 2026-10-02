@@ -1,0 +1,153 @@
+---
+/**
+ * El carrusel de una publicación: las fotos del rollo en una pista que se
+ * desliza de lado, con sus puntos y su cuenta.
+ *
+ * El marco es uno solo para todo el carrusel y lo pone la primera foto, como
+ * en la red; adentro cada foto va entera, sobre su propio desenfoque si no
+ * llena el marco.
+ *
+ * Sólo las dos primeras fotos traen `src`: las demás se cargan cuando están
+ * por entrar, para no bajar un rollo de 38 piezas que nadie ha deslizado.
+ */
+import { media, srcset, MEDIA_BASE } from '../../src/lib/media';
+import { piezasDe, marco, type Entrada } from '../lib/perfil';
+
+interface Props {
+  e: Entrada;
+  sizes: string;
+  eager?: boolean;
+}
+
+const { e, sizes, eager = false } = Astro.props;
+const piezas = piezasDe(e.rollo!);
+const razon = (w?: number, h?: number) => (w && h ? w / h : 1);
+// manda la primera foto, que es la portada: las demás se acomodan a su marco
+const r = marco([razon(piezas[0].w, piezas[0].h)]);
+const chica = (ruta: string) => `${MEDIA_BASE}/w400${ruta.slice('/media'.length)}`;
+/** Con más de quince puntos la fila ya no dice nada: queda la cuenta. */
+const PUNTOS = 15;
+---
+
+<div class="carrusel" data-carrusel style={`--r:${r.toFixed(4)}`}>
+  <ul class="carrusel-pista" data-pista tabindex="0" aria-label={`${piezas.length} fotos de ${e.titulo}`}>
+    {piezas.map((p, i) => {
+      const pronto = i < 2;
+      const entera = Math.abs(razon(p.w, p.h) - r) > 0.02;
+      return (
+        <li>
+          {entera && (
+            <img
+              class="lamina-fondo"
+              src={pronto ? chica(p.ruta) : undefined}
+              data-src={pronto ? undefined : chica(p.ruta)}
+              alt=""
+              loading={pronto ? 'lazy' : undefined}
+              decoding="async"
+            />
+          )}
+          <img
+            class="lamina"
+            src={pronto ? media(p.ruta) : undefined}
+            srcset={pronto ? srcset(p.ruta) : undefined}
+            data-src={pronto ? undefined : media(p.ruta)}
+            data-srcset={pronto ? undefined : srcset(p.ruta)}
+            sizes={sizes}
+            alt={p.alt}
+            width={p.w}
+            height={p.h}
+            loading={pronto ? (eager && i === 0 ? 'eager' : 'lazy') : undefined}
+            fetchpriority={eager && i === 0 ? 'high' : undefined}
+            decoding="async"
+          />
+        </li>
+      );
+    })}
+  </ul>
+
+  {piezas.length > 1 && (
+    <>
+      <button class="carrusel-flecha carrusel-ant" type="button" aria-label="Foto anterior" data-ant hidden>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg>
+      </button>
+      <button class="carrusel-flecha carrusel-sig" type="button" aria-label="Foto siguiente" data-sig hidden>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9.5 6l6 6-6 6" /></svg>
+      </button>
+      <span class="carrusel-cuenta" data-cuenta>1/{piezas.length}</span>
+      {piezas.length <= PUNTOS && (
+        <span class="carrusel-puntos" aria-hidden="true" data-puntos>
+          {piezas.map((_, i) => <i class:list={{ actual: i === 0 }} />)}
+        </span>
+      )}
+    </>
+  )}
+</div>
+
+<script>
+  const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('[data-carrusel]').forEach((carrusel) => {
+    const pista = carrusel.querySelector<HTMLElement>('[data-pista]');
+    const ant = carrusel.querySelector<HTMLButtonElement>('[data-ant]');
+    const sig = carrusel.querySelector<HTMLButtonElement>('[data-sig]');
+    const cuenta = carrusel.querySelector<HTMLElement>('[data-cuenta]');
+    const puntos = carrusel.querySelectorAll<HTMLElement>('[data-puntos] i');
+    if (!pista || !ant || !sig || !cuenta) return;
+
+    const laminas = Array.from(pista.children) as HTMLElement[];
+    const total = laminas.length;
+    let actual = 0;
+
+    // ─── las fotos que faltan se cargan cuando están por entrar ───
+    const cargar = (lamina: HTMLElement) => {
+      lamina.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((img) => {
+        if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+        img.src = img.dataset.src!;
+        img.removeAttribute('data-src');
+        img.removeAttribute('data-srcset');
+      });
+    };
+    const cerca = new IntersectionObserver(
+      (vistas) => vistas.forEach((v) => {
+        if (!v.isIntersecting) return;
+        cargar(v.target as HTMLElement);
+        cerca.unobserve(v.target);
+      }),
+      { root: pista, rootMargin: '0px 150% 0px 150%' }
+    );
+    laminas.forEach((l) => cerca.observe(l));
+
+    const pintar = () => {
+      cuenta.textContent = `${actual + 1}/${total}`;
+      ant.hidden = actual === 0;
+      sig.hidden = actual === total - 1;
+      puntos.forEach((p, i) => p.classList.toggle('actual', i === actual));
+    };
+
+    const ir = (i: number) => {
+      const destino = Math.min(Math.max(i, 0), total - 1);
+      pista.scrollTo({ left: destino * pista.clientWidth, behavior: quieto ? 'auto' : 'smooth' });
+    };
+
+    let cuadro = 0;
+    pista.addEventListener('scroll', () => {
+      cancelAnimationFrame(cuadro);
+      cuadro = requestAnimationFrame(() => {
+        const i = Math.round(pista.scrollLeft / pista.clientWidth);
+        if (i === actual) return;
+        actual = i;
+        pintar();
+      });
+    }, { passive: true });
+
+    ant.addEventListener('click', () => ir(actual - 1));
+    sig.addEventListener('click', () => ir(actual + 1));
+    pista.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      ir(actual + (e.key === 'ArrowRight' ? 1 : -1));
+    });
+
+    pintar();
+  });
+</script>

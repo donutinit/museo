@@ -1,0 +1,39 @@
+---
+import Gram from '../../layouts/Gram.astro';
+import Publicacion from '../../components/Publicacion.astro';
+import Tesela from '../../components/Tesela.astro';
+import { oficio } from '../../../src/lib/archivo';
+import { publicaciones, USUARIO, type Entrada } from '../../lib/perfil';
+
+export async function getStaticPaths() {
+  const todo = await publicaciones();
+  return todo
+    .filter((e) => e.rollo)
+    .map((e) => ({
+      params: { slug: e.slug },
+      props: { e, otras: todo.filter((o) => o !== e).slice(0, 6) },
+    }));
+}
+
+interface Props {
+  e: Entrada;
+  otras: Entrada[];
+}
+
+const { e, otras }: Props = Astro.props;
+const { data } = e.rollo!;
+const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location ? ` en ${data.location}` : ''}, ${data.year}. ${data.photoCount} piezas del archivo de Von Diego.`;
+---
+
+<Gram titulo={`${e.titulo}, de @${USUARIO}`} descripcion={descripcion} canonica={e.href} imagen={e.poster}>
+  <div class="permalink">
+    <Publicacion e={e} sola eager />
+
+    <section class="permalink-mas" aria-labelledby="t-mas">
+      <h2 id="t-mas">Más publicaciones de <a href="/about/">{USUARIO}</a></h2>
+      <div class="reticula">
+        {otras.map((o) => <Tesela e={o} />)}
+      </div>
+    </section>
+  </div>
+</Gram>

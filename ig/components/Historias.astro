@@ -1,0 +1,307 @@
+---
+/**
+ * Las historias: un aro por rollo y, al tocarlo, el rollo a pantalla completa.
+ *
+ * Arriba va una barra por foto; cada una se llena en cinco segundos y pasa a
+ * la siguiente. Tocar a la derecha adelanta, a la izquierda regresa, dejar el
+ * dedo puesto la detiene. Al acabar un rollo sigue el que viene. Con teclado
+ * son las flechas, el espacio y Esc.
+ *
+ * Sin JavaScript cada aro es un enlace a la publicación.
+ */
+import { MEDIA_BASE, ANCHOS } from '../../src/lib/media';
+import Avatar from './Avatar.astro';
+import Icono from './Icono.astro';
+import { piezasDe, USUARIO, type Entrada } from '../lib/perfil';
+
+interface Props {
+  todo: Entrada[];
+  /** Cómo se anuncia la tira: en el perfil son las destacadas. */
+  nombre?: string;
+}
+
+const { todo, nombre = 'Historias' } = Astro.props;
+const rollos = todo.filter((e) => e.rollo);
+const resto = (ruta: string) => ruta.slice('/media'.length);
+
+const datos = {
+  base: MEDIA_BASE,
+  anchos: ANCHOS,
+  rollos: rollos.map((e) => ({
+    slug: e.slug,
+    href: e.href,
+    titulo: e.titulo,
+    dia: e.diaCorto,
+    piezas: piezasDe(e.rollo!).map((p) => [resto(p.ruta), p.w ?? 0, p.h ?? 0, p.alt]),
+  })),
+};
+---
+
+<ul class="historias" aria-label={nombre} data-historias>
+  {rollos.map((e, i) => (
+    <li>
+      <a href={e.href} data-historia={i}>
+        <span class="aro">
+          <img src={`${MEDIA_BASE}/w400${resto(e.poster)}`} alt="" width="66" height="66" loading={i < 8 ? 'eager' : 'lazy'} decoding="async" />
+        </span>
+        <span class="historia-nombre">{e.titulo}</span>
+      </a>
+    </li>
+  ))}
+</ul>
+
+<dialog class="visor" aria-label="Historia" data-visor>
+  <div class="visor-carta" data-carta>
+    <div class="visor-foto" data-foto></div>
+
+    <button class="visor-zona visor-zona-ant" type="button" tabindex="-1" aria-label="Foto anterior" data-zona="-1"></button>
+    <button class="visor-zona visor-zona-sig" type="button" tabindex="-1" aria-label="Foto siguiente" data-zona="1"></button>
+
+    <div class="visor-arriba">
+      <div class="visor-barras" data-barras aria-hidden="true"></div>
+      <div class="visor-cab">
+        <Avatar lado={32} />
+        <p>
+          <strong>{USUARIO}</strong>
+          <span data-titulo></span>
+          <span class="visor-edad" data-edad></span>
+        </p>
+        <button type="button" aria-label="Pausar" aria-pressed="false" data-pausa>
+          <Icono nombre="pausa" lado={20} class="i-pausa" />
+          <Icono nombre="correr" lado={20} class="i-correr" />
+        </button>
+        <button type="button" aria-label="Cerrar" data-cerrar autofocus><Icono nombre="cerrar" /></button>
+      </div>
+    </div>
+
+    <a class="visor-ver" data-ver href="/">Ver publicación</a>
+  </div>
+
+  <button class="visor-salto visor-salto-ant" type="button" aria-label="Historia anterior" data-salto="-1">
+    <Icono nombre="izquierda" lado={16} />
+  </button>
+  <button class="visor-salto visor-salto-sig" type="button" aria-label="Historia siguiente" data-salto="1">
+    <Icono nombre="derecha" lado={16} />
+  </button>
+</dialog>
+
+<script is:inline type="application/json" id="historias-datos" set:html={JSON.stringify(datos).replace(/</g, '\\u003c')} />
+
+<script>
+  type Pieza = [resto: string, w: number, h: number, alt: string];
+  interface Rollo { slug: string; href: string; titulo: string; dia: string; piezas: Pieza[] }
+  interface Datos { base: string; anchos: number[]; rollos: Rollo[] }
+
+  const visor = document.querySelector<HTMLDialogElement>('[data-visor]');
+  const crudo = document.getElementById('historias-datos')?.textContent;
+
+  if (visor && crudo && typeof visor.showModal === 'function') {
+    const datos: Datos = JSON.parse(crudo);
+    const $ = <T extends HTMLElement>(s: string) => visor.querySelector<T>(s)!;
+    const foto = $('[data-foto]');
+    const barras = $('[data-barras]');
+    const titulo = $('[data-titulo]');
+    const edad = $('[data-edad]');
+    const ver = $<HTMLAnchorElement>('[data-ver]');
+    const pausa = $<HTMLButtonElement>('[data-pausa]');
+    const aros = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-historia]'));
+
+    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const SIZES = '(max-width: 40rem) 100vw, 56vh';
+    const VISTAS = 'vongram:vistas';
+
+    let rollo = 0;
+    let pieza = 0;
+    // con movimiento reducido nada avanza solo: se pasa a mano
+    let detenida = quieto;
+
+    // ─── los aros de las que ya se vieron se apagan, mientras dure la sesión ───
+    const vistas = (() => {
+      try {
+        return new Set<string>(JSON.parse(sessionStorage.getItem(VISTAS) ?? '[]'));
+      } catch {
+        return new Set<string>();
+      }
+    })();
+    const marcar = () => {
+      aros.forEach((a) => {
+        const r = datos.rollos[Number(a.dataset.historia)];
+        a.classList.toggle('vista', Boolean(r) && vistas.has(r.slug));
+      });
+    };
+    const anotar = (slug: string) => {
+      vistas.add(slug);
+      try {
+        sessionStorage.setItem(VISTAS, JSON.stringify([...vistas]));
+      } catch { /* sin almacenamiento, dura lo que dure la página */ }
+      marcar();
+    };
+
+    const conjunto = (resto: string, ancho: number) => {
+      if (!ancho) return '';
+      const chicos = datos.anchos.filter((a) => a < ancho).map((a) => `${datos.base}/w${a}${resto} ${a}w`);
+      return chicos.length ? [...chicos, `${datos.base}${resto} ${ancho}w`].join(', ') : '';
+    };
+
+    const imagen = (resto: string, w: number, alt: string) => {
+      const img = new Image();
+      img.alt = alt;
+      img.decoding = 'async';
+      img.sizes = SIZES;
+      const set = conjunto(resto, w);
+      if (set) img.srcset = set;
+      img.src = datos.base + resto;
+      return img;
+    };
+
+    const pintarPausa = () => {
+      visor.classList.toggle('visor-detenida', detenida);
+      pausa.setAttribute('aria-pressed', String(detenida));
+      pausa.setAttribute('aria-label', detenida ? 'Reanudar' : 'Pausar');
+    };
+
+    const pintar = () => {
+      const r = datos.rollos[rollo];
+      const [resto, w, , alt] = r.piezas[pieza];
+
+      titulo.textContent = r.titulo;
+      edad.textContent = r.dia;
+      ver.href = r.href;
+
+      barras.replaceChildren(
+        ...r.piezas.map((_, i) => {
+          const barra = document.createElement('i');
+          if (i < pieza) barra.className = 'llena';
+          if (i === pieza) barra.className = 'actual';
+          return barra;
+        })
+      );
+
+      const fondo = new Image();
+      fondo.className = 'visor-fondo';
+      fondo.alt = '';
+      fondo.src = `${datos.base}/w400${resto}`;
+      const img = imagen(resto, w, alt);
+      img.className = 'visor-imagen';
+
+      // la barra empieza a llenarse cuando la foto ya está: nadie mira cinco segundos de negro
+      const actual = barras.querySelector<HTMLElement>('.actual');
+      const arrancar = () => actual?.classList.add('corre');
+      if (img.complete) arrancar();
+      else {
+        img.addEventListener('load', arrancar, { once: true });
+        img.addEventListener('error', arrancar, { once: true });
+      }
+      actual?.addEventListener('animationend', () => paso(1), { once: true });
+
+      foto.replaceChildren(fondo, img);
+      anotar(r.slug);
+
+      // la que sigue ya viene en camino
+      const sigue = r.piezas[pieza + 1] ?? datos.rollos[rollo + 1]?.piezas[0];
+      if (sigue) imagen(sigue[0], sigue[1], '');
+    };
+
+    const cerrar = () => {
+      if (visor.open) visor.close();
+    };
+
+    /** Una foto adelante o atrás; en los extremos brinca de rollo. */
+    const paso = (d: number) => {
+      const r = datos.rollos[rollo];
+      if (pieza + d >= 0 && pieza + d < r.piezas.length) {
+        pieza += d;
+        pintar();
+      } else {
+        salto(d, d < 0);
+      }
+    };
+
+    /** Un rollo adelante o atrás. Al regresar se cae en su última foto. */
+    const salto = (d: number, alFinal = false) => {
+      const destino = rollo + d;
+      if (destino < 0 || destino >= datos.rollos.length) {
+        if (d > 0) cerrar();
+        else {
+          pieza = 0;
+          pintar();
+        }
+        return;
+      }
+      rollo = destino;
+      pieza = alFinal ? datos.rollos[rollo].piezas.length - 1 : 0;
+      pintar();
+    };
+
+    const abrir = (i: number) => {
+      rollo = i;
+      pieza = 0;
+      detenida = quieto;
+      pintarPausa();
+      visor.showModal();
+      pintar();
+    };
+
+    aros.forEach((a) => {
+      a.addEventListener('click', (e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        abrir(Number(a.dataset.historia));
+      });
+    });
+
+    // ─── tocar pasa; dejar el dedo puesto detiene ───
+    visor.querySelectorAll<HTMLButtonElement>('[data-zona]').forEach((zona) => {
+      let desde = 0;
+      let sostenida = false;
+      zona.addEventListener('pointerdown', () => {
+        desde = performance.now();
+        sostenida = false;
+        if (!detenida) visor.classList.add('visor-sostenida');
+      });
+      const soltar = () => {
+        sostenida = performance.now() - desde > 260;
+        visor.classList.remove('visor-sostenida');
+      };
+      zona.addEventListener('pointerup', soltar);
+      zona.addEventListener('pointercancel', soltar);
+      zona.addEventListener('pointerleave', () => visor.classList.remove('visor-sostenida'));
+      zona.addEventListener('click', () => {
+        if (!sostenida) paso(Number(zona.dataset.zona));
+        sostenida = false;
+      });
+    });
+
+    visor.querySelectorAll<HTMLButtonElement>('[data-salto]').forEach((b) => {
+      b.addEventListener('click', () => salto(Number(b.dataset.salto)));
+    });
+
+    pausa.addEventListener('click', () => {
+      detenida = !detenida;
+      pintarPausa();
+    });
+    $('[data-cerrar]').addEventListener('click', cerrar);
+
+    // tocar fuera de la carta cierra
+    visor.addEventListener('click', (e) => {
+      if (e.target === visor) cerrar();
+    });
+
+    visor.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') paso(1);
+      else if (e.key === 'ArrowLeft') paso(-1);
+      else if (e.key === ' ' && !(e.target as HTMLElement).closest('button, a')) {
+        e.preventDefault();
+        pausa.click();
+      }
+    });
+
+    // al cerrar se suelta la foto para que no siga corriendo ninguna barra
+    visor.addEventListener('close', () => {
+      foto.replaceChildren();
+      barras.replaceChildren();
+    });
+
+    marcar();
+  }
+</script>

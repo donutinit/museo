@@ -53,6 +53,10 @@ jobs:
       - name: build tube
         run: npm run build:tube
 
+      # ig: el mismo archivo con piel de red social de fotos. sale a dist-ig/
+      - name: build ig
+        run: npm run build:ig
+
       # despliega dist/ a Workers Static Assets.
       # requiere el secret CLOUDFLARE_API_TOKEN con permisos:
       #   Workers Scripts:Edit + Account Settings:Read
@@ -92,3 +96,12 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '4.129.0'
           command: deploy --config wrangler.tube.jsonc
+
+      # despliega dist-ig/ al worker `museo-ig` (ig.vondiego.com).
+      - name: deploy ig
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.129.0'
+          command: deploy --config wrangler.ig.jsonc

@@ -1,0 +1,34 @@
+---
+/**
+ * El contacto como hilo de mensajes: cada párrafo del texto es un globo.
+ * No hay campo para escribir porque no hay a dónde mandarlo; lo que hay es la
+ * dirección, que es lo que el texto dice que basta.
+ */
+import Gram from '../layouts/Gram.astro';
+import Avatar from '../components/Avatar.astro';
+import { Content as Contacto } from '../../von/textos/CONTACTO.md';
+import { NOMBRE, USUARIO, CORREO, INSTAGRAM } from '../lib/perfil';
+---
+
+<Gram
+  titulo="Mensajes"
+  descripcion="Contacto directo con Von Diego para fotografía de retrato, eventos, documentación y producción de video en Monterrey, Nuevo León."
+  canonica="/contact/"
+>
+  <div class="hilo">
+    <header class="hilo-cab">
+      <Avatar lado={44} />
+      <div>
+        <h1>{NOMBRE}</h1>
+        <p class="tenue">{USUARIO}</p>
+      </div>
+      <a class="boton" href={INSTAGRAM} rel="me">Ver en Instagram</a>
+    </header>
+
+    <div class="hilo-globos">
+      <Contacto />
+    </div>
+
+    <a class="hilo-campo" href={`mailto:${CORREO}`}>Escribir a {CORREO}</a>
+  </div>
+</Gram>
