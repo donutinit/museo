@@ -100,6 +100,11 @@ npx wrangler@4.129.0 deploy --config wrangler.tube.jsonc
 
 El push a `main` lo despliega al final, después de los otros tres.
 
+El dominio ya está conectado (oct 2026). No lo hace el deploy: si algún día hay
+que rehacerlo, es una sola vez, a mano, en el dashboard → Workers & Pages →
+`museo-tube` → Settings → Domains & Routes → Add → Custom domain →
+`tube.vondiego.com`.
+
 No inventa números: no hay vistas, likes ni suscriptores. "Suscribirse" lleva
 al canal de YouTube que está en `PERFILES` (`src/lib/seo.ts`). El buscador de la
 cabecera cae en `/results/`, que trae todo el canal y filtra en el navegador.
