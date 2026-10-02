@@ -14,6 +14,8 @@ interface Props {
   canonica?: string;
   imagen?: string;
   noindex?: boolean;
+  /** `reels`: la vista de reels ocupa la pantalla entera, sin la marca de arriba. */
+  vista?: 'reels';
 }
 
 const {
@@ -22,6 +24,7 @@ const {
   canonica,
   imagen = '/media/video-posters/entrevista-yolanda.jpg',
   noindex = false,
+  vista,
 } = Astro.props;
 
 const tituloPagina = titulo ? `${titulo} • ${SITIO}` : SITIO;
@@ -67,7 +70,7 @@ const nav = [
     <script is:inline>document.documentElement.classList.add('js');</script>
   </head>
 
-  <body>
+  <body data-vista={vista}>
     <a class="salto" href="#contenido">Saltar al contenido</a>
 
     <header class="tope">

@@ -1,0 +1,22 @@
+---
+import Gram from '../../layouts/Gram.astro';
+import PerfilCab from '../../components/PerfilCab.astro';
+import Tesela from '../../components/Tesela.astro';
+import { publicaciones, cuenta, NOMBRE } from '../../lib/perfil';
+
+const todo = await publicaciones();
+const reels = todo.filter((e) => e.clase === 'reel');
+---
+
+<Gram
+  titulo={`Reels de ${NOMBRE}`}
+  descripcion={`Los ${cuenta(reels.length, 'reel', 'reels')} de Von Diego: entrevistas, video corporativo, comercial y obra personal en Monterrey.`}
+  canonica="/obra/"
+>
+  <div class="perfil">
+    <PerfilCab pestana="reels" />
+    <div class="reticula reticula-reels">
+      {reels.map((e, i) => <Tesela e={e} forma="reel" eager={i < 4} />)}
+    </div>
+  </div>
+</Gram>

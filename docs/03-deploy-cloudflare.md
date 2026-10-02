@@ -121,6 +121,11 @@ dice Vongram). Mismo trato que von, dev y tube: sus páginas viven en `ig/` y no
 tiene contenido propio. Un rollo es una publicación en carrusel y también una
 historia; una cinta es un reel (`ig/lib/perfil.ts`).
 
+`/reels/` es la vista de reels: una cinta por pantalla, deslizando, y al llegar
+al final se cuelga otra vuelta. Cada reel tiene su ancla (`/reels/#parto`), que
+es a donde mandan las retículas del perfil y del buscador. La retícula de reels
+del perfil vive en `/about/reels/`.
+
 | | ig |
 |---|---|
 | config de astro | `astro.ig.config.mjs` |

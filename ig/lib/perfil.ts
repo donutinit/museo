@@ -129,6 +129,9 @@ export async function publicaciones(): Promise<Entrada[]> {
   );
 }
 
+/** Un reel dentro de la vista de reels: `/reels/#entrevista-yolanda`. */
+export const enReels = (e: Entrada) => `/reels/#${e.slug}`;
+
 /** Las fotos de un carrusel, en el orden del rollo. */
 export const piezasDe = (p: CollectionEntry<'projects'>): Pieza[] =>
   Array.from({ length: p.data.photoCount }, (_, i) => {

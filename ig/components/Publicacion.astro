@@ -3,16 +3,13 @@
  * Una publicación: el encabezado con el usuario, la media, las acciones y el
  * pie de foto. `sola` es la misma publicación en su propia página, con sus
  * datos a la vista.
- *
- * "Me gusta" no cuenta nada ni avisa a nadie: se guarda en el navegador de
- * quien lo toca, que es lo único honesto que puede hacer un sitio estático.
  */
 import { render } from 'astro:content';
 import Avatar from './Avatar.astro';
 import Icono from './Icono.astro';
 import Carrusel from './Carrusel.astro';
 import Clip from './Clip.astro';
-import { USUARIO, corrida, cuenta, etiqueta, type Entrada } from '../lib/perfil';
+import { USUARIO, corrida, cuenta, etiqueta, enReels, type Entrada } from '../lib/perfil';
 
 interface Props {
   e: Entrada;
@@ -84,7 +81,7 @@ const sizes = sola ? '(max-width: 56rem) 100vw, 60vw' : '(max-width: 30rem) 100v
     {sola ? (
       <>Los comentarios están desactivados. <a href="/contact/">Enviar mensaje</a></>
     ) : (
-      <a href={e.href}>
+      <a href={e.rollo ? e.href : enReels(e)}>
         {e.rollo ? `Ver las ${cuenta(e.rollo.data.photoCount, 'foto', 'fotos')}` : `Ver el reel, ${corrida(e.cinta!.durationLabel)}`}
       </a>
     )}
@@ -92,43 +89,20 @@ const sizes = sola ? '(max-width: 56rem) 100vw, 60vw' : '(max-width: 30rem) 100v
 </article>
 
 <script>
-  // ─── "me gusta": se guarda aquí, en este navegador, y en ningún otro lado ───
-  const LLAVE = 'vongram:gusta';
-  const leer = (): Set<string> => {
-    try {
-      return new Set(JSON.parse(localStorage.getItem(LLAVE) ?? '[]'));
-    } catch {
-      return new Set();
-    }
-  };
-  const guardar = (gusta: Set<string>) => {
-    try {
-      localStorage.setItem(LLAVE, JSON.stringify([...gusta]));
-    } catch { /* sin almacenamiento, dura lo que dure la página */ }
-  };
-  const gusta = leer();
-
-  const tostada = document.querySelector<HTMLElement>('[data-tostada]');
-  let reloj = 0;
-  const avisar = (mensaje: string) => {
-    if (!tostada) return;
-    tostada.textContent = mensaje;
-    tostada.hidden = false;
-    clearTimeout(reloj);
-    reloj = window.setTimeout(() => { tostada.hidden = true; }, 3000);
-  };
+  import { leGusta, alternarGusta, darGusta } from '../lib/gusta';
+  import { compartir, puedeCompartir } from '../lib/compartir';
 
   document.querySelectorAll<HTMLElement>('[data-pub]').forEach((pub) => {
     const slug = pub.dataset.pub!;
     const boton = pub.querySelector<HTMLButtonElement>('[data-gusta]');
     const media = pub.querySelector<HTMLElement>('[data-media]');
     const latido = pub.querySelector<HTMLElement>('[data-latido]');
-    const compartir = pub.querySelector<HTMLButtonElement>('[data-compartir]');
+    const enviar = pub.querySelector<HTMLButtonElement>('[data-compartir]');
     const mas = pub.querySelector<HTMLButtonElement>('[data-mas]');
 
     const pintar = (salta = false) => {
       if (!boton) return;
-      const si = gusta.has(slug);
+      const si = leGusta(slug);
       boton.setAttribute('aria-pressed', String(si));
       boton.setAttribute('aria-label', si ? 'Ya no me gusta' : 'Me gusta');
       if (salta) {
@@ -139,19 +113,14 @@ const sizes = sola ? '(max-width: 56rem) 100vw, 60vw' : '(max-width: 30rem) 100v
     };
 
     boton?.addEventListener('click', () => {
-      if (gusta.has(slug)) gusta.delete(slug);
-      else gusta.add(slug);
-      guardar(gusta);
+      alternarGusta(slug);
       pintar(true);
     });
 
     // dos toques sobre la foto: me gusta, y el corazón late encima
     media?.addEventListener('dblclick', (e) => {
       if ((e.target as HTMLElement).closest('button, input')) return;
-      if (!gusta.has(slug)) {
-        gusta.add(slug);
-        guardar(gusta);
-      }
+      darGusta(slug);
       pintar(true);
       if (latido) {
         latido.classList.remove('late');
@@ -160,22 +129,9 @@ const sizes = sola ? '(max-width: 56rem) 100vw, 60vw' : '(max-width: 30rem) 100v
       }
     });
 
-    if (compartir && (navigator.share || navigator.clipboard)) {
-      compartir.hidden = false;
-      compartir.addEventListener('click', async () => {
-        const url = compartir.dataset.compartir!;
-        try {
-          if (navigator.share) await navigator.share({ title: document.title, url });
-          else {
-            await navigator.clipboard.writeText(url);
-            avisar('Enlace copiado');
-          }
-        } catch (error) {
-          // cerrar la hoja de compartir no es un error
-          if (error instanceof DOMException && error.name === 'AbortError') return;
-          avisar('No se pudo copiar el enlace');
-        }
-      });
+    if (enviar && puedeCompartir()) {
+      enviar.hidden = false;
+      enviar.addEventListener('click', () => void compartir(enviar.dataset.compartir!));
     }
 
     if (mas) {

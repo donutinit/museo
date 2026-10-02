@@ -1,11 +1,12 @@
 ---
 /**
  * Un cuadro de la retícula del perfil o del buscador. Aquí sí se recorta: es
- * una miniatura. La foto entera está a un toque.
+ * una miniatura. La foto entera está a un toque; un reel abre la vista de
+ * reels justo en él.
  */
 import { media, srcset } from '../../src/lib/media';
 import Icono from './Icono.astro';
-import { corrida, cuenta, indice, type Entrada } from '../lib/perfil';
+import { corrida, cuenta, indice, enReels, type Entrada } from '../lib/perfil';
 
 interface Props {
   e: Entrada;
@@ -20,7 +21,7 @@ const dato = e.rollo ? cuenta(e.rollo.data.photoCount, 'foto', 'fotos') : corrid
 
 <a
   class:list={['tesela', `tesela-${forma}`]}
-  href={e.href}
+  href={e.rollo ? e.href : enReels(e)}
   data-tesela
   data-clase={e.clase}
   data-busca={indice(e)}

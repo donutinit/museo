@@ -1,22 +1,348 @@
 ---
+/**
+ * La vista de reels: una cinta por pantalla, deslizando hacia abajo.
+ *
+ * Corre la que está en cuadro y las demás esperan; al llegar cerca del final
+ * se cuelga otra vuelta del archivo, así que el desliz no se acaba. Cada reel
+ * tiene su ancla (`/reels/#parto`): a ella llegan las retículas del perfil y
+ * del buscador, y la dirección se va actualizando con el reel que se ve.
+ *
+ * Arrancan sin sonido porque el navegador no deja otra cosa; el botón de
+ * sonido vale para todos los que sigan.
+ *
+ * Sin JavaScript queda una columna de `<video controls>`, que ya funciona.
+ */
 import Gram from '../layouts/Gram.astro';
-import PerfilCab from '../components/PerfilCab.astro';
-import Tesela from '../components/Tesela.astro';
-import { publicaciones, cuenta, NOMBRE } from '../lib/perfil';
+import Avatar from '../components/Avatar.astro';
+import Icono from '../components/Icono.astro';
+import { media, MEDIA_BASE } from '../../src/lib/media';
+import { subtitulosDe } from '../../src/data/videos';
+import { tieneSubtitulos } from '../../von/lib/subtitulos';
+import { publicaciones, cuenta, etiqueta, enReels, USUARIO, INSTAGRAM } from '../lib/perfil';
 
 const todo = await publicaciones();
 const reels = todo.filter((e) => e.clase === 'reel');
 ---
 
 <Gram
-  titulo={`Reels de ${NOMBRE}`}
+  titulo="Reels"
   descripcion={`Los ${cuenta(reels.length, 'reel', 'reels')} de Von Diego: entrevistas, video corporativo, comercial y obra personal en Monterrey.`}
   canonica="/obra/"
+  vista="reels"
 >
-  <div class="perfil">
-    <PerfilCab pestana="reels" />
-    <div class="reticula reticula-reels">
-      {reels.map((e, i) => <Tesela e={e} forma="reel" eager={i < 4} />)}
-    </div>
+  <h1 class="reels-rotulo">Reels</h1>
+
+  <div class="reels" data-reels>
+    {reels.map((e) => {
+      const cinta = e.cinta!;
+      const subtitulos = tieneSubtitulos(cinta.slug) ? subtitulosDe(cinta.slug) : undefined;
+      const conTexto = Boolean(subtitulos) && !cinta.captionsBurned;
+      // la carta es 9:16: lo que no sea parado va entero sobre su propio desenfoque
+      const entera = Math.abs(e.pw / e.ph - 9 / 16) > 0.02;
+      return (
+        <section class="reel" id={e.slug} data-reel={e.slug} aria-label={cinta.title}>
+          <div class="reel-carta" data-carta>
+            {entera && (
+              <img class="lamina-fondo" src={`${MEDIA_BASE}/w400${cinta.poster.slice('/media'.length)}`} alt="" loading="lazy" decoding="async" />
+            )}
+            <video controls muted loop playsinline preload="none" poster={media(cinta.poster)} width={e.pw} height={e.ph} aria-label={cinta.title}>
+              <source src={media(cinta.src)} type="video/mp4" />
+              {subtitulos && (
+                <track kind="captions" src={subtitulos} srclang="es" label="Español" default={!cinta.captionsBurned} />
+              )}
+              Tu navegador no puede reproducir este video.
+            </video>
+
+            {conTexto && <div class="clip-texto" data-texto aria-hidden="true" hidden></div>}
+            <span class="clip-centro" data-centro aria-hidden="true" hidden><Icono nombre="correr" lado={40} /></span>
+            <span class="pub-latido" aria-hidden="true" data-latido><Icono nombre="corazon" lado={96} /></span>
+
+            <div class="reel-pie">
+              <p class="reel-quien">
+                <a href="/about/" tabindex="-1" aria-hidden="true"><Avatar lado={32} /></a>
+                <a class="pub-usuario" href="/about/">{USUARIO}</a>
+                <a class="reel-seguir" href={INSTAGRAM} rel="me">Seguir</a>
+              </p>
+              <p class="reel-titulo">{cinta.title}</p>
+              {cinta.caption && <p class="reel-nota">{cinta.caption}</p>}
+              <p class="reel-meta">
+                <a href={`/explore/?q=${encodeURIComponent(etiqueta(e.oficio))}`}>#{etiqueta(e.oficio)}</a>
+                <span aria-hidden="true">•</span>
+                <time datetime={e.dia} data-hace>{e.diaCorto}</time>
+              </p>
+            </div>
+
+            <input class="clip-avance" type="range" min="0" max="1000" step="1" value="0" aria-label="Avance del reel" data-avance hidden />
+          </div>
+
+          <div class="reel-acciones">
+            <button type="button" aria-label="Me gusta" aria-pressed="false" data-gusta><Icono nombre="corazon" lado={28} /></button>
+            <a href={e.href} aria-label={`Ver la publicación: ${cinta.title}`}><Icono nombre="comentario" lado={28} /></a>
+            <button type="button" aria-label="Compartir" data-compartir={new URL(enReels(e), Astro.site).toString()} hidden>
+              <Icono nombre="mensajes" lado={28} />
+            </button>
+            <button class="reel-sonido" type="button" aria-label="Activar sonido" aria-pressed="false" data-sonido hidden>
+              <Icono nombre="mudo" lado={28} class="i-mudo" />
+              <Icono nombre="sonido" lado={28} class="i-sonido" />
+            </button>
+          </div>
+        </section>
+      );
+    })}
+  </div>
+
+  <div class="reels-flechas" data-flechas hidden>
+    <button type="button" aria-label="Reel anterior" data-paso="-1"><Icono nombre="izquierda" /></button>
+    <button type="button" aria-label="Reel siguiente" data-paso="1"><Icono nombre="derecha" /></button>
   </div>
 </Gram>
+
+<script>
+  import { velar, dormir } from '../../src/lib/vela';
+  import { leGusta, alternarGusta, darGusta } from '../lib/gusta';
+  import { compartir, puedeCompartir } from '../lib/compartir';
+
+  const feed = document.querySelector<HTMLElement>('[data-reels]');
+
+  if (feed) {
+    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const originales = Array.from(feed.querySelectorAll<HTMLElement>('[data-reel]'));
+    const videoDe = (reel: Element) => reel.querySelector<HTMLVideoElement>('video')!;
+
+    /** El sonido se decide una vez y vale para todos los reels que sigan. */
+    let conSonido = false;
+    let activo: HTMLElement | null = null;
+    /** Lo que el visitante pausó a mano no vuelve a arrancar solo mientras siga en cuadro. */
+    let detenido = false;
+    let vueltas = 1;
+    /** Con cincuenta vueltas colgadas ya nadie sigue deslizando; no hace falta más. */
+    const TOPE = 50;
+
+    const pintarSonido = () => {
+      feed.querySelectorAll<HTMLButtonElement>('[data-sonido]').forEach((b) => {
+        b.setAttribute('aria-pressed', String(conSonido));
+        b.setAttribute('aria-label', conSonido ? 'Silenciar' : 'Activar sonido');
+      });
+    };
+
+    /** El mismo reel puede estar colgado varias veces: el corazón se pinta en todas. */
+    const pintarGusta = (slug: string, salta?: HTMLElement) => {
+      const si = leGusta(slug);
+      feed.querySelectorAll<HTMLButtonElement>(`[data-reel="${slug}"] [data-gusta]`).forEach((b) => {
+        b.setAttribute('aria-pressed', String(si));
+        b.setAttribute('aria-label', si ? 'Ya no me gusta' : 'Me gusta');
+      });
+      if (salta) {
+        salta.classList.remove('salta');
+        void salta.offsetWidth;
+        salta.classList.add('salta');
+      }
+    };
+
+    const correr = (video: HTMLVideoElement) => {
+      video.muted = !conSonido;
+      video.play().catch(() => {
+        // con sonido y sin un toque previo el navegador dice que no: va sin sonido
+        if (video.muted) return;
+        conSonido = false;
+        pintarSonido();
+        video.muted = true;
+        void video.play().catch(() => {});
+      });
+    };
+
+    const otraVuelta = () => {
+      if (vueltas >= TOPE) return;
+      vueltas += 1;
+      originales.forEach((original) => {
+        const copia = original.cloneNode(true) as HTMLElement;
+        // el ancla es de la primera vuelta; las copias sólo se alcanzan deslizando
+        copia.removeAttribute('id');
+        copia.querySelector('[data-latido]')?.classList.remove('late');
+        const avance = copia.querySelector<HTMLInputElement>('[data-avance]');
+        if (avance) {
+          avance.value = '0';
+          avance.style.removeProperty('--p');
+        }
+        const texto = copia.querySelector<HTMLElement>('[data-texto]');
+        if (texto) texto.hidden = true;
+        feed.append(copia);
+        montar(copia);
+      });
+    };
+
+    const activar = (reel: HTMLElement) => {
+      if (reel === activo) return;
+      if (activo) {
+        const antes = videoDe(activo);
+        antes.pause();
+        // al volver empieza de cero, como en la red
+        if (antes.readyState > 0) antes.currentTime = 0;
+      }
+      activo = reel;
+      detenido = false;
+
+      const video = videoDe(reel);
+      if (!quieto) correr(video);
+      history.replaceState(null, '', `#${reel.dataset.reel}`);
+
+      // el que sigue va pidiendo sus datos, para que no arranque en negro
+      const sigue = reel.nextElementSibling;
+      if (sigue) videoDe(sigue).preload = 'metadata';
+      // cerca del final se cuelga otra vuelta
+      if (!sigue?.nextElementSibling) otraVuelta();
+    };
+
+    const enCuadro = new IntersectionObserver(
+      (vistas) => vistas.forEach((v) => {
+        if (v.isIntersecting && v.intersectionRatio >= 0.6) activar(v.target as HTMLElement);
+      }),
+      { root: feed, threshold: 0.6 }
+    );
+
+    const montar = (reel: HTMLElement) => {
+      const slug = reel.dataset.reel!;
+      const video = videoDe(reel);
+      const carta = reel.querySelector<HTMLElement>('[data-carta]')!;
+      const centro = reel.querySelector<HTMLElement>('[data-centro]')!;
+      const latido = reel.querySelector<HTMLElement>('[data-latido]');
+      const avance = reel.querySelector<HTMLInputElement>('[data-avance]')!;
+      const gusta = reel.querySelector<HTMLButtonElement>('[data-gusta]')!;
+      const enviar = reel.querySelector<HTMLButtonElement>('[data-compartir]');
+      const sonido = reel.querySelector<HTMLButtonElement>('[data-sonido]')!;
+      const texto = reel.querySelector<HTMLElement>('[data-texto]');
+      const pista = video.textTracks[0];
+
+      const alternar = () => {
+        if (video.paused) {
+          detenido = false;
+          correr(video);
+        } else {
+          detenido = true;
+          video.pause();
+        }
+      };
+
+      // un toque pausa; dos son un "me gusta" y no deben pausar nada
+      let toque = 0;
+      video.addEventListener('click', () => {
+        if (video.controls) return;
+        clearTimeout(toque);
+        toque = window.setTimeout(alternar, 220);
+      });
+      carta.addEventListener('dblclick', (e) => {
+        if ((e.target as HTMLElement).closest('a, button, input')) return;
+        clearTimeout(toque);
+        darGusta(slug);
+        pintarGusta(slug, gusta);
+        if (latido) {
+          latido.classList.remove('late');
+          void latido.offsetWidth;
+          latido.classList.add('late');
+        }
+      });
+
+      gusta.addEventListener('click', () => {
+        alternarGusta(slug);
+        pintarGusta(slug, gusta);
+      });
+
+      if (enviar && puedeCompartir()) {
+        enviar.hidden = false;
+        enviar.addEventListener('click', () => void compartir(enviar.dataset.compartir!));
+      }
+
+      sonido.hidden = false;
+      sonido.addEventListener('click', () => {
+        conSonido = !conSonido;
+        pintarSonido();
+        if (!activo) return;
+        const actual = videoDe(activo);
+        actual.muted = !conSonido;
+        if (conSonido && actual.paused) {
+          detenido = false;
+          correr(actual);
+        }
+      });
+
+      video.addEventListener('playing', () => {
+        centro.hidden = true;
+        velar();
+      });
+      video.addEventListener('pause', () => {
+        dormir();
+        // sólo se avisa de la pausa que pidió el visitante, no de la que deja atrás un reel
+        centro.hidden = !(reel === activo && (detenido || quieto));
+      });
+
+      video.addEventListener('timeupdate', () => {
+        if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+        const visto = video.currentTime / video.duration;
+        avance.value = String(Math.round(visto * 1000));
+        avance.style.setProperty('--p', `${(visto * 100).toFixed(2)}%`);
+      });
+      avance.addEventListener('input', () => {
+        if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+        video.currentTime = (Number(avance.value) / 1000) * video.duration;
+      });
+
+      if (texto && pista) {
+        pista.mode = 'hidden';
+        pista.addEventListener('cuechange', () => {
+          const dicho = (Array.from(pista.activeCues ?? []) as VTTCue[])
+            .map((c) => c.text.replace(/\s+/g, ' ').trim())
+            .filter(Boolean)
+            .join(' ');
+          texto.textContent = dicho;
+          texto.hidden = !dicho;
+        });
+      }
+
+      // se apagan los controles del navegador y entran los propios
+      video.controls = false;
+      avance.hidden = false;
+      // sin correr solos, el triángulo dice que hay que tocar
+      centro.hidden = !quieto;
+      pintarGusta(slug);
+      enCuadro.observe(reel);
+    };
+
+    // ─── flechas y teclado: un reel por paso ───
+    const paso = (d: number) => {
+      feed.scrollBy({ top: d * feed.clientHeight, behavior: quieto ? 'auto' : 'smooth' });
+    };
+
+    const flechas = document.querySelector<HTMLElement>('[data-flechas]');
+    if (flechas) {
+      flechas.hidden = false;
+      flechas.querySelectorAll<HTMLButtonElement>('[data-paso]').forEach((b) => {
+        b.addEventListener('click', () => paso(Number(b.dataset.paso)));
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const donde = e.target as HTMLElement;
+      if (e.ctrlKey || e.metaKey || e.altKey || donde instanceof HTMLInputElement) return;
+      const tecla = e.key.toLowerCase();
+      if (tecla === 'arrowdown' || tecla === 'j') {
+        e.preventDefault();
+        paso(1);
+      } else if (tecla === 'arrowup') {
+        e.preventDefault();
+        paso(-1);
+      } else if (tecla === 'm') {
+        activo?.querySelector<HTMLButtonElement>('[data-sonido]')?.click();
+      } else if ((tecla === ' ' || tecla === 'k') && !(donde instanceof HTMLButtonElement) && !donde.closest('a')) {
+        e.preventDefault();
+        if (activo) videoDe(activo).click();
+      }
+    });
+
+    // se llega por ancla: el reel pedido queda en cuadro antes de que corra nada
+    const pedido = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+    if (pedido && feed.contains(pedido)) feed.scrollTo({ top: pedido.offsetTop });
+
+    originales.forEach(montar);
+    pintarSonido();
+  }
+</script>
