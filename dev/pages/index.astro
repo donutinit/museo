@@ -1,0 +1,209 @@
+---
+import Producto from '../layouts/Producto.astro';
+import Visor from '../components/Visor.astro';
+import Correo from '../components/Correo.astro';
+import { media, srcset } from '../../src/lib/media';
+import { versiones, modulos, totales, corrida, cuenta, CORREO, REPO } from '../lib/producto';
+
+const log = await versiones();
+const mods = modulos(log);
+const t = totales(log);
+const stocks = [
+  { nombre: 'Foto', modulos: mods.filter((m) => m.tipo === 'foto') },
+  { nombre: 'Cinta', modulos: mods.filter((m) => m.tipo === 'cinta') },
+];
+const demos = log.filter((v) => v.tipo === 'cinta');
+const RECIENTES = 6;
+
+const especificaciones = [
+  ['Video', 'H.264 (avc1), yuv420p, faststart'],
+  ['Audio', 'AAC-LC, estéreo, 48 kHz'],
+  ['Cuadro', t.cuadros.join(', ')],
+  ['Subtítulos', 'WebVTT, español'],
+  ['Foto', `JPG. Original y derivados de ${t.anchos.join(', ')} px`],
+  ['Sitio', 'Astro, HTML estático en Cloudflare Workers'],
+  ['Media', 'Cloudflare R2'],
+  ['Idioma', 'Español (es-MX)'],
+  ['Base', 'Monterrey, MX'],
+  ['Respuesta', 'Días hábiles'],
+];
+---
+
+<Producto canonica="/">
+  <div class="ancho hero" slot="hero">
+    <h1 class="hero-titulo">
+      <span class="hero-ancha">Foto y video</span>
+      <span class="hero-angosta">con número de versión.</span>
+    </h1>
+    <p class="hero-voz">
+      El archivo de Von Diego, leído como software: cada rollo es una versión y cada cinta, una demo.
+    </p>
+    <div class="hero-acciones">
+      <a class="boton boton-tinta" href={`mailto:${CORREO}`}>Escribir a {CORREO}</a>
+      <Correo />
+    </div>
+  </div>
+
+  <div class="ancho traslape">
+    <Visor versiones={log} />
+  </div>
+
+  <section class="ancho seccion" id="modulos" aria-labelledby="t-modulos">
+    <div class="seccion-cab">
+      <h2 id="t-modulos">Módulos</h2>
+      <p>Lo que hay en el archivo, por oficio.</p>
+    </div>
+
+    <div class="modulos">
+      {stocks.map((stock) => (
+        <div>
+          <h3 class="modulos-stock">{stock.nombre}</h3>
+          <ul>
+            {stock.modulos.map((m) => {
+              const [ultima] = m.versiones;
+              return (
+                <li class="modulo">
+                  <a class="modulo-foto" href={ultima.href} tabindex="-1" aria-hidden="true">
+                    <img
+                      src={media(ultima.poster)}
+                      srcset={srcset(ultima.poster)}
+                      sizes="72px"
+                      alt=""
+                      width={ultima.pw}
+                      height={ultima.ph}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                  <div class="modulo-nombre">
+                    <h4>{m.nombre}</h4>
+                    <p>
+                      {m.tipo === 'foto'
+                        ? cuenta(m.versiones.length, 'rollo', 'rollos')
+                        : cuenta(m.versiones.length, 'cinta', 'cintas')}
+                      , {m.medida}
+                    </p>
+                  </div>
+                  <ul class="modulo-lista">
+                    {m.versiones.map((v) => (
+                      <li><a href={v.href}>{v.titulo}</a></li>
+                    ))}
+                  </ul>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="seccion" id="demos" aria-labelledby="t-demos">
+    <div class="ancho seccion-cab">
+      <h2 id="t-demos">Demos</h2>
+      <p>Las {demos.length} cintas del archivo, de la más nueva a la más vieja.</p>
+    </div>
+
+    <ul class="demos" tabindex="0" aria-label="Demos">
+      {demos.map((v) => (
+        <li style={`--r:${(v.pw / v.ph).toFixed(4)}`}>
+          <a href={v.href}>
+            <img
+              src={media(v.poster)}
+              srcset={srcset(v.poster)}
+              sizes={`${Math.round((18 * 16 * v.pw) / v.ph)}px`}
+              alt=""
+              width={v.pw}
+              height={v.ph}
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="demo-corre">{corrida(v.cinta!.durationLabel)}</span>
+            <span class="demo-titulo">{v.titulo}</span>
+            <span class="demo-modulo">{v.modulo}, {v.anio}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <div class="ancho dos">
+    <section class="seccion" id="especificaciones" aria-labelledby="t-especificaciones">
+      <div class="seccion-cab">
+        <h2 id="t-especificaciones">Especificaciones</h2>
+        <p>En qué formato sale el trabajo.</p>
+      </div>
+
+      <dl class="tabla">
+        {especificaciones.map(([nombre, valor]) => (
+          <div><dt>{nombre}</dt><dd>{valor}</dd></div>
+        ))}
+      </dl>
+    </section>
+
+    <section class="seccion" id="licencia" aria-labelledby="t-licencia">
+      <div class="seccion-cab">
+        <h2 id="t-licencia">Licencia</h2>
+        <p>Una para el código y otra para la obra.</p>
+      </div>
+
+      <div class="licencia">
+        <h3>El código</h3>
+        <p>
+          Libre y sin condiciones: no pide atribución, ni aviso, ni que abras tus cambios.
+          Aplica al código, la estructura, la configuración y la documentación.
+        </p>
+        <a href={`${REPO}/blob/main/LICENSE`}>Leer el archivo LICENSE</a>
+      </div>
+
+      <div class="licencia">
+        <h3>Las fotos y los videos</h3>
+        <p>
+          © Von Diego, todos los derechos reservados. Se pueden ver aquí, compartir
+          personalmente y citar con autoría en contextos no comerciales. El uso comercial
+          pide permiso escrito.
+        </p>
+        <blockquote>
+          <p>Cobro razonable, no muerdo.</p>
+          <footer>LICENSE, sobre el uso comercial</footer>
+        </blockquote>
+      </div>
+    </section>
+  </div>
+
+  <section class="ancho seccion" id="versiones" aria-labelledby="t-versiones">
+    <div class="seccion-cab">
+      <h2 id="t-versiones">Últimas versiones</h2>
+      <p>{log.length} en total, desde {log[log.length - 1].anio}.</p>
+    </div>
+
+    <ol class="recientes">
+      {log.slice(0, RECIENTES).map((v) => (
+        <li>
+          <a href={v.href}>
+            <span class="reciente-num">{v.version}</span>
+            <span class="reciente-titulo">{v.titulo}</span>
+            <span class="reciente-modulo">{v.modulo}</span>
+            <time datetime={v.dia}>{v.diaLargo}</time>
+          </a>
+        </li>
+      ))}
+    </ol>
+
+    <a class="boton boton-linea" href="/changelog/">Ver el changelog completo</a>
+  </section>
+
+  <section class="cierre" aria-labelledby="t-cierre">
+    <div class="ancho">
+      <h2 id="t-cierre">una dirección basta</h2>
+      <p>
+        Para obra, documentación, video, retrato o una conversación concreta.
+        Si hay algo que decir, escríbelo directo.
+      </p>
+      <div class="hero-acciones">
+        <a class="boton boton-tinta" href={`mailto:${CORREO}`}>Escribir a {CORREO}</a>
+        <Correo />
+      </div>
+    </div>
+  </section>
+</Producto>

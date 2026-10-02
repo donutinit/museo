@@ -1,0 +1,17 @@
+---
+import Producto from '../layouts/Producto.astro';
+import Docs from '../components/Docs.astro';
+// el manifiesto vive una sola vez fuera del sitio principal, en von/textos
+import { Content as Leeme } from '../../von/textos/README.md';
+---
+
+<Producto
+  titulo="Docs"
+  descripcion="Von Diego es fotógrafo y videasta en Monterrey. Conoce su trabajo en retrato, documentación, obra personal, video y montaje."
+  canonica="/about/"
+>
+  <Docs archivo="README.md">
+    <Leeme />
+    <a class="boton boton-linea" slot="pie" href="/contact/">Seguir con CONTACTO.md</a>
+  </Docs>
+</Producto>

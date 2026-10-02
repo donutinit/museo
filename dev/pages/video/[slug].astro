@@ -1,0 +1,77 @@
+---
+import Producto from '../../layouts/Producto.astro';
+import Paso from '../../components/Paso.astro';
+import { subtitulosDe } from '../../../src/data/videos';
+import { media } from '../../../src/lib/media';
+import { descripcionCinta } from '../../../src/lib/seo';
+import { tieneSubtitulos } from '../../../von/lib/subtitulos';
+import { versiones, corrida, type Version } from '../../lib/producto';
+
+export async function getStaticPaths() {
+  const log = await versiones();
+  return log
+    .filter((v) => v.cinta)
+    .map((v) => {
+      const i = log.indexOf(v);
+      return {
+        params: { slug: v.slug },
+        props: { v, siguiente: log[i - 1] ?? null, anterior: log[i + 1] ?? null },
+      };
+    });
+}
+
+interface Props {
+  v: Version;
+  anterior: Version | null;
+  siguiente: Version | null;
+}
+
+const { v, anterior, siguiente }: Props = Astro.props;
+const cinta = v.cinta!;
+const subtitulos = tieneSubtitulos(cinta.slug) ? subtitulosDe(cinta.slug) : undefined;
+---
+
+<Producto
+  titulo={`${cinta.title} ${v.version}`}
+  descripcion={descripcionCinta(cinta)}
+  canonica={v.href}
+  imagen={cinta.poster}
+>
+  <div class="ancho pagina-cab">
+    <nav class="migas" aria-label="Ruta">
+      <a href="/changelog/">Changelog</a>
+      <span aria-hidden="true">/</span>
+      <a href={`/changelog/#${v.slug}`}>{v.version}</a>
+    </nav>
+    <h1>{cinta.title}</h1>
+  </div>
+
+  <div class="ancho">
+    <div class="pantalla" style={`--r:${(v.pw / v.ph).toFixed(4)}`}>
+      <video controls playsinline preload="none" poster={media(cinta.poster)} width={v.pw} height={v.ph}>
+        <source src={media(cinta.src)} type="video/mp4" />
+        {subtitulos && (
+          <track kind="captions" src={subtitulos} srclang="es" label="Español" default={!cinta.captionsBurned} />
+        )}
+        Tu navegador no puede reproducir esta cinta.
+      </video>
+    </div>
+  </div>
+
+  <div class="ancho demo-pie">
+    <dl class="datos">
+      <div><dt>Versión</dt><dd>{v.version}</dd></div>
+      <div><dt>Módulo</dt><dd>{v.modulo}</dd></div>
+      <div><dt>Filmada</dt><dd><time datetime={v.dia}>{v.diaLargo}</time></dd></div>
+      <div><dt>Corre</dt><dd>{corrida(cinta.durationLabel)}</dd></div>
+      <div><dt>Cuadro</dt><dd>{cinta.aspect}</dd></div>
+      <div><dt>Formato</dt><dd>H.264, AAC</dd></div>
+    </dl>
+
+    {cinta.caption && <blockquote class="prosa"><p>{cinta.caption}</p></blockquote>}
+
+    <a class="boton boton-linea" href={media(cinta.src)}>Abrir el archivo .mp4</a>
+  </div>
+
+  <Paso anterior={anterior} siguiente={siguiente} />
+</Producto>

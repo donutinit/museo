@@ -1,0 +1,21 @@
+---
+import Producto from '../layouts/Producto.astro';
+import Docs from '../components/Docs.astro';
+import Correo from '../components/Correo.astro';
+import { Content as Contacto } from '../../von/textos/CONTACTO.md';
+import { CORREO } from '../lib/producto';
+---
+
+<Producto
+  titulo="Contacto"
+  descripcion="Contacto directo con Von Diego para fotografía de retrato, eventos, documentación y producción de video en Monterrey, Nuevo León."
+  canonica="/contact/"
+>
+  <Docs archivo="CONTACTO.md">
+    <Contacto />
+    <div class="hero-acciones" slot="pie">
+      <a class="boton boton-tinta" href={`mailto:${CORREO}`}>Escribir a {CORREO}</a>
+      <Correo />
+    </div>
+  </Docs>
+</Producto>

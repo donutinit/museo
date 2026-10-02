@@ -45,6 +45,10 @@ jobs:
       - name: build von
         run: npm run build:von
 
+      # dev: el mismo archivo vendido como software. sale a dist-dev/
+      - name: build dev
+        run: npm run build:dev
+
       # despliega dist/ a Workers Static Assets.
       # requiere el secret CLOUDFLARE_API_TOKEN con permisos:
       #   Workers Scripts:Edit + Account Settings:Read
@@ -66,3 +70,12 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '4.129.0'
           command: deploy --config wrangler.von.jsonc
+
+      # despliega dist-dev/ al worker `museo-dev` (dev.vondiego.com).
+      - name: deploy dev
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.129.0'
+          command: deploy --config wrangler.dev.jsonc

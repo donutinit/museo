@@ -1,0 +1,105 @@
+---
+import { render } from 'astro:content';
+import Producto from '../layouts/Producto.astro';
+import { media, srcset, MEDIA_BASE } from '../../src/lib/media';
+import { versiones, piezasDe, totales, corrida, cuenta } from '../lib/producto';
+
+const log = await versiones();
+const t = totales(log);
+const anios = [...new Set(log.map((v) => v.fecha.getUTCFullYear()))];
+
+// las notas de cada rollo son su propio texto, sin resumir
+const notas = new Map(
+  await Promise.all(
+    log.filter((v) => v.rollo).map(async (v) => [v.slug, (await render(v.rollo!)).Content] as const)
+  )
+);
+
+/** Cuántas piezas asoman en el changelog antes de mandar a la versión completa. */
+const MUESTRA = 5;
+const w400 = (ruta: string) => `${MEDIA_BASE}/w400${ruta.slice('/media'.length)}`;
+---
+
+<Producto
+  titulo="Changelog"
+  descripcion={`Changelog del archivo de Von Diego: ${t.rollos} rollos de foto y ${t.cintas} cintas, de lo más nuevo a lo más viejo.`}
+  canonica="/obra/"
+>
+  <div class="ancho pagina-cab">
+    <h1>Changelog</h1>
+    <p>
+      {cuenta(t.rollos, 'rollo', 'rollos')}, {t.piezas} piezas y {cuenta(t.cintas, 'cinta', 'cintas')}.
+      Lo último, arriba.
+    </p>
+    <nav class="saltos" aria-label="Años">
+      {anios.map((a) => <a href={`#y${a}`}>{a}</a>)}
+    </nav>
+  </div>
+
+  <div class="ancho changelog">
+    {anios.map((a) => (
+      <section aria-labelledby={`y${a}`}>
+        <h2 id={`y${a}`}>{a}</h2>
+
+        {log.filter((v) => v.fecha.getUTCFullYear() === a).map((v) => {
+          const Notas = notas.get(v.slug);
+          const piezas = v.rollo ? piezasDe(v.rollo) : [];
+          return (
+            <article class="entrada" id={v.slug}>
+              <div class="entrada-margen">
+                <a class="entrada-num" href={v.href}>{v.version}</a>
+                <time datetime={v.dia}>{v.diaLargo}</time>
+              </div>
+
+              <div class="entrada-cuerpo">
+                <h3><a href={v.href}>{v.titulo}</a></h3>
+                <p class="entrada-modulo">
+                  {v.modulo}
+                  {v.rollo?.data.location && `, ${v.rollo.data.location}`}
+                  {v.rollo?.data.client && `. Para ${v.rollo.data.client}`}
+                </p>
+
+                {Notas && <div class="prosa"><Notas /></div>}
+                {v.cinta?.caption && <blockquote class="prosa"><p>{v.cinta.caption}</p></blockquote>}
+
+                {v.rollo ? (
+                  <a class="muestra" href={v.href} aria-label={`Ver las ${piezas.length} piezas de ${v.titulo}`}>
+                    {piezas.slice(0, MUESTRA).map((p) => (
+                      <img
+                        src={w400(p.ruta)}
+                        alt=""
+                        width={p.w}
+                        height={p.h}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ))}
+                    {piezas.length > MUESTRA && <span>+{piezas.length - MUESTRA}</span>}
+                  </a>
+                ) : (
+                  <a
+                    class="muestra muestra-cinta"
+                    href={v.href}
+                    aria-label={`Ver la demo ${v.titulo}, ${corrida(v.cinta!.durationLabel)}`}
+                  >
+                    <img
+                      src={media(v.poster)}
+                      srcset={srcset(v.poster)}
+                      sizes="320px"
+                      alt=""
+                      width={v.pw}
+                      height={v.ph}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <span>{corrida(v.cinta!.durationLabel)}</span>
+                  </a>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </section>
+    ))}
+  </div>
+</Producto>

@@ -8,6 +8,7 @@ el sitio se sirve desde Workers Static Assets; la media desde un bucket R2.
 |---|---|---|
 | worker | `museo` | `www.vondiego.com` |
 | worker | `museo-von` | `von.vondiego.com` |
+| worker | `museo-dev` | `dev.vondiego.com` |
 | bucket r2 | `museo` | `media.vondiego.com` |
 
 ## von
@@ -30,7 +31,7 @@ npm run build:von
 npx wrangler@4.129.0 deploy --config wrangler.von.jsonc
 ```
 
-El push a `main` despliega los dos, primero `museo` y luego `museo-von`.
+El push a `main` despliega los tres: `museo`, `museo-von` y `museo-dev`.
 
 El dominio ya está conectado (sept 2026). No lo hace el deploy: si algún día
 hay que rehacerlo, es una sola vez, a mano, en el dashboard → Workers & Pages →
@@ -42,6 +43,33 @@ von no tiene sitemap: cada página apunta su canónico a la misma pieza en
 
 Los textos de `/about/` y `/contact/` están copiados en `von/textos/`. Si se
 cambia el manifiesto en `src/pages/about.astro`, hay que cambiarlo también ahí.
+
+## dev
+
+`dev.vondiego.com` es el mismo archivo vendido como producto de software:
+landing, changelog, docs y demos. Mismo trato que von: sus páginas viven en
+`dev/` y no tiene contenido propio. Un rollo es una versión, una cinta es una
+demo y la fecha es el número de versión (`dev/lib/producto.ts`).
+
+| | dev |
+|---|---|
+| config de astro | `astro.dev.config.mjs` |
+| páginas | `dev/pages` |
+| `public/` | `dev/public/` |
+| salida | `dist-dev/` |
+| config de wrangler | `wrangler.dev.jsonc` |
+
+```bash
+npm run dev:dev
+npm run build:dev
+npx wrangler@4.129.0 deploy --config wrangler.dev.jsonc
+```
+
+El push a `main` lo despliega al final, después de `museo` y `museo-von`.
+
+No copia textos: el manifiesto y el contacto los lee de `von/textos/`, y los
+subtítulos de `public/captions/` a través de `von/lib/subtitulos.ts`. Tampoco
+tiene sitemap; el canónico de cada página apunta a `www.vondiego.com`.
 
 ## deploy manual (desde local)
 

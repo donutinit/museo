@@ -1,0 +1,383 @@
+---
+/**
+ * El visor: la "captura del producto" de la portada, sólo que funciona.
+ *
+ * A la izquierda el changelog entero, al centro la pieza y a la derecha su
+ * ficha. Elegir una versión cambia el cuadro sin salir de la página; una cinta
+ * corre ahí mismo cuando se le da play.
+ *
+ * Sin JavaScript queda la última versión pintada desde el servidor y la lista
+ * son enlaces normales a cada página.
+ */
+import { media, srcset, MEDIA_BASE, ANCHOS } from '../../src/lib/media';
+import { subtitulosDe } from '../../src/data/videos';
+import { tieneSubtitulos } from '../../von/lib/subtitulos';
+import { piezasDe, totales, corrida, cuenta, type Version } from '../lib/producto';
+
+interface Props {
+  versiones: Version[];
+}
+
+const { versiones } = Astro.props;
+const t = totales(versiones);
+
+/** `/media/x/y.jpg` → `/x/y.jpg`: el cliente le pone la base y los anchos. */
+const resto = (ruta: string) => ruta.slice('/media'.length);
+
+const datos = {
+  base: MEDIA_BASE,
+  anchos: ANCHOS,
+  v: versiones.map((v) =>
+    v.rollo
+      ? {
+          k: 'foto',
+          href: v.href,
+          titulo: v.titulo,
+          version: v.version,
+          ficha: [
+            ['Versión', v.version],
+            ['Módulo', v.modulo],
+            ['Año', String(v.anio)],
+            ...(v.rollo.data.location ? [['Lugar', v.rollo.data.location]] : []),
+            ...(v.rollo.data.client ? [['Cliente', v.rollo.data.client]] : []),
+            ['Piezas', String(v.rollo.data.photoCount)],
+          ],
+          piezas: piezasDe(v.rollo).map((p) => [resto(p.ruta), p.w ?? 0, p.h ?? 0, p.alt, p.archivo]),
+        }
+      : {
+          k: 'cinta',
+          href: v.href,
+          titulo: v.titulo,
+          version: v.version,
+          ficha: [
+            ['Versión', v.version],
+            ['Módulo', v.modulo],
+            ['Año', String(v.anio)],
+            ['Corre', corrida(v.cinta!.durationLabel)],
+            ['Cuadro', v.cinta!.aspect],
+            ['Formato', 'H.264, AAC'],
+          ],
+          poster: resto(v.poster),
+          w: v.pw,
+          h: v.ph,
+          src: media(v.cinta!.src),
+          sub: tieneSubtitulos(v.slug) ? subtitulosDe(v.slug) : null,
+          quemados: Boolean(v.cinta!.captionsBurned),
+        }
+  ),
+};
+
+// lo que pinta el servidor: la última versión, en su primera pieza
+const primera = versiones[0];
+const piezas = primera.rollo ? piezasDe(primera.rollo) : [];
+const cuadro = piezas[0];
+const ficha = datos.v[0].ficha;
+const SIZES = '(max-width: 60rem) 92vw, 640px';
+---
+
+<section class="visor" data-visor aria-label="Visor del archivo">
+  <div class="visor-barra">
+    <span class="visor-app">Visor</span>
+    <span class="visor-doc" data-doc>{primera.titulo}</span>
+    <span class="visor-total">{versiones.length} versiones</span>
+  </div>
+
+  <nav class="visor-lista" aria-label="Versiones">
+    <ol>
+      {versiones.map((v, i) => (
+        <li>
+          <a href={v.href} data-i={i} aria-current={i === 0 ? 'true' : undefined}>
+            <span class="visor-num">{v.version}</span>
+            <span class="visor-tit">{v.titulo}</span>
+            <span class="visor-clase">
+              {v.rollo ? v.rollo.data.photoCount : corrida(v.cinta!.durationLabel)}
+            </span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+
+  <div class="visor-mesa">
+    <div class="visor-cuadro" data-cuadro>
+      {cuadro ? (
+        <img
+          src={media(cuadro.ruta)}
+          srcset={srcset(cuadro.ruta)}
+          sizes={SIZES}
+          alt={cuadro.alt}
+          width={cuadro.w}
+          height={cuadro.h}
+          fetchpriority="high"
+          decoding="async"
+        />
+      ) : (
+        <img src={media(primera.poster)} alt={primera.titulo} width={primera.pw} height={primera.ph} />
+      )}
+    </div>
+
+    <div class="visor-paso" data-paso hidden={piezas.length < 2}>
+      <button type="button" data-ant aria-label="Pieza anterior">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+      </button>
+      <span data-cuenta aria-live="polite">1 de {piezas.length}</span>
+      <button type="button" data-sig aria-label="Pieza siguiente">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+      </button>
+    </div>
+
+    <ol class="visor-tira" data-tira hidden={piezas.length < 2}>
+      {piezas.map((p, i) => (
+        <li>
+          <a href={`${primera.href}#p${p.nn}`} data-p={i} aria-current={i === 0 ? 'true' : undefined}>
+            <img src={`${MEDIA_BASE}/w400${resto(p.ruta)}`} alt={`Pieza ${i + 1}`} loading="lazy" decoding="async" />
+          </a>
+        </li>
+      ))}
+    </ol>
+  </div>
+
+  <aside class="visor-ficha" aria-label="Ficha">
+    <h2 data-titulo>{primera.titulo}</h2>
+    <dl data-ficha>
+      {ficha.map(([nombre, valor]) => (
+        <div><dt>{nombre}</dt><dd>{valor}</dd></div>
+      ))}
+    </dl>
+    <dl class="visor-archivo" data-archivo hidden={!cuadro}>
+      <div><dt>Archivo</dt><dd><code data-nombre>{cuadro?.archivo}</code></dd></div>
+      <div><dt>Medida</dt><dd data-medida>{cuadro?.w && cuadro?.h ? `${cuadro.w} × ${cuadro.h} px` : ''}</dd></div>
+    </dl>
+    <a class="boton boton-amarillo" data-abrir href={primera.href}>
+      {primera.rollo ? 'Abrir versión' : 'Abrir demo'}
+    </a>
+  </aside>
+
+  <p class="visor-estado">
+    <span>{cuenta(t.rollos, 'rollo', 'rollos')}</span>
+    <span>{t.piezas} piezas</span>
+    <span>{cuenta(t.cintas, 'cinta', 'cintas')}</span>
+    <span>{t.corre} de cinta</span>
+  </p>
+
+  <script is:inline type="application/json" id="visor-datos" set:html={JSON.stringify(datos).replace(/</g, '\\u003c')} />
+</section>
+
+<script>
+  type Fila = [string, string];
+  type Pieza = [resto: string, w: number, h: number, alt: string, archivo: string];
+  interface Foto { k: 'foto'; href: string; titulo: string; version: string; ficha: Fila[]; piezas: Pieza[] }
+  interface Cinta {
+    k: 'cinta'; href: string; titulo: string; version: string; ficha: Fila[];
+    poster: string; w: number; h: number; src: string; sub: string | null; quemados: boolean;
+  }
+  interface Datos { base: string; anchos: number[]; v: (Foto | Cinta)[] }
+
+  const SIZES = '(max-width: 60rem) 92vw, 640px';
+
+  const raiz = document.querySelector<HTMLElement>('[data-visor]');
+  const crudo = document.getElementById('visor-datos')?.textContent;
+
+  if (raiz && crudo) {
+    const datos: Datos = JSON.parse(crudo);
+    const $ = <T extends HTMLElement>(s: string) => raiz.querySelector<T>(s)!;
+
+    const lista = $('.visor-lista');
+    const cuadro = $('[data-cuadro]');
+    const paso = $('[data-paso]');
+    const cuentaEl = $('[data-cuenta]');
+    const tira = $('[data-tira]');
+    const doc = $('[data-doc]');
+    const titulo = $('[data-titulo]');
+    const ficha = $('[data-ficha]');
+    const archivo = $('[data-archivo]');
+    const nombre = $('[data-nombre]');
+    const medida = $('[data-medida]');
+    const abrir = $<HTMLAnchorElement>('[data-abrir]');
+
+    let actual = 0;
+    let pieza = 0;
+
+    const conjunto = (resto: string, ancho: number) => {
+      if (!ancho) return '';
+      const chicos = datos.anchos.filter((a) => a < ancho).map((a) => `${datos.base}/w${a}${resto} ${a}w`);
+      return chicos.length ? [...chicos, `${datos.base}${resto} ${ancho}w`].join(', ') : '';
+    };
+
+    const imagen = (resto: string, w: number, h: number, alt: string) => {
+      const img = new Image();
+      img.alt = alt;
+      if (w && h) {
+        img.width = w;
+        img.height = h;
+      }
+      img.decoding = 'async';
+      img.sizes = SIZES;
+      const set = conjunto(resto, w);
+      if (set) img.srcset = set;
+      img.src = datos.base + resto;
+      // entra cuando ya cargó: sin esto se vería el cuadro armarse a medias
+      img.className = 'entra';
+      const listo = () => img.classList.remove('entra');
+      if (img.complete) listo();
+      else {
+        img.addEventListener('load', listo, { once: true });
+        img.addEventListener('error', listo, { once: true });
+      }
+      return img;
+    };
+
+    const pintarPieza = (i: number, enfocar = false) => {
+      const v = datos.v[actual];
+      if (v.k !== 'foto') return;
+      pieza = (i + v.piezas.length) % v.piezas.length;
+      const [resto, w, h, alt, arch] = v.piezas[pieza];
+
+      cuadro.replaceChildren(imagen(resto, w, h, alt));
+      cuentaEl.textContent = `${pieza + 1} de ${v.piezas.length}`;
+      nombre.textContent = arch;
+      medida.textContent = w && h ? `${w} × ${h} px` : '';
+
+      tira.querySelectorAll<HTMLElement>('[data-p]').forEach((a, n) => {
+        if (n === pieza) {
+          a.setAttribute('aria-current', 'true');
+          // sólo mueve la tira, nunca la página
+          tira.scrollTo({ left: a.offsetLeft - tira.clientWidth / 2 + a.clientWidth / 2 });
+          if (enfocar) a.focus({ preventScroll: true });
+        } else {
+          a.removeAttribute('aria-current');
+        }
+      });
+    };
+
+    const pintarTira = (v: Foto) => {
+      tira.replaceChildren(
+        ...v.piezas.map(([resto], n) => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = `${v.href}#p${String(n + 1).padStart(2, '0')}`;
+          a.dataset.p = String(n);
+          const img = new Image();
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          img.alt = `Pieza ${n + 1}`;
+          img.src = `${datos.base}/w400${resto}`;
+          a.append(img);
+          li.append(a);
+          return li;
+        })
+      );
+    };
+
+    const pintarCinta = (v: Cinta) => {
+      const marco = document.createElement('div');
+      marco.className = 'visor-cinta';
+      marco.style.setProperty('--r', (v.w / v.h).toFixed(4));
+
+      const poster = imagen(v.poster, v.w, v.h, v.titulo);
+      const play = document.createElement('button');
+      play.type = 'button';
+      play.className = 'visor-play';
+      play.setAttribute('aria-label', `Correr la demo: ${v.titulo}`);
+      play.innerHTML =
+        '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+
+      play.addEventListener('click', () => {
+        const video = document.createElement('video');
+        video.controls = true;
+        video.playsInline = true;
+        video.poster = datos.base + v.poster;
+        video.width = v.w;
+        video.height = v.h;
+        video.src = v.src;
+        if (v.sub) {
+          const pista = document.createElement('track');
+          pista.kind = 'captions';
+          pista.src = v.sub;
+          pista.srclang = 'es';
+          pista.label = 'Español';
+          pista.default = !v.quemados;
+          video.append(pista);
+        }
+        marco.replaceChildren(video);
+        video.focus();
+        void video.play().catch(() => {});
+      });
+
+      marco.append(poster, play);
+      cuadro.replaceChildren(marco);
+    };
+
+    const elegir = (i: number) => {
+      actual = i;
+      const v = datos.v[i];
+
+      lista.querySelectorAll<HTMLElement>('[data-i]').forEach((a) => {
+        if (Number(a.dataset.i) === i) {
+          a.setAttribute('aria-current', 'true');
+          // en el teléfono la lista corre de lado: la versión elegida queda a la vista
+          lista.scrollTo({ left: a.offsetLeft - lista.clientWidth / 2 + a.clientWidth / 2 });
+        } else {
+          a.removeAttribute('aria-current');
+        }
+      });
+
+      doc.textContent = v.titulo;
+      titulo.textContent = v.titulo;
+      ficha.replaceChildren(
+        ...v.ficha.map(([n, valor]) => {
+          const div = document.createElement('div');
+          const dt = document.createElement('dt');
+          const dd = document.createElement('dd');
+          dt.textContent = n;
+          dd.textContent = valor;
+          div.append(dt, dd);
+          return div;
+        })
+      );
+      abrir.href = v.href;
+      abrir.textContent = v.k === 'foto' ? 'Abrir versión' : 'Abrir demo';
+
+      const variasPiezas = v.k === 'foto' && v.piezas.length > 1;
+      paso.hidden = !variasPiezas;
+      tira.hidden = !variasPiezas;
+      archivo.hidden = v.k !== 'foto';
+
+      if (v.k === 'foto') {
+        pintarTira(v);
+        pintarPieza(0);
+      } else {
+        tira.replaceChildren();
+        pintarCinta(v);
+      }
+    };
+
+    // la lista son enlaces de verdad: con ctrl, cmd o botón medio siguen abriendo la página
+    lista.addEventListener('click', (e) => {
+      const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('[data-i]');
+      if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      elegir(Number(a.dataset.i));
+    });
+
+    tira.addEventListener('click', (e) => {
+      const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('[data-p]');
+      if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      pintarPieza(Number(a.dataset.p));
+    });
+
+    $('[data-ant]').addEventListener('click', () => pintarPieza(pieza - 1));
+    $('[data-sig]').addEventListener('click', () => pintarPieza(pieza + 1));
+
+    // flechas: dentro de la mesa cambian de pieza, como en cualquier visor
+    $('.visor-mesa').addEventListener('keydown', (e) => {
+      if ((e.target as HTMLElement).closest('video')) return;
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if (datos.v[actual].k !== 'foto') return;
+      e.preventDefault();
+      const enTira = Boolean((e.target as HTMLElement).closest('[data-p]'));
+      pintarPieza(pieza + (e.key === 'ArrowRight' ? 1 : -1), enTira);
+    });
+  }
+</script>

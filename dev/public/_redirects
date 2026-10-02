@@ -1,0 +1,8 @@
+# los índices del sitio principal no existen aquí: caen al changelog.
+# OJO: solo las rutas exactas. /obra/<slug> y /video/<slug> son páginas reales.
+/obra           /changelog/         301
+/obra/          /changelog/         301
+/video          /#demos             301
+/video/         /#demos             301
+/docs           /about/             301
+/docs/          /about/             301

@@ -1,0 +1,31 @@
+---
+interface Props {
+  /** El archivo que se está leyendo: `README.md`. */
+  archivo: string;
+}
+
+const { archivo } = Astro.props;
+
+const indice = [
+  { href: '/about/', label: 'README.md' },
+  { href: '/contact/', label: 'CONTACTO.md' },
+  { href: '/#especificaciones', label: 'Especificaciones' },
+  { href: '/#licencia', label: 'Licencia' },
+  { href: '/changelog/', label: 'Changelog' },
+];
+---
+
+<div class="ancho docs">
+  <nav class="docs-nav" aria-label="Documentación">
+    <h2>Documentación</h2>
+    {indice.map((i) => (
+      <a href={i.href} aria-current={i.label === archivo ? 'page' : undefined}>{i.label}</a>
+    ))}
+  </nav>
+
+  <article class="docs-hoja">
+    <p class="docs-archivo"><code>{archivo}</code></p>
+    <div class="prosa prosa-docs"><slot /></div>
+    <slot name="pie" />
+  </article>
+</div>

@@ -1,0 +1,41 @@
+---
+/**
+ * La línea de instalación de cualquier producto de terminal, sólo que aquí lo
+ * único que se instala es una conversación. El botón copia la dirección.
+ */
+import { CORREO } from '../lib/producto';
+---
+
+<div class="correo" data-correo={CORREO}>
+  <code><span aria-hidden="true">$ mail </span>{CORREO}</code>
+  <button type="button" data-copiar hidden>Copiar</button>
+  <span class="correo-estado" role="status" data-estado></span>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-correo]').forEach((caja) => {
+    const boton = caja.querySelector<HTMLButtonElement>('[data-copiar]');
+    const estado = caja.querySelector<HTMLElement>('[data-estado]');
+    const correo = caja.dataset.correo;
+    if (!boton || !estado || !correo || !navigator.clipboard) return;
+
+    // sin portapapeles no hay botón: la dirección sigue ahí para seleccionarla
+    boton.hidden = false;
+    let reloj = 0;
+
+    boton.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(correo);
+        boton.textContent = 'Copiado';
+        estado.textContent = 'Dirección copiada';
+      } catch {
+        estado.textContent = 'No se pudo copiar. Selecciona la dirección a mano.';
+      }
+      clearTimeout(reloj);
+      reloj = window.setTimeout(() => {
+        boton.textContent = 'Copiar';
+        estado.textContent = '';
+      }, 2400);
+    });
+  });
+</script>

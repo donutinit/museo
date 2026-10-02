@@ -7,6 +7,7 @@ jspm_packages/
 # ─── build output ──────────────────────────────────────
 dist/
 dist-von/
+dist-dev/
 build/
 out/
 .astro/

@@ -1,0 +1,14 @@
+{
+  // dev.vondiego.com: el mismo archivo vendido como producto de software.
+  // Igual que `museo`: `assets` sin `main` = solo archivos.
+  // El dominio se agrega una sola vez (ver docs/03).
+  "name": "museo-dev",
+  "compatibility_date": "2026-09-06",
+  "assets": {
+    "directory": "./dist-dev",
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

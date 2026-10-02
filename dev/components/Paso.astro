@@ -1,0 +1,29 @@
+---
+import type { Version } from '../lib/producto';
+
+interface Props {
+  /** La versión que salió antes de ésta. */
+  anterior: Version | null;
+  /** La que salió después. */
+  siguiente: Version | null;
+}
+
+const { anterior, siguiente } = Astro.props;
+---
+
+<nav class="ancho paso" aria-label="Otras versiones">
+  {anterior ? (
+    <a href={anterior.href} rel="prev">
+      <span>Versión anterior, {anterior.version}</span>
+      <strong>{anterior.titulo}</strong>
+    </a>
+  ) : (
+    <span />
+  )}
+  {siguiente && (
+    <a class="paso-sig" href={siguiente.href} rel="next">
+      <span>Versión siguiente, {siguiente.version}</span>
+      <strong>{siguiente.titulo}</strong>
+    </a>
+  )}
+</nav>

@@ -1,0 +1,91 @@
+---
+import { render } from 'astro:content';
+import Producto from '../../layouts/Producto.astro';
+import Paso from '../../components/Paso.astro';
+import { media, srcset } from '../../../src/lib/media';
+import { oficio } from '../../../src/lib/archivo';
+import { versiones, piezasDe, type Version } from '../../lib/producto';
+
+export async function getStaticPaths() {
+  const log = await versiones();
+  return log
+    .filter((v) => v.rollo)
+    .map((v) => {
+      const i = log.indexOf(v);
+      return {
+        params: { slug: v.slug },
+        // en el changelog lo más nuevo va arriba: la "siguiente" versión es la de arriba
+        props: { v, siguiente: log[i - 1] ?? null, anterior: log[i + 1] ?? null },
+      };
+    });
+}
+
+interface Props {
+  v: Version;
+  anterior: Version | null;
+  siguiente: Version | null;
+}
+
+const { v, anterior, siguiente }: Props = Astro.props;
+const rollo = v.rollo!;
+const { data } = rollo;
+const { Content } = await render(rollo);
+const piezas = piezasDe(rollo);
+
+const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location ? ` en ${data.location}` : ''}, ${data.year}. ${data.photoCount} piezas del archivo de Von Diego.`;
+---
+
+<Producto titulo={`${data.title} ${v.version}`} descripcion={descripcion} canonica={v.href} imagen={data.poster}>
+  <div class="ancho pagina-cab">
+    <nav class="migas" aria-label="Ruta">
+      <a href="/changelog/">Changelog</a>
+      <span aria-hidden="true">/</span>
+      <a href={`/changelog/#${v.slug}`}>{v.version}</a>
+    </nav>
+    <h1>{data.title}</h1>
+
+    <dl class="datos">
+      <div><dt>Versión</dt><dd>{v.version}</dd></div>
+      <div><dt>Módulo</dt><dd>{v.modulo}</dd></div>
+      <div><dt>Publicada</dt><dd><time datetime={v.dia}>{v.diaLargo}</time></dd></div>
+      {data.location && <div><dt>Lugar</dt><dd>{data.location}</dd></div>}
+      {data.client && <div><dt>Cliente</dt><dd>{data.client}</dd></div>}
+      <div><dt>Piezas</dt><dd>{data.photoCount}</dd></div>
+    </dl>
+  </div>
+
+  <div class="ancho notas">
+    <h2>Notas de la versión</h2>
+    <div class="prosa"><Content /></div>
+  </div>
+
+  <section class="ancho" aria-labelledby="t-piezas">
+    <h2 class="piezas-cab" id="t-piezas">{data.photoCount} piezas</h2>
+
+    <div class="piezas">
+      {piezas.map((p, i) => (
+        <figure id={`p${p.nn}`}>
+          <a href={media(p.ruta)}>
+            <img
+              src={media(p.ruta)}
+              srcset={srcset(p.ruta)}
+              sizes="(max-width: 48rem) 92vw, (max-width: 80rem) 46vw, 590px"
+              alt={p.alt}
+              width={p.w}
+              height={p.h}
+              loading={i < 2 ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchpriority={i === 0 ? 'high' : undefined}
+            />
+          </a>
+          <figcaption>
+            <code>{p.archivo}</code>
+            {p.w && p.h && <span>{p.w} × {p.h} px</span>}
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  </section>
+
+  <Paso anterior={anterior} siguiente={siguiente} />
+</Producto>

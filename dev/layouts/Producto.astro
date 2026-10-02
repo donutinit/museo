@@ -1,0 +1,135 @@
+---
+import '../styles/producto.css';
+import { media } from '../../src/lib/media';
+import { PERFILES } from '../../src/lib/seo';
+import { versiones, PRODUCTO, SITIO_PRINCIPAL, SITIO_VON, REPO, CORREO } from '../lib/producto';
+
+interface Props {
+  /** Sin título, la pestaña lleva la línea de la portada. */
+  titulo?: string;
+  descripcion?: string;
+  /** La misma pieza en el sitio principal: a ella apunta el canónico. */
+  canonica?: string;
+  imagen?: string;
+  noindex?: boolean;
+}
+
+const {
+  titulo,
+  descripcion = 'El archivo de foto y video de Von Diego en Monterrey, leído como software: cada rollo es una versión y cada cinta, una demo.',
+  canonica,
+  imagen = '/media/video-posters/entrevista-yolanda.jpg',
+  noindex = false,
+} = Astro.props;
+
+const [ultima] = await versiones();
+const tituloPagina = titulo ? `${titulo} | ${PRODUCTO}` : `${PRODUCTO} | Foto y video con número de versión`;
+const canonical = canonica ? new URL(canonica, SITIO_PRINCIPAL) : undefined;
+const propia = new URL(Astro.url.pathname, Astro.site);
+
+const ruta = Astro.url.pathname.replace(/\/$/, '') || '/';
+const enRuta = (base: string) => ruta === base || ruta.startsWith(`${base}/`);
+
+const nav = [
+  { href: '/changelog/', label: 'Changelog', activa: enRuta('/changelog') || enRuta('/obra') },
+  { href: '/#demos', label: 'Demos', activa: enRuta('/video') },
+  { href: '/about/', label: 'Docs', activa: enRuta('/about') },
+  { href: '/#licencia', label: 'Licencia', activa: false },
+];
+
+const NOMBRES: Record<string, string> = { youtube: 'YouTube', instagram: 'Instagram', github: 'GitHub' };
+const perfil = (url: string) => {
+  const sitio = new URL(url).hostname.replace(/^www\./, '').split('.')[0];
+  return NOMBRES[sitio] ?? sitio;
+};
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>{tituloPagina}</title>
+    <meta name="description" content={descripcion} />
+    <meta name="author" content="Von Diego" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#f0c419" />
+    <link rel="preconnect" href="https://media.vondiego.com" />
+
+    <meta property="og:title" content={tituloPagina} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={propia} />
+    <meta property="og:site_name" content="Von Diego" />
+    <meta property="og:image" content={media(imagen)} />
+    <meta property="og:locale" content="es_MX" />
+  </head>
+
+  <body>
+    <a class="salto" href="#contenido">Saltar al contenido</a>
+
+    <header class="cab">
+      <div class="ancho cab-fila">
+        <a class="marca" href="/" aria-label={`${PRODUCTO}, inicio`}>von diego</a>
+        <a class="marca-version" href={ultima.href} title={`Última versión: ${ultima.titulo}`}>
+          {ultima.version}
+        </a>
+
+        <nav class="cab-nav" aria-label="Principal">
+          {nav.map((n) => (
+            <a href={n.href} aria-current={n.activa ? 'page' : undefined}>{n.label}</a>
+          ))}
+        </nav>
+
+        <a class="boton boton-tinta cab-boton" href="/contact/">Contacto</a>
+      </div>
+
+      <slot name="hero" />
+    </header>
+
+    <main id="contenido">
+      <slot />
+    </main>
+
+    <footer class="pie">
+      <div class="ancho pie-rejilla">
+        <div class="pie-marca">
+          <a class="marca" href="/">von diego</a>
+          <p>Foto, video y montaje. Monterrey, MX.</p>
+          <a class="pie-correo" href={`mailto:${CORREO}`}>{CORREO}</a>
+        </div>
+
+        <nav aria-label="Producto">
+          <h2>Producto</h2>
+          <a href="/changelog/">Changelog</a>
+          <a href="/#modulos">Módulos</a>
+          <a href="/#demos">Demos</a>
+          <a href="/#especificaciones">Especificaciones</a>
+          <a href="/#licencia">Licencia</a>
+        </nav>
+
+        <nav aria-label="Documentación">
+          <h2>Documentación</h2>
+          <a href="/about/">README.md</a>
+          <a href="/contact/">CONTACTO.md</a>
+          <a href={`${REPO}/blob/main/LICENSE`}>LICENSE</a>
+          <a href={REPO}>Código fuente</a>
+        </nav>
+
+        <nav aria-label="El mismo archivo">
+          <h2>El mismo archivo</h2>
+          <a href={SITIO_PRINCIPAL}>Como sala oscura</a>
+          <a href={SITIO_VON}>Como repositorio</a>
+          {PERFILES.map((p) => <a href={p} rel="me">{perfil(p)}</a>)}
+        </nav>
+      </div>
+
+      <div class="ancho pie-base">
+        <p>© Von Diego. El código es libre; las fotos y los videos, no.</p>
+        <p>Versión {ultima.version}</p>
+      </div>
+    </footer>
+  </body>
+</html>
