@@ -1,7 +1,8 @@
 ---
 import Gitweb from '../../layouts/Gitweb.astro';
 import { render, type CollectionEntry } from 'astro:content';
-import { media, srcset, medidaDe, altDe } from '../../../src/lib/media';
+import { media, medidaDe, altDe } from '../../../src/lib/media';
+import Foto from '../../../src/components/Foto.astro';
 import { oficio } from '../../../src/lib/archivo';
 import { rollos, REPO } from '../../lib/git';
 
@@ -34,8 +35,8 @@ const piezas = Array.from({ length: data.photoCount }, (_, i) => {
   return {
     nn,
     archivo: `${data.photosPrefix}-${nn}.jpg`,
+    ruta,
     src: media(ruta),
-    conjunto: srcset(ruta),
     w: medida?.[0],
     h: medida?.[1],
     alt: altDe(ruta, `${data.title}, pieza ${i + 1}`),
@@ -87,9 +88,8 @@ const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location
       </div>
       <div class="lamina">
         <a href={pieza.src}>
-          <img
-            src={pieza.src}
-            srcset={pieza.conjunto}
+          <Foto
+            ruta={pieza.ruta}
             sizes={pieza.w && pieza.h ? `min(96vw, ${Math.round((92 * pieza.w) / pieza.h)}vh)` : '96vw'}
             alt={pieza.alt}
             width={pieza.w}

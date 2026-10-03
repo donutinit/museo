@@ -1,6 +1,7 @@
 ---
 import '../styles/gram.css';
 import Logo from '../components/Logo.astro';
+import Adelanto from '../../src/components/Adelanto.astro';
 import Icono from '../components/Icono.astro';
 import Avatar from '../components/Avatar.astro';
 import { media } from '../../src/lib/media';
@@ -57,6 +58,7 @@ const nav = [
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <link rel="preconnect" href="https://media.vondiego.com" />
+    <Adelanto />
 
     <meta property="og:title" content={titulo ?? `${NOMBRE} (@${USUARIO})`} />
     <meta property="og:description" content={descripcion} />

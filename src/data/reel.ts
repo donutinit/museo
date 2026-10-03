@@ -8,7 +8,7 @@
  * Así el cache-bust de una reposición se escribe en un solo lugar.
  */
 export type Foto = {
-  /** Ruta cruda `/media/...`; la página le aplica `media()` y `srcset()`. */
+  /** Ruta cruda `/media/...`; la página la pinta con `<Foto>`. */
   src: string;
   alt: string;
   width: number;

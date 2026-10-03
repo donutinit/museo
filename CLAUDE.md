@@ -141,6 +141,17 @@ En contenido y páginas se siguen escribiendo rutas `/media/...`;
 `src/lib/media.ts` las reescribe al dominio de R2 al render. No hardcodees
 `media.vondiego.com` en contenido.
 
+Las fotos se pintan con `<Foto ruta="/media/...">` (`src/components/Foto.astro`),
+nunca con un `<img>` suelto: emite un `<picture>` con AVIF en escalones y el
+respaldo en el formato original. Las reglas de rutas y anchos viven en
+`src/lib/foto.ts`, que también usa el JavaScript del navegador.
+
+Foto nueva: súbela a R2, ponla en `.cache/media/` y corre
+`node scripts/derivados.mjs`. Actualiza `src/data/medidas.json` y deja en
+`.cache/derivados/` los escalones `w*/` y `avif/` para subir. Si `medidas.json`
+anuncia una pieza cuyos derivados no están en R2, la foto sale rota; CI corre
+`npm run revisar-derivados` y no despliega en ese caso.
+
 Si reemplazas un video en producción:
 
 1. Verifica codec con `ffprobe`.

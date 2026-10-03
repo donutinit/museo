@@ -57,6 +57,11 @@ body { min-height: 100dvh; display: flex; flex-direction: column; overflow-x: cl
 main { flex: 1; display: flow-root; }
 
 img, video { display: block; max-width: 100%; }
+/* el <picture> de cada foto no pinta caja: la imagen sigue siendo hija de su marco.
+   Su <source> nunca se pinta, pero sin esto ocuparía una celda del grid o un
+   hueco del flex del marco */
+picture { display: contents; }
+picture > source { display: none; }
 ul, ol { list-style: none; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 code { font-family: var(--f-mono); font-size: 0.875em; }
@@ -273,7 +278,7 @@ a {
 
 /* la pieza entera, sin recortar: se acomoda al cuadro, no al revés */
 .visor-cuadro { position: relative; min-height: 0; }
-.visor-cuadro > img, .visor-cinta {
+.visor-cuadro > picture > img, .visor-cinta {
   position: absolute;
   inset: 1rem 1rem 0.5rem;
   width: calc(100% - 2rem);

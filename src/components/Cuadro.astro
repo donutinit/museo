@@ -1,6 +1,7 @@
 ---
 import type { Cuadro } from '../lib/archivo';
-import { media, srcset } from '../lib/media';
+import { media } from '../lib/media';
+import Foto from './Foto.astro';
 
 interface Props {
   cuadro: Cuadro;
@@ -25,9 +26,8 @@ const SIZES = '(max-width: 40rem) 45vw, 350px';
   style={`--ratio: ${cuadro.ratio.toFixed(5)};`}
 >
   <span class="cuadro-media">
-    <img
-      src={media(cuadro.src)}
-      srcset={srcset(cuadro.src)}
+    <Foto
+      ruta={cuadro.src}
       sizes={SIZES}
       alt=""
       width={cuadro.w}

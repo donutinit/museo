@@ -11,7 +11,8 @@ import Tube from '../../layouts/Tube.astro';
 import Acciones from '../../components/Acciones.astro';
 import Compacta from '../../components/Compacta.astro';
 import Icono from '../../components/Icono.astro';
-import { media, srcset, MEDIA_BASE, ANCHOS } from '../../../src/lib/media';
+import { media, MEDIA_BASE } from '../../../src/lib/media';
+import Foto from '../../../src/components/Foto.astro';
 import { oficio } from '../../../src/lib/archivo';
 import { canal, piezasDe, CANAL, CORREO, type Entrada } from '../../lib/canal';
 
@@ -42,7 +43,6 @@ const SIZES = '(max-width: 63.5rem) 100vw, 66vw';
 
 const datos = {
   base: MEDIA_BASE,
-  anchos: ANCHOS,
   piezas: piezas.map((p) => [resto(p.ruta), p.w ?? 0, p.h ?? 0, p.alt]),
 };
 
@@ -54,9 +54,8 @@ const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location
     <div class="ver-principal">
       <div class="rep rep-fotos" data-pase tabindex="0" aria-label={`Fotos de ${data.title}`}>
         <div class="pase-cuadro" data-cuadro>
-          <img
-            src={media(primera.ruta)}
-            srcset={srcset(primera.ruta)}
+          <Foto
+            ruta={primera.ruta}
             sizes={SIZES}
             alt={primera.alt}
             width={primera.w}
@@ -125,8 +124,9 @@ const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location
             <li>
               <a href={media(p.ruta)} data-p={i} aria-current={i === 0 ? 'true' : undefined}>
                 <span class="panel-num">{i + 1}</span>
-                <img
-                  src={`${MEDIA_BASE}/w400${resto(p.ruta)}`}
+                <Foto
+                  ruta={p.ruta}
+                  escalon={400}
                   alt=""
                   width={p.w}
                   height={p.h}
@@ -152,8 +152,10 @@ const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location
 </Tube>
 
 <script>
+  import { armarFoto, conjuntoAvif, conjuntoRespaldo } from '../../../src/lib/foto';
+
   type Pieza = [resto: string, w: number, h: number, alt: string];
-  interface Datos { base: string; anchos: number[]; piezas: Pieza[] }
+  interface Datos { base: string; piezas: Pieza[] }
 
   const SIZES = '(max-width: 63.5rem) 100vw, 66vw';
   const pase = document.querySelector<HTMLElement>('[data-pase]');
@@ -174,11 +176,16 @@ const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location
     const total = datos.piezas.length;
     let actual = 0;
 
-    const conjunto = (resto: string, ancho: number) => {
-      if (!ancho) return '';
-      const chicos = datos.anchos.filter((a) => a < ancho).map((a) => `${datos.base}/w${a}${resto} ${a}w`);
-      return chicos.length ? [...chicos, `${datos.base}${resto} ${ancho}w`].join(', ') : '';
-    };
+    const foto = (resto: string, w: number, h: number, alt: string) =>
+      armarFoto({
+        src: datos.base + resto,
+        srcset: w ? conjuntoRespaldo(datos.base, resto, w) : undefined,
+        avif: w ? conjuntoAvif(datos.base, resto, w) : undefined,
+        sizes: SIZES,
+        alt,
+        width: w,
+        height: h,
+      });
 
     const ancla = (i: number) => `#p${String(i + 1).padStart(2, '0')}`;
 
@@ -186,18 +193,7 @@ const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location
       actual = (i + total) % total;
       const [resto, w, h, alt] = datos.piezas[actual];
 
-      const img = new Image();
-      img.alt = alt;
-      if (w && h) {
-        img.width = w;
-        img.height = h;
-      }
-      img.decoding = 'async';
-      img.sizes = SIZES;
-      const set = conjunto(resto, w);
-      if (set) img.srcset = set;
-      img.src = datos.base + resto;
-      cuadro.replaceChildren(img);
+      cuadro.replaceChildren(foto(resto, w, h, alt).picture);
 
       cuenta.textContent = `${actual + 1} / ${total}`;
       if (panelCuenta) panelCuenta.textContent = String(actual + 1);
@@ -216,13 +212,10 @@ const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location
       // la foto queda en la dirección, sin llenar el historial de pasos
       if (anotar) history.replaceState(null, '', ancla(actual));
 
-      // la que sigue ya viene en camino
-      const [otro, ow] = datos.piezas[(actual + 1) % total];
-      const previa = new Image();
-      previa.sizes = SIZES;
-      const oset = conjunto(otro, ow);
-      if (oset) previa.srcset = oset;
-      previa.src = datos.base + otro;
+      // la que sigue ya viene en camino: un <picture> suelto elige y baja
+      // lo mismo que el de la página, sin pintarse
+      const [otro, ow, oh, oalt] = datos.piezas[(actual + 1) % total];
+      foto(otro, ow, oh, oalt);
     };
 
     const aPantalla = async () => {

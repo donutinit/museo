@@ -1,6 +1,7 @@
 ---
 import '../styles/tube.css';
 import Logo from '../components/Logo.astro';
+import Adelanto from '../../src/components/Adelanto.astro';
 import Icono from '../components/Icono.astro';
 import { media } from '../../src/lib/media';
 import { PERFILES } from '../../src/lib/seo';
@@ -67,6 +68,7 @@ const otros = PERFILES.filter((p) => p !== YOUTUBE).map((p) => {
     <meta name="theme-color" content="#0f0f0f" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <link rel="preconnect" href="https://media.vondiego.com" />
+    <Adelanto />
 
     <meta property="og:title" content={titulo ?? SITIO} />
     <meta property="og:description" content={descripcion} />

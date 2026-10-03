@@ -21,7 +21,8 @@
     "build:tube": "astro build --config astro.tube.config.mjs",
     "dev:ig": "astro dev --config astro.ig.config.mjs",
     "build:ig": "astro build --config astro.ig.config.mjs",
-    "derivados": "node scripts/derivados.mjs"
+    "derivados": "node scripts/derivados.mjs",
+    "revisar-derivados": "node scripts/revisar-derivados.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "3.7.4",

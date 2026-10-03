@@ -15,7 +15,8 @@
 import Gram from '../layouts/Gram.astro';
 import Avatar from '../components/Avatar.astro';
 import Icono from '../components/Icono.astro';
-import { media, MEDIA_BASE } from '../../src/lib/media';
+import { media } from '../../src/lib/media';
+import Foto from '../../src/components/Foto.astro';
 import { subtitulosDe } from '../../src/data/videos';
 import { tieneSubtitulos } from '../../von/lib/subtitulos';
 import { publicaciones, cuenta, etiqueta, enReels, USUARIO, INSTAGRAM } from '../lib/perfil';
@@ -43,7 +44,7 @@ const reels = todo.filter((e) => e.clase === 'reel');
         <section class="reel" id={e.slug} data-reel={e.slug} aria-label={cinta.title}>
           <div class="reel-carta" data-carta>
             {entera && (
-              <img class="lamina-fondo" src={`${MEDIA_BASE}/w400${cinta.poster.slice('/media'.length)}`} alt="" loading="lazy" decoding="async" />
+              <Foto class="lamina-fondo" ruta={cinta.poster} escalon={400} alt="" loading="lazy" decoding="async" />
             )}
             <video controls muted loop playsinline preload="none" poster={media(cinta.poster)} width={e.pw} height={e.ph} aria-label={cinta.title}>
               <source src={media(cinta.src)} type="video/mp4" />

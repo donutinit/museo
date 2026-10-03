@@ -1,6 +1,8 @@
 ---
 import '../styles/producto.css';
+import archivo from '@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url';
 import { media } from '../../src/lib/media';
+import Adelanto from '../../src/components/Adelanto.astro';
 import { PERFILES } from '../../src/lib/seo';
 import { versiones, PRODUCTO, SITIO_PRINCIPAL, SITIO_VON, REPO, CORREO } from '../lib/producto';
 
@@ -55,8 +57,11 @@ const perfil = (url: string) => {
     <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
     {canonical && <link rel="canonical" href={canonical} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {/* la letra de todo el sitio: sin esto se descubre hasta leer el CSS */}
+    <link rel="preload" as="font" type="font/woff2" href={archivo} crossorigin />
     <meta name="theme-color" content="#f0c419" />
     <link rel="preconnect" href="https://media.vondiego.com" />
+    <Adelanto />
 
     <meta property="og:title" content={tituloPagina} />
     <meta property="og:description" content={descripcion} />

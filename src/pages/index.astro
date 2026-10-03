@@ -2,7 +2,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { placas } from '../data/reel';
 import { cintaPorSlug, subtitulosDe } from '../data/videos';
-import { media, srcset, altDe } from '../lib/media';
+import { media, altDe } from '../lib/media';
+import Foto from '../components/Foto.astro';
 import Lupa from '../components/Lupa.astro';
 import { grafo, persona, sitio, cinta as cintaLD } from '../lib/seo';
 
@@ -118,9 +119,8 @@ const esquema = grafo(
                   aria-label={`Abrir ${altDe(foto.src, foto.alt)} en grande`}
                   style={`--ratio: ${(foto.width / foto.height).toFixed(5)};`}
                 >
-                  <img
-                    src={media(foto.src)}
-                    srcset={srcset(foto.src)}
+                  <Foto
+                    ruta={foto.src}
                     sizes={SIZES}
                     alt=""
                     width={foto.width}

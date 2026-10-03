@@ -229,6 +229,58 @@ rclone size r2:museo
 rclone ls r2:museo/videos
 ```
 
+## fotos nuevas y sus derivados
+
+Ningún navegador baja el original de una foto para pintarla. Cada foto sale en
+un `<picture>` (`src/components/Foto.astro`):
+
+| qué | dónde | quién lo baja |
+|---|---|---|
+| AVIF a 400, 640, 800, 1080, 1280, 1600, 1920 y 2560 px, más el ancho nativo | `avif/w<N>/projects/<rollo>/<pieza>.avif` | casi todos: Chrome, Firefox, Safari 16 o más nuevo |
+| respaldo a 400, 800 y 1600 px en el formato del original | `w<N>/projects/<rollo>/<pieza>.jpg` | sólo un navegador sin AVIF |
+| el original | `projects/<rollo>/<pieza>.jpg` | quien lo abre a propósito |
+
+El navegador elige el escalón según el ancho al que se pinta la foto (`sizes`)
+y la densidad de la pantalla. Nunca hay escalones más grandes que el original.
+
+El AVIF va en 4:2:0 a calidad 66. Calibrado contra el JPEG de respaldo en doce
+piezas del archivo, queda igual o arriba en luz y color con una cuarta parte
+menos de peso a 800 px, y mucho menos a anchos grandes. No hay WebP: con la
+misma métrica que el JPEG pesa 16% menos, pero aplana la textura de tela y
+pelo, y para conservarla tiene que pesar más que el JPEG.
+
+Al agregar un rollo:
+
+```bash
+# 1. subir los originales a R2, como siempre
+rclone copy ./rollo-nuevo r2:museo/projects/rollo-nuevo \
+  --s3-no-check-bucket --metadata \
+  --metadata-set 'cache-control=public, max-age=31536000, immutable'
+
+# 2. tenerlos en local, donde el sandbox de npm los ve
+rclone copy r2:museo/projects .cache/media/projects
+rclone copy r2:museo/posters .cache/media/posters
+rclone copy r2:museo/video-posters .cache/media/video-posters
+
+# 3. generar derivados y medidas (sólo procesa lo nuevo)
+node scripts/derivados.mjs
+
+# 4. subir lo que imprime al final: w400/, w800/, w1600/ y avif/
+#    (sólo agrega; no toca originales)
+
+# 5. comprobar que no falte nada y publicar
+npm run revisar-derivados
+git add src/data/medidas.json src/content/projects/rollo-nuevo.md
+git commit -m "agregar rollo nuevo" && git push
+```
+
+`src/data/medidas.json` es la lista de lo que tiene derivados: si una pieza no
+está ahí, se pinta con su original y sin `<picture>`, que es lento pero no se
+rompe. Lo que sí rompe la foto es lo contrario: que `medidas.json` la anuncie y
+su AVIF no esté en R2, porque un `<picture>` no cae al respaldo cuando el AVIF
+da 404. Por eso CI corre `npm run revisar-derivados` antes de desplegar y se
+detiene si falta un solo archivo.
+
 ## qué despliega un `git push` (y qué no)
 
 **Un push a `main` despliega el sitio. NO despliega la media.**
@@ -238,7 +290,8 @@ rclone ls r2:museo/videos
 | código, diseño, CSS | commit + push | ~2 min |
 | texto de un proyecto (`src/content/`) | commit + push | ~2 min |
 | catálogo de cintas (`src/data/videos.ts`) | commit + push | ~2 min |
-| **una foto o un video** | **subir a R2 con `rclone`** | inmediato |
+| **un video** | **subir a R2 con `rclone`** | inmediato |
+| **una foto** | **subir a R2, correr `derivados.mjs` y subir sus derivados** ([ver arriba](#fotos-nuevas-y-sus-derivados)) | inmediato en R2, ~2 min el sitio |
 
 La media no está en git y nunca pasa por GitHub Actions. Vive en R2 y se
 sube aparte. Un flujo típico al agregar una cinta nueva:

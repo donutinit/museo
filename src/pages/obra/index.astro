@@ -2,7 +2,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Cuadro from '../../components/Cuadro.astro';
 import { archivo } from '../../lib/archivo';
-import { srcset } from '../../lib/media';
 import { grafo, persona, migas, SITIO, ID_PERSONA } from '../../lib/seo';
 
 const { foto, cinta, piezas } = await archivo();
@@ -30,7 +29,6 @@ const esquema = grafo(
   title="Portafolio de fotografía y video en Monterrey"
   description={descripcion}
   precargar={foto[0]?.src}
-  precargarSrcset={foto[0] ? srcset(foto[0].src) : undefined}
   precargarSizes={SIZES}
   esquema={esquema}
 >

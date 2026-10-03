@@ -1,0 +1,32 @@
+---
+/**
+ * Navegar sin esperar: el navegador baja la página de un enlace cuando el
+ * cursor se queda encima (el HTML pesa unos KB) y la arma completa en cuanto el
+ * dedo o el clic bajan, así que al soltar ya está lista.
+ *
+ * Sólo Chrome y Edge lo entienden; el resto lo ignora y navega como siempre.
+ * La portada de www nunca se prepara por adelantado: su entrada pide un gesto y
+ * arranca con sonido, y eso tiene que pasar cuando alguien llega, no antes.
+ */
+interface Props {
+  /** Rutas que se pueden pedir de antemano pero no armar. */
+  sinArmar?: string[];
+}
+
+const { sinArmar = [] } = Astro.props;
+
+const mismoSitio = { href_matches: '/*' };
+const reglas = {
+  prefetch: [{ where: mismoSitio, eagerness: 'moderate' }],
+  prerender: [
+    {
+      where: sinArmar.length
+        ? { and: [mismoSitio, ...sinArmar.map((r) => ({ not: { href_matches: r } }))] }
+        : mismoSitio,
+      eagerness: 'conservative',
+    },
+  ],
+};
+---
+
+<script type="speculationrules" is:inline set:html={JSON.stringify(reglas)} />

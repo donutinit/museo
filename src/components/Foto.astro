@@ -1,0 +1,55 @@
+---
+/**
+ * Una imagen del archivo. Pinta un `<picture>`: primero el AVIF, que es lo que
+ * baja casi todo navegador, y detrás el `<img>` de siempre, con su `srcset` en
+ * el formato del original, como respaldo.
+ *
+ * Todo lo que no sea la ruta va al `<img>` tal cual (clase, `sizes`, medidas,
+ * `loading`), así que la piel de cada rollo sigue colgándose de la imagen. El
+ * `<picture>` no pinta caja propia (`display: contents` en la hoja de cada
+ * sitio): para el CSS, la imagen sigue siendo hija directa de su marco.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { media, srcset, avifset, avif, medidaDe, ANCHOS } from '../lib/media';
+
+interface Props extends Omit<HTMLAttributes<'img'>, 'src' | 'srcset'> {
+  /** Ruta cruda `/media/...`. */
+  ruta: string;
+  /**
+   * Un solo escalón en vez del juego entero, para miniaturas y fondos que
+   * siempre bajan el mismo archivo chico. Tiene que ser uno de `ANCHOS`.
+   */
+  escalon?: (typeof ANCHOS)[number];
+  /**
+   * Sin `src` ni `srcset`: van en `data-src` y `data-srcset` para que un script
+   * los ponga cuando la foto esté por entrar (el carrusel de ig).
+   */
+  diferida?: boolean;
+}
+
+const { ruta, sizes, escalon, diferida = false, ...img } = Astro.props;
+const medida = medidaDe(ruta);
+
+let fuente: string | undefined;
+let src = media(ruta);
+let conjunto: string | undefined;
+
+if (escalon) {
+  // el generador no escala hacia arriba: si el original es más chico, es él
+  if (medida && medida[0] > escalon) {
+    fuente = avif(ruta, escalon);
+    src = media(ruta.replace('/media/', `/media/w${escalon}/`));
+  } else if (medida) {
+    fuente = avif(ruta, medida[0]);
+  }
+} else {
+  fuente = avifset(ruta);
+  conjunto = srcset(ruta);
+}
+---
+
+{diferida ? (
+  <picture>{fuente && <source type="image/avif" data-srcset={fuente} sizes={escalon ? undefined : sizes} />}<img data-src={src} data-srcset={conjunto} sizes={escalon ? undefined : sizes} {...img} /></picture>
+) : (
+  <picture>{fuente && <source type="image/avif" srcset={fuente} sizes={escalon ? undefined : sizes} />}<img src={src} srcset={conjunto} sizes={escalon ? undefined : sizes} {...img} /></picture>
+)}

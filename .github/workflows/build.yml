@@ -38,6 +38,12 @@ jobs:
       - name: check
         run: npm run check
 
+      # cada <picture> pide AVIF y respaldo a R2: si falta uno, la foto sale
+      # rota. medidas.json dice qué debe existir; esto lo comprueba antes de
+      # desplegar nada.
+      - name: revisar derivados
+        run: npm run revisar-derivados
+
       - name: build
         run: npm run build
 

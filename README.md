@@ -87,8 +87,16 @@ media/
 ├ thumbnails/
 ├ projects/
 ├ video-posters/
-└ videos/
+├ videos/
+├ w400/ w800/ w1600/   respaldo reducido de cada foto
+└ avif/                AVIF en escalones, lo que pinta casi todo navegador
 ```
+
+Las fotos se pintan con `<Foto>` (`src/components/Foto.astro`): un `<picture>`
+con AVIF primero y el JPEG o WebP de siempre como respaldo. Una foto nueva
+necesita sus derivados antes de publicarse: `node scripts/derivados.mjs` y
+subir lo que imprime. Ver
+[`docs/03-deploy-cloudflare.md`](./docs/03-deploy-cloudflare.md#fotos-nuevas-y-sus-derivados).
 
 Para video web-compatible, usar H.264 + AAC-LC + `faststart`:
 

@@ -1,13 +1,14 @@
 ---
 import { render, type CollectionEntry } from 'astro:content';
 import { oficio } from '../lib/archivo';
-import '../styles/karen.css';
+import Foto from './Foto.astro';
 
-/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+/** Una lámina ya resuelta por la página: medidas, ruta y alt incluidos. */
 interface Pieza {
   nn: string;
   src: string;
-  conjunto: string | undefined;
+  /** Ruta cruda `/media/...`: `<Foto>` saca de ahí sus candidatos. */
+  ruta: string;
   w?: number;
   h?: number;
   alt: string;
@@ -83,9 +84,8 @@ const tramo = `${piezas[0]?.nn ?? ''} — ${piezas.at(-1)?.nn ?? ''}`;
           data-lupa-alt={pieza.alt}
           aria-label={`Abrir ${pieza.alt} a pantalla completa`}
         >
-          <img
-            src={pieza.src}
-            srcset={pieza.conjunto}
+          <Foto
+            ruta={pieza.ruta}
             sizes={i === 0 ? sizesCabeza : SIZES_PIEZA}
             alt={pieza.alt}
             width={pieza.w}

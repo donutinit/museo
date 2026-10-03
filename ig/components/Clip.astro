@@ -8,7 +8,8 @@
  *
  * Sin JavaScript queda el `<video controls>` del navegador, que ya funciona.
  */
-import { media, MEDIA_BASE } from '../../src/lib/media';
+import { media } from '../../src/lib/media';
+import Foto from '../../src/components/Foto.astro';
 import { subtitulosDe } from '../../src/data/videos';
 import { tieneSubtitulos } from '../../von/lib/subtitulos';
 import Icono from './Icono.astro';
@@ -29,7 +30,7 @@ const conTexto = Boolean(subtitulos) && !cinta.captionsBurned;
 
 <div class="clip" data-clip style={`--r:${r.toFixed(4)}`}>
   {entera && (
-    <img class="lamina-fondo" src={`${MEDIA_BASE}/w400${cinta.poster.slice('/media'.length)}`} alt="" loading="lazy" decoding="async" />
+    <Foto class="lamina-fondo" ruta={cinta.poster} escalon={400} alt="" loading="lazy" decoding="async" />
   )}
   <video controls muted loop playsinline preload="none" poster={media(cinta.poster)} width={e.pw} height={e.ph} aria-label={cinta.title}>
     <source src={media(cinta.src)} type="video/mp4" />

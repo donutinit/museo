@@ -3,7 +3,7 @@
  * La cabecera del canal: la franja, el avatar, el nombre y las pestañas.
  * Las cuentas salen del archivo; suscriptores no hay porque no existen.
  */
-import { media, srcset } from '../../src/lib/media';
+import Foto from '../../src/components/Foto.astro';
 import { canal, deClase, cuenta, CANAL, ARROBA, YOUTUBE } from '../lib/canal';
 
 interface Props {
@@ -30,9 +30,8 @@ const pestanas = [
 
 <div class="canal-franja" aria-hidden="true">
   {franja.map((e, i) => (
-    <img
-      src={media(e.poster)}
-      srcset={srcset(e.poster)}
+    <Foto
+      ruta={e.poster}
       sizes="(max-width: 40rem) 34vw, 220px"
       alt=""
       width={e.pw}

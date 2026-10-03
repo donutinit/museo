@@ -4,7 +4,8 @@
  * recortar la foto. Si el original no es apaisado se pinta entero sobre su
  * propio desenfoque, que es lo que hace el sitio de verdad con un video parado.
  */
-import { media, srcset, MEDIA_BASE } from '../../src/lib/media';
+import { media } from '../../src/lib/media';
+import Foto from '../../src/components/Foto.astro';
 import type { Entrada } from '../lib/canal';
 
 interface Props {
@@ -19,7 +20,6 @@ const { e, sizes, eager = false, apaisada = false } = Astro.props;
 // en la portada un short va en su propio cuadro parado; lo demás, en 16:9
 const parado = e.clase === 'short' && !apaisada;
 const entero = !parado && Math.abs(e.pw / e.ph - 16 / 9) > 0.02;
-const chica = `${MEDIA_BASE}/w400${e.poster.slice('/media'.length)}`;
 ---
 
 <a
@@ -29,11 +29,10 @@ const chica = `${MEDIA_BASE}/w400${e.poster.slice('/media'.length)}`;
   aria-hidden="true"
   data-previa={e.clase === 'video' ? media(e.cinta!.src) : undefined}
 >
-  {entero && <img class="mini-fondo" src={chica} alt="" loading="lazy" decoding="async" />}
-  <img
+  {entero && <Foto class="mini-fondo" ruta={e.poster} escalon={400} alt="" loading="lazy" decoding="async" />}
+  <Foto
     class:list={['mini-foto', { 'mini-entera': entero }]}
-    src={media(e.poster)}
-    srcset={srcset(e.poster)}
+    ruta={e.poster}
     sizes={sizes}
     alt=""
     width={e.pw}

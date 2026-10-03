@@ -10,7 +10,7 @@
  * Sólo las dos primeras fotos traen `src`: las demás se cargan cuando están
  * por entrar, para no bajar un rollo de 38 piezas que nadie ha deslizado.
  */
-import { media, srcset, MEDIA_BASE } from '../../src/lib/media';
+import Foto from '../../src/components/Foto.astro';
 import { piezasDe, marco, type Entrada } from '../lib/perfil';
 
 interface Props {
@@ -24,7 +24,6 @@ const piezas = piezasDe(e.rollo!);
 const razon = (w?: number, h?: number) => (w && h ? w / h : 1);
 // manda la primera foto, que es la portada: las demás se acomodan a su marco
 const r = marco([razon(piezas[0].w, piezas[0].h)]);
-const chica = (ruta: string) => `${MEDIA_BASE}/w400${ruta.slice('/media'.length)}`;
 /** Con más de quince puntos la fila ya no dice nada: queda la cuenta. */
 const PUNTOS = 15;
 ---
@@ -37,21 +36,20 @@ const PUNTOS = 15;
       return (
         <li>
           {entera && (
-            <img
+            <Foto
               class="lamina-fondo"
-              src={pronto ? chica(p.ruta) : undefined}
-              data-src={pronto ? undefined : chica(p.ruta)}
+              ruta={p.ruta}
+              escalon={400}
+              diferida={!pronto}
               alt=""
               loading={pronto ? 'lazy' : undefined}
               decoding="async"
             />
           )}
-          <img
+          <Foto
             class="lamina"
-            src={pronto ? media(p.ruta) : undefined}
-            srcset={pronto ? srcset(p.ruta) : undefined}
-            data-src={pronto ? undefined : media(p.ruta)}
-            data-srcset={pronto ? undefined : srcset(p.ruta)}
+            ruta={p.ruta}
+            diferida={!pronto}
             sizes={sizes}
             alt={p.alt}
             width={p.w}
@@ -99,7 +97,12 @@ const PUNTOS = 15;
     let actual = 0;
 
     // ─── las fotos que faltan se cargan cuando están por entrar ───
+    // el <source> AVIF va primero: si el <img> recibe `src` antes, baja el respaldo
     const cargar = (lamina: HTMLElement) => {
+      lamina.querySelectorAll<HTMLSourceElement>('source[data-srcset]').forEach((source) => {
+        source.srcset = source.dataset.srcset!;
+        source.removeAttribute('data-srcset');
+      });
       lamina.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((img) => {
         if (img.dataset.srcset) img.srcset = img.dataset.srcset;
         img.src = img.dataset.src!;

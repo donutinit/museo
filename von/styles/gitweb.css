@@ -310,6 +310,12 @@ a.nl[href]:visited {
   max-width: 100%;
 }
 
+/* el <picture> de cada foto no pinta caja: la imagen sigue siendo hija del enlace.
+   Su <source> nunca se pinta, pero sin esto ocuparía una celda del grid o un
+   hueco del flex del marco */
+picture { display: contents; }
+picture > source { display: none; }
+
 /* nunca más alta que la ventana ni más grande que el original */
 .lamina img {
   display: block;

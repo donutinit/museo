@@ -2,7 +2,7 @@
 import Producto from '../layouts/Producto.astro';
 import Visor from '../components/Visor.astro';
 import Correo from '../components/Correo.astro';
-import { media, srcset } from '../../src/lib/media';
+import Foto from '../../src/components/Foto.astro';
 import { versiones, modulos, totales, corrida, cuenta, CORREO, REPO } from '../lib/producto';
 
 const log = await versiones();
@@ -64,9 +64,8 @@ const especificaciones = [
               return (
                 <li class="modulo">
                   <a class="modulo-foto" href={ultima.href} tabindex="-1" aria-hidden="true">
-                    <img
-                      src={media(ultima.poster)}
-                      srcset={srcset(ultima.poster)}
+                    <Foto
+                      ruta={ultima.poster}
                       sizes="72px"
                       alt=""
                       width={ultima.pw}
@@ -108,9 +107,8 @@ const especificaciones = [
       {demos.map((v) => (
         <li style={`--r:${(v.pw / v.ph).toFixed(4)}`}>
           <a href={v.href}>
-            <img
-              src={media(v.poster)}
-              srcset={srcset(v.poster)}
+            <Foto
+              ruta={v.poster}
               sizes={`${Math.round((18 * 16 * v.pw) / v.ph)}px`}
               alt=""
               width={v.pw}

@@ -9,7 +9,8 @@
  * Sin JavaScript queda la última versión pintada desde el servidor y la lista
  * son enlaces normales a cada página.
  */
-import { media, srcset, MEDIA_BASE, ANCHOS } from '../../src/lib/media';
+import { media, MEDIA_BASE } from '../../src/lib/media';
+import Foto from '../../src/components/Foto.astro';
 import { subtitulosDe } from '../../src/data/videos';
 import { tieneSubtitulos } from '../../von/lib/subtitulos';
 import { piezasDe, totales, corrida, cuenta, type Version } from '../lib/producto';
@@ -26,7 +27,6 @@ const resto = (ruta: string) => ruta.slice('/media'.length);
 
 const datos = {
   base: MEDIA_BASE,
-  anchos: ANCHOS,
   v: versiones.map((v) =>
     v.rollo
       ? {
@@ -101,9 +101,8 @@ const SIZES = '(max-width: 60rem) 92vw, 640px';
   <div class="visor-mesa">
     <div class="visor-cuadro" data-cuadro>
       {cuadro ? (
-        <img
-          src={media(cuadro.ruta)}
-          srcset={srcset(cuadro.ruta)}
+        <Foto
+          ruta={cuadro.ruta}
           sizes={SIZES}
           alt={cuadro.alt}
           width={cuadro.w}
@@ -112,7 +111,7 @@ const SIZES = '(max-width: 60rem) 92vw, 640px';
           decoding="async"
         />
       ) : (
-        <img src={media(primera.poster)} alt={primera.titulo} width={primera.pw} height={primera.ph} />
+        <Foto ruta={primera.poster} sizes={SIZES} alt={primera.titulo} width={primera.pw} height={primera.ph} />
       )}
     </div>
 
@@ -130,7 +129,7 @@ const SIZES = '(max-width: 60rem) 92vw, 640px';
       {piezas.map((p, i) => (
         <li>
           <a href={`${primera.href}#p${p.nn}`} data-p={i} aria-current={i === 0 ? 'true' : undefined}>
-            <img src={`${MEDIA_BASE}/w400${resto(p.ruta)}`} alt={`Pieza ${i + 1}`} loading="lazy" decoding="async" />
+            <Foto ruta={p.ruta} escalon={400} alt={`Pieza ${i + 1}`} loading="lazy" decoding="async" />
           </a>
         </li>
       ))}
@@ -164,6 +163,8 @@ const SIZES = '(max-width: 60rem) 92vw, 640px';
 </section>
 
 <script>
+  import { armarFoto, conjuntoAvif, conjuntoRespaldo, urlAvif } from '../../src/lib/foto';
+
   type Fila = [string, string];
   type Pieza = [resto: string, w: number, h: number, alt: string, archivo: string];
   interface Foto { k: 'foto'; href: string; titulo: string; version: string; ficha: Fila[]; piezas: Pieza[] }
@@ -171,7 +172,7 @@ const SIZES = '(max-width: 60rem) 92vw, 640px';
     k: 'cinta'; href: string; titulo: string; version: string; ficha: Fila[];
     poster: string; w: number; h: number; src: string; sub: string | null; quemados: boolean;
   }
-  interface Datos { base: string; anchos: number[]; v: (Foto | Cinta)[] }
+  interface Datos { base: string; v: (Foto | Cinta)[] }
 
   const SIZES = '(max-width: 60rem) 92vw, 640px';
 
@@ -198,33 +199,25 @@ const SIZES = '(max-width: 60rem) 92vw, 640px';
     let actual = 0;
     let pieza = 0;
 
-    const conjunto = (resto: string, ancho: number) => {
-      if (!ancho) return '';
-      const chicos = datos.anchos.filter((a) => a < ancho).map((a) => `${datos.base}/w${a}${resto} ${a}w`);
-      return chicos.length ? [...chicos, `${datos.base}${resto} ${ancho}w`].join(', ') : '';
-    };
-
     const imagen = (resto: string, w: number, h: number, alt: string) => {
-      const img = new Image();
-      img.alt = alt;
-      if (w && h) {
-        img.width = w;
-        img.height = h;
-      }
-      img.decoding = 'async';
-      img.sizes = SIZES;
-      const set = conjunto(resto, w);
-      if (set) img.srcset = set;
-      img.src = datos.base + resto;
       // entra cuando ya cargó: sin esto se vería el cuadro armarse a medias
-      img.className = 'entra';
+      const { picture, img } = armarFoto({
+        src: datos.base + resto,
+        srcset: w ? conjuntoRespaldo(datos.base, resto, w) : undefined,
+        avif: w ? conjuntoAvif(datos.base, resto, w) : undefined,
+        sizes: SIZES,
+        alt,
+        width: w,
+        height: h,
+        className: 'entra',
+      });
       const listo = () => img.classList.remove('entra');
       if (img.complete) listo();
       else {
         img.addEventListener('load', listo, { once: true });
         img.addEventListener('error', listo, { once: true });
       }
-      return img;
+      return picture;
     };
 
     const pintarPieza = (i: number, enfocar = false) => {
@@ -252,17 +245,19 @@ const SIZES = '(max-width: 60rem) 92vw, 640px';
 
     const pintarTira = (v: Foto) => {
       tira.replaceChildren(
-        ...v.piezas.map(([resto], n) => {
+        ...v.piezas.map(([resto, w], n) => {
           const li = document.createElement('li');
           const a = document.createElement('a');
           a.href = `${v.href}#p${String(n + 1).padStart(2, '0')}`;
           a.dataset.p = String(n);
-          const img = new Image();
-          img.loading = 'lazy';
-          img.decoding = 'async';
-          img.alt = `Pieza ${n + 1}`;
-          img.src = `${datos.base}/w400${resto}`;
-          a.append(img);
+          const { picture } = armarFoto({
+            src: w > 400 ? `${datos.base}/w400${resto}` : datos.base + resto,
+            avif: w ? urlAvif(datos.base, resto, Math.min(w, 400)) : undefined,
+            sizes: '3.25rem',
+            alt: `Pieza ${n + 1}`,
+            loading: 'lazy',
+          });
+          a.append(picture);
           li.append(a);
           return li;
         })

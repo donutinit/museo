@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, render, type CollectionEntry } from 'astro:content';
-import { media, srcset, medidaDe, altDe } from '../../lib/media';
+import { media, medidaDe, altDe } from '../../lib/media';
+import Foto from '../../components/Foto.astro';
 import { oficio } from '../../lib/archivo';
 import Lupa from '../../components/Lupa.astro';
 import RolloApice from '../../components/RolloApice.astro';
@@ -18,6 +19,19 @@ import RolloRaulalcala from '../../components/RolloRaulalcala.astro';
 import RolloKaren from '../../components/RolloKaren.astro';
 import RolloDonaestereso from '../../components/RolloDonaestereso.astro';
 import { grafo, persona, imagen, migas, ID_PERSONA, SITIO } from '../../lib/seo';
+import hojaApice from '../../styles/apice.css?inline';
+import hojaAria from '../../styles/aria.css?inline';
+import hojaBikefest from '../../styles/bikefest.css?inline';
+import hojaBikeparkesfera from '../../styles/bikeparkesfera.css?inline';
+import hojaCerrandociclos from '../../styles/cerrandociclos.css?inline';
+import hojaDonaestereso from '../../styles/donaestereso.css?inline';
+import hojaEbikecamp from '../../styles/ebikecamp.css?inline';
+import hojaKaren from '../../styles/karen.css?inline';
+import hojaMarchas from '../../styles/marchas.css?inline';
+import hojaPosadas from '../../styles/posadas.css?inline';
+import hojaRaulalcala from '../../styles/raulalcala.css?inline';
+import hojaSofiaMaximalista from '../../styles/sofia-maximalista.css?inline';
+import hojaZara from '../../styles/zara.css?inline';
 
 export async function getStaticPaths() {
   const proyectos = (await getCollection('projects')).sort(
@@ -68,7 +82,6 @@ const piezas = Array.from({ length: data.photoCount }, (_, i) => {
     nn,
     ruta,
     src: media(ruta),
-    conjunto: srcset(ruta),
     w: medida?.[0],
     h: medida?.[1],
     alt: altDe(ruta, `${data.title}, pieza ${i + 1}`),
@@ -78,24 +91,29 @@ const piezas = Array.from({ length: data.photoCount }, (_, i) => {
 // en el rollo la pieza llega a ~620 px en escritorio y a la ventana en móvil
 const SIZES = '(max-width: 47.99rem) 100vw, 620px';
 
-// Rollos con piel propia. Cada uno trae su componente y la medida a la que su
-// pieza 01 se pinta: de ahí sale el `sizes` del `<img>` y el de la precarga,
-// que tienen que ser el mismo string o el navegador baja el archivo dos veces.
-// La hoja marca `rollo--<id>`, que es a lo que se cuelga cada hoja de estilo.
+// Rollos con piel propia. Cada uno trae su componente, su hoja de estilo y la
+// medida a la que su pieza 01 se pinta: de ahí sale el `sizes` del `<img>` y el
+// de la precarga, que tienen que ser el mismo string o el navegador baja el
+// archivo dos veces. La hoja marca `rollo--<id>`, que es a lo que se cuelga
+// cada hoja de estilo.
+//
+// El CSS de la piel va en línea al abrir el <body>, y sólo el del rollo que se
+// pinta: importadas desde cada componente, Astro juntaba las trece pieles en un
+// solo archivo de 125 KB que cada rollo tenía que bajar antes de pintar nada.
 const PIELES = {
-  'sofia-maximalista': { piel: RolloSofiaMaximalista, sizes: '(max-width: 47.99rem) 90vw, 66vw' },
-  apice: { piel: RolloApice, sizes: '(max-width: 55.99rem) 92vw, 28rem' },
-  marchas: { piel: RolloMarchas, sizes: '(max-width: 55.99rem) 92vw, 30rem' },
-  ebikecamp: { piel: RolloEbikecamp, sizes: '(max-width: 55.99rem) 92vw, 22vw' },
-  cerrandociclos: { piel: RolloCerrandociclos, sizes: '(max-width: 55.99rem) 92vw, 34rem' },
-  bikeparkesfera: { piel: RolloBikeparkesfera, sizes: '(max-width: 55.99rem) 92vw, 42rem' },
-  zara: { piel: RolloZara, sizes: '(max-width: 55.99rem) 92vw, 53vw' },
-  posadas: { piel: RolloPosadas, sizes: '(max-width: 47.99rem) 45vw, 14vw' },
-  aria: { piel: RolloAria, sizes: '(max-width: 55.99rem) 92vw, 66vw' },
-  bikefest: { piel: RolloBikefest, sizes: '(max-width: 55.99rem) 92vw, (max-width: 79.99rem) calc(84.5vw - 24rem), calc(50vw - 20rem)' },
-  raulalcala: { piel: RolloRaulalcala, sizes: '(max-width: 55.99rem) 80vw, 32rem' },
-  karen: { piel: RolloKaren, sizes: '(max-width: 55.99rem) 92vw, 32rem' },
-  donaestereso: { piel: RolloDonaestereso, sizes: '(max-width: 55.99rem) 92vw, 22vw' },
+  'sofia-maximalista': { piel: RolloSofiaMaximalista, hoja: hojaSofiaMaximalista, sizes: '(max-width: 47.99rem) 90vw, 66vw' },
+  apice: { piel: RolloApice, hoja: hojaApice, sizes: '(max-width: 55.99rem) 92vw, 28rem' },
+  marchas: { piel: RolloMarchas, hoja: hojaMarchas, sizes: '(max-width: 55.99rem) 92vw, 30rem' },
+  ebikecamp: { piel: RolloEbikecamp, hoja: hojaEbikecamp, sizes: '(max-width: 55.99rem) 92vw, 22vw' },
+  cerrandociclos: { piel: RolloCerrandociclos, hoja: hojaCerrandociclos, sizes: '(max-width: 55.99rem) 92vw, 34rem' },
+  bikeparkesfera: { piel: RolloBikeparkesfera, hoja: hojaBikeparkesfera, sizes: '(max-width: 55.99rem) 92vw, 42rem' },
+  zara: { piel: RolloZara, hoja: hojaZara, sizes: '(max-width: 55.99rem) 92vw, 53vw' },
+  posadas: { piel: RolloPosadas, hoja: hojaPosadas, sizes: '(max-width: 47.99rem) 45vw, 14vw' },
+  aria: { piel: RolloAria, hoja: hojaAria, sizes: '(max-width: 55.99rem) 92vw, 66vw' },
+  bikefest: { piel: RolloBikefest, hoja: hojaBikefest, sizes: '(max-width: 55.99rem) 92vw, (max-width: 79.99rem) calc(84.5vw - 24rem), calc(50vw - 20rem)' },
+  raulalcala: { piel: RolloRaulalcala, hoja: hojaRaulalcala, sizes: '(max-width: 55.99rem) 80vw, 32rem' },
+  karen: { piel: RolloKaren, hoja: hojaKaren, sizes: '(max-width: 55.99rem) 92vw, 32rem' },
+  donaestereso: { piel: RolloDonaestereso, hoja: hojaDonaestereso, sizes: '(max-width: 55.99rem) 92vw, 22vw' },
 } as const;
 
 const piel = PIELES[proyecto.id as keyof typeof PIELES];
@@ -134,9 +152,10 @@ const esquema = grafo(
   imageHeight={data.posterHeight}
   imageAlt={altDe(data.poster, `${data.title} — rollo de ${oficio[data.type]}, ${data.year}`)}
   precargar={piezas[0]?.ruta}
-  precargarSrcset={piezas[0]?.conjunto}
   precargarSizes={sizesCabeza}
 >
+  {piel && <Fragment slot="estilo"><style is:inline set:html={piel.hoja} /></Fragment>}
+
   <main class:list={['contenedor', 'rollo', piel && `rollo--${proyecto.id}`]} id="hoja">
     {Piel ? (
       <Piel proyecto={proyecto} piezas={piezas} sizesCabeza={sizesCabeza} />
@@ -168,9 +187,8 @@ const esquema = grafo(
               aria-label={`Abrir ${pieza.alt} a pantalla completa`}
             >
               <span class="cuadro-media">
-                <img
-                  src={pieza.src}
-                  srcset={pieza.conjunto}
+                <Foto
+                  ruta={pieza.ruta}
                   sizes={SIZES}
                   alt={pieza.alt}
                   width={pieza.w}

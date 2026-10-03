@@ -70,10 +70,19 @@ en `media.vondiego.com`.
 museo/
 ├ videos/          mp4 h264 + faststart
 ├ posters/         webp de portada
-├ thumbnails/      webp chicos del índice
+├ thumbnails/      webp chicos del índice (ya no los pide nadie)
 ├ video-posters/   jpg de poster de cada cinta
-└ projects/<slug>/ las piezas de cada proyecto
+├ projects/<slug>/ las piezas de cada proyecto
+├ w400/ w800/ w1600/      respaldo reducido, en el formato del original
+└ avif/w<N>/…/<pieza>.avif  lo que pinta casi todo navegador
 ```
+
+los originales no se pintan nunca: cada foto sale en un `<picture>` cuyo
+`<source>` ofrece AVIF en escalones de 400 a 2560 px más el ancho nativo, y
+cuyo `<img>` queda de respaldo con los `w*/` para quien no entienda AVIF. el
+original sólo baja si alguien lo abre a propósito (el enlace "original" de von
+y tube). `scripts/derivados.mjs` genera todo eso; ver
+[`03-deploy-cloudflare.md`](./03-deploy-cloudflare.md#fotos-nuevas-y-sus-derivados).
 
 por qué R2 y no meterlo al bundle del sitio: **Workers tiene límite de 25
 MiB por archivo**. los videos pesan entre 40 y 180 MB. además el egress de

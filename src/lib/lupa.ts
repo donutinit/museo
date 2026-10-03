@@ -6,6 +6,7 @@
  * rollo.
  */
 import { aislar, atrapar } from './foco';
+import { armarFoto } from './foto';
 
 export interface OpcionesLupa {
   /** Qué fotos se recorren a partir de la que se abrió. */
@@ -70,18 +71,31 @@ export function montarLupa({ grupoDe, alAbrir, alCerrar }: OpcionesLupa): void {
     if (pie) pie.textContent = `${posicion + 1} de ${grupo.length}`;
   };
 
-  /** Sólo la lámina que se abre carga de inmediato; el resto va perezosa. */
+  /**
+   * Sólo la lámina que se abre carga de inmediato; el resto va perezosa.
+   *
+   * Pide a los mismos candidatos que la miniatura (su `<picture>` ya los
+   * trae), sólo que a la medida de la ventana: la foto cabe a lo ancho o a
+   * 86vh de alto, lo que llegue primero. Así una vertical no baja el ancho
+   * de una apaisada, y nadie baja el original pesado.
+   */
   const montar = (inicio: number) => {
     carrusel.replaceChildren(
       ...grupo.map((boton, i) => {
         const lamina = document.createElement('div');
         lamina.className = 'lupa-lamina';
-        const img = document.createElement('img');
-        img.src = boton.dataset.lupaSrc ?? '';
-        img.alt = boton.dataset.lupaAlt ?? '';
-        img.loading = i === inicio ? 'eager' : 'lazy';
-        img.decoding = 'async';
-        lamina.append(img);
+        const miniatura = boton.querySelector('img');
+        const w = Number(miniatura?.getAttribute('width'));
+        const h = Number(miniatura?.getAttribute('height'));
+        const { picture } = armarFoto({
+          src: boton.dataset.lupaSrc ?? '',
+          srcset: miniatura?.srcset || undefined,
+          avif: boton.querySelector<HTMLSourceElement>('source[type="image/avif"]')?.srcset,
+          sizes: w && h ? `min(100vw, ${((86 * w) / h).toFixed(2)}vh)` : '100vw',
+          alt: boton.dataset.lupaAlt ?? '',
+          loading: i === inicio ? 'eager' : 'lazy',
+        });
+        lamina.append(picture);
         return lamina;
       })
     );

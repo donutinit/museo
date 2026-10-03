@@ -2,7 +2,8 @@
 import { render } from 'astro:content';
 import Producto from '../../layouts/Producto.astro';
 import Paso from '../../components/Paso.astro';
-import { media, srcset } from '../../../src/lib/media';
+import { media } from '../../../src/lib/media';
+import Foto from '../../../src/components/Foto.astro';
 import { oficio } from '../../../src/lib/archivo';
 import { versiones, piezasDe, type Version } from '../../lib/producto';
 
@@ -66,9 +67,8 @@ const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location
       {piezas.map((p, i) => (
         <figure id={`p${p.nn}`}>
           <a href={media(p.ruta)}>
-            <img
-              src={media(p.ruta)}
-              srcset={srcset(p.ruta)}
+            <Foto
+              ruta={p.ruta}
               sizes="(max-width: 48rem) 92vw, (max-width: 80rem) 46vw, 590px"
               alt={p.alt}
               width={p.w}

@@ -1,5 +1,6 @@
 import medidasJson from '../data/medidas.json';
 import altJson from '../data/alt.json';
+import { ANCHOS, ANCHOS_AVIF, conjuntoAvif, conjuntoRespaldo, urlAvif } from './foto';
 
 /**
  * Base de la media pesada.
@@ -33,33 +34,37 @@ export const medidaDe = (path: string): [number, number] | undefined => {
 };
 
 /**
- * Anchos de los derivados que viven en R2 bajo su propio prefijo:
- * `/media/posters/apice.webp` → `https://media.vondiego.com/w800/posters/apice.webp`.
+ * Derivados que viven en R2 bajo su propio prefijo. Las reglas (qué anchos,
+ * qué rutas) están en `foto.ts`, que también viaja al navegador.
  *
- * El original no se toca nunca. Deshacer esto es borrar `w400/`, `w800/` y
- * `w1600/` del bucket y vaciar esta lista.
+ * El original no se toca nunca. Deshacer esto es borrar `w400/`, `w800/`,
+ * `w1600/` y `avif/` del bucket.
  */
-export const ANCHOS = [400, 800, 1600];
+export { ANCHOS, ANCHOS_AVIF };
 
 /**
- * `srcset` de una imagen del archivo. Sólo ofrece derivados más chicos que el
- * original — el generador no escala hacia arriba, así que pedir uno más grande
- * daría 404 — y cierra con el original a su ancho real, que es el tope de
- * verdad. Si no conocemos la medida, no se emite nada y se sirve el original.
+ * `srcset` de respaldo de una imagen del archivo, en su formato original. Si
+ * no conocemos la medida, no se emite nada y se sirve el original.
  */
 export const srcset = (path: string): string | undefined => {
   const medida = medidaDe(path);
   if (!medida || !path.startsWith('/media/')) return undefined;
-
-  const [ancho] = medida;
-  const resto = path.slice('/media'.length);
-  const candidatos = ANCHOS.filter((w) => w < ancho).map(
-    (w) => `${MEDIA_BASE}/w${w}${resto} ${w}w`
-  );
-  if (candidatos.length === 0) return undefined;
-
-  return [...candidatos, `${MEDIA_BASE}${resto} ${ancho}w`].join(', ');
+  return conjuntoRespaldo(MEDIA_BASE, path.slice('/media'.length), medida[0]);
 };
+
+/**
+ * `srcset` AVIF de una imagen del archivo, para el `<source>` de su
+ * `<picture>`. Sin medida no hay derivados: nada que ofrecer.
+ */
+export const avifset = (path: string): string | undefined => {
+  const medida = medidaDe(path);
+  if (!medida || !path.startsWith('/media/')) return undefined;
+  return conjuntoAvif(MEDIA_BASE, path.slice('/media'.length), medida[0]);
+};
+
+/** Un escalón AVIF suelto, p. ej. el fondo borroso de una lámina. */
+export const avif = (path: string, w: number): string =>
+  urlAvif(MEDIA_BASE, path.slice('/media'.length), w);
 
 /**
  * Descripciones escritas a mano, mirando la foto. Las que faltan caen al

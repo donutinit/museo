@@ -1,7 +1,7 @@
 ---
 import { render } from 'astro:content';
 import Producto from '../layouts/Producto.astro';
-import { media, srcset, MEDIA_BASE } from '../../src/lib/media';
+import Foto from '../../src/components/Foto.astro';
 import { versiones, piezasDe, totales, corrida, cuenta } from '../lib/producto';
 
 const log = await versiones();
@@ -17,7 +17,6 @@ const notas = new Map(
 
 /** Cuántas piezas asoman en el changelog antes de mandar a la versión completa. */
 const MUESTRA = 5;
-const w400 = (ruta: string) => `${MEDIA_BASE}/w400${ruta.slice('/media'.length)}`;
 ---
 
 <Producto
@@ -65,8 +64,9 @@ const w400 = (ruta: string) => `${MEDIA_BASE}/w400${ruta.slice('/media'.length)}
                 {v.rollo ? (
                   <a class="muestra" href={v.href} aria-label={`Ver las ${piezas.length} piezas de ${v.titulo}`}>
                     {piezas.slice(0, MUESTRA).map((p) => (
-                      <img
-                        src={w400(p.ruta)}
+                      <Foto
+                        ruta={p.ruta}
+                        escalon={400}
                         alt=""
                         width={p.w}
                         height={p.h}
@@ -82,9 +82,8 @@ const w400 = (ruta: string) => `${MEDIA_BASE}/w400${ruta.slice('/media'.length)}
                     href={v.href}
                     aria-label={`Ver la demo ${v.titulo}, ${corrida(v.cinta!.durationLabel)}`}
                   >
-                    <img
-                      src={media(v.poster)}
-                      srcset={srcset(v.poster)}
+                    <Foto
+                      ruta={v.poster}
                       sizes="320px"
                       alt=""
                       width={v.pw}

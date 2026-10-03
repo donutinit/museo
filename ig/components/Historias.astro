@@ -9,7 +9,8 @@
  *
  * Sin JavaScript cada aro es un enlace a la publicación.
  */
-import { MEDIA_BASE, ANCHOS } from '../../src/lib/media';
+import { MEDIA_BASE } from '../../src/lib/media';
+import Foto from '../../src/components/Foto.astro';
 import Avatar from './Avatar.astro';
 import Icono from './Icono.astro';
 import { piezasDe, USUARIO, type Entrada } from '../lib/perfil';
@@ -26,7 +27,6 @@ const resto = (ruta: string) => ruta.slice('/media'.length);
 
 const datos = {
   base: MEDIA_BASE,
-  anchos: ANCHOS,
   rollos: rollos.map((e) => ({
     slug: e.slug,
     href: e.href,
@@ -42,7 +42,7 @@ const datos = {
     <li>
       <a href={e.href} data-historia={i}>
         <span class="aro">
-          <img src={`${MEDIA_BASE}/w400${resto(e.poster)}`} alt="" width="66" height="66" loading={i < 8 ? 'eager' : 'lazy'} decoding="async" />
+          <Foto ruta={e.poster} escalon={400} alt="" width="66" height="66" loading={i < 8 ? 'eager' : 'lazy'} decoding="async" />
         </span>
         <span class="historia-nombre">{e.titulo}</span>
       </a>
@@ -88,9 +88,11 @@ const datos = {
 <script is:inline type="application/json" id="historias-datos" set:html={JSON.stringify(datos).replace(/</g, '\\u003c')} />
 
 <script>
+  import { armarFoto, conjuntoAvif, conjuntoRespaldo, urlAvif } from '../../src/lib/foto';
+
   type Pieza = [resto: string, w: number, h: number, alt: string];
   interface Rollo { slug: string; href: string; titulo: string; dia: string; piezas: Pieza[] }
-  interface Datos { base: string; anchos: number[]; rollos: Rollo[] }
+  interface Datos { base: string; rollos: Rollo[] }
 
   const visor = document.querySelector<HTMLDialogElement>('[data-visor]');
   const crudo = document.getElementById('historias-datos')?.textContent;
@@ -137,22 +139,15 @@ const datos = {
       marcar();
     };
 
-    const conjunto = (resto: string, ancho: number) => {
-      if (!ancho) return '';
-      const chicos = datos.anchos.filter((a) => a < ancho).map((a) => `${datos.base}/w${a}${resto} ${a}w`);
-      return chicos.length ? [...chicos, `${datos.base}${resto} ${ancho}w`].join(', ') : '';
-    };
-
-    const imagen = (resto: string, w: number, alt: string) => {
-      const img = new Image();
-      img.alt = alt;
-      img.decoding = 'async';
-      img.sizes = SIZES;
-      const set = conjunto(resto, w);
-      if (set) img.srcset = set;
-      img.src = datos.base + resto;
-      return img;
-    };
+    const imagen = (resto: string, w: number, alt: string, className = '') =>
+      armarFoto({
+        src: datos.base + resto,
+        srcset: w ? conjuntoRespaldo(datos.base, resto, w) : undefined,
+        avif: w ? conjuntoAvif(datos.base, resto, w) : undefined,
+        sizes: SIZES,
+        alt,
+        className,
+      });
 
     const pintarPausa = () => {
       visor.classList.toggle('visor-detenida', detenida);
@@ -177,12 +172,14 @@ const datos = {
         })
       );
 
-      const fondo = new Image();
-      fondo.className = 'visor-fondo';
-      fondo.alt = '';
-      fondo.src = `${datos.base}/w400${resto}`;
-      const img = imagen(resto, w, alt);
-      img.className = 'visor-imagen';
+      const fondo = armarFoto({
+        src: w > 400 ? `${datos.base}/w400${resto}` : datos.base + resto,
+        avif: w ? urlAvif(datos.base, resto, Math.min(w, 400)) : undefined,
+        sizes: '100vw',
+        alt: '',
+        className: 'visor-fondo',
+      });
+      const { picture, img } = imagen(resto, w, alt, 'visor-imagen');
 
       // la barra empieza a llenarse cuando la foto ya está: nadie mira cinco segundos de negro
       const actual = barras.querySelector<HTMLElement>('.actual');
@@ -194,7 +191,7 @@ const datos = {
       }
       actual?.addEventListener('animationend', () => paso(1), { once: true });
 
-      foto.replaceChildren(fondo, img);
+      foto.replaceChildren(fondo.picture, picture);
       anotar(r.slug);
 
       // la que sigue ya viene en camino

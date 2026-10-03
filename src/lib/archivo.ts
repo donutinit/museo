@@ -6,9 +6,9 @@ import { medidaDe } from './media';
 export type Stock = 'foto' | 'cinta';
 
 /**
- * Un cuadro de la hoja. `src` va crudo (`/media/...`): el componente le aplica
- * `media()` y `srcset()`. `ratio` es el aspect nativo del original, así que la
- * hoja saca el ancho de ahí y nada se recorta nunca.
+ * Un cuadro de la hoja. `src` va crudo (`/media/...`): el componente lo pinta
+ * con `<Foto>`. `ratio` es el aspect nativo del original, así que la hoja saca
+ * el ancho de ahí y nada se recorta nunca.
  */
 export interface Cuadro {
   href: string;

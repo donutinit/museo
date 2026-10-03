@@ -1,13 +1,14 @@
 ---
 import { render, type CollectionEntry } from 'astro:content';
 import { oficio } from '../lib/archivo';
-import '../styles/raulalcala.css';
+import Foto from './Foto.astro';
 
-/** Una lámina ya resuelta por la página: medidas, candidatos y alt incluidos. */
+/** Una lámina ya resuelta por la página: medidas, ruta y alt incluidos. */
 interface Pieza {
   nn: string;
   src: string;
-  conjunto: string | undefined;
+  /** Ruta cruda `/media/...`: `<Foto>` saca de ahí sus candidatos. */
+  ruta: string;
   w?: number;
   h?: number;
   alt: string;
@@ -91,9 +92,8 @@ const sizesLamina = (aspect: number) => {
           data-lupa-alt={portada.alt}
           aria-label={`Abrir ${portada.alt} a pantalla completa`}
         >
-          <img
-            src={portada.src}
-            srcset={portada.conjunto}
+          <Foto
+            ruta={portada.ruta}
             sizes={sizesCabeza}
             alt={portada.alt}
             width={portada.w}
@@ -135,9 +135,8 @@ const sizesLamina = (aspect: number) => {
               data-lupa-alt={pieza.alt}
               aria-label={`Abrir ${pieza.alt} a pantalla completa`}
             >
-              <img
-                src={pieza.src}
-                srcset={pieza.conjunto}
+              <Foto
+                ruta={pieza.ruta}
                 sizes={sizesLamina(aspectDe(pieza))}
                 alt={pieza.alt}
                 width={pieza.w}

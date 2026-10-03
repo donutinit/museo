@@ -1,7 +1,9 @@
 ---
 import '../styles/global.css';
-import { media } from '../lib/media';
+import archivo from '@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url';
+import { media, avifset, srcset } from '../lib/media';
 import Estructurados from '../components/Estructurados.astro';
+import Adelanto from '../components/Adelanto.astro';
 
 interface Props {
   title?: string;
@@ -13,8 +15,10 @@ interface Props {
   imageAlt?: string;
   /** Imagen que manda en el primer pintado; se precarga con prioridad. */
   precargar?: string;
-  /** Los mismos candidatos y medida que usa el `<img>` visible. */
-  precargarSrcset?: string;
+  /**
+   * El `sizes` de su `<Foto>`. Con él se precargan los mismos candidatos AVIF
+   * que va a elegir el `<picture>`; sin él, el archivo suelto (un póster).
+   */
   precargarSizes?: string;
   /** Grafo JSON-LD de la página. Invisible: sólo lo leen los buscadores. */
   esquema?: object;
@@ -33,7 +37,6 @@ const {
   imageHeight = 1080,
   imageAlt = 'Archivo de foto y video de Von Diego',
   precargar,
-  precargarSrcset,
   precargarSizes,
   esquema,
   noindex = false,
@@ -46,6 +49,12 @@ const canonicalPath = Astro.url.pathname === '/'
   : `${Astro.url.pathname.replace(/\/$/, '')}/`;
 const canonical = new URL(canonicalPath, Astro.site);
 const socialImage = new URL(media(image), Astro.site);
+
+// La precarga tiene que pedir exactamente lo que el `<picture>` va a elegir, o
+// el navegador baja dos archivos. Con `type` sólo la toma quien entiende AVIF;
+// el resto baja el respaldo del `<img>` sin precarga.
+const precargaAvif = precargar && precargarSizes ? avifset(precargar) : undefined;
+const precargaRespaldo = precargar && precargarSizes ? srcset(precargar) : undefined;
 
 // una vertical recortada al 1.91:1 de `summary_large_image` queda decapitada;
 // para esas, la tarjeta chica respeta la imagen completa
@@ -78,18 +87,32 @@ const nav = [
     />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {/* Archivo es la letra del cuerpo, de la navegación y de los títulos: sin
+        esto el navegador la descubre hasta leer el CSS, y el texto salta de la
+        letra de respaldo a la buena. Es el mismo archivo que pide el CSS. */}
+    <link rel="preload" as="font" type="font/woff2" href={archivo} crossorigin />
     <meta name="theme-color" content="#0d0c0f" />
 
     {/* sin `crossorigin`: img y video van en modo no-CORS y ese es el pool que
         hay que calentar. Con el atributo se precalienta el pool equivocado. */}
     <link rel="preconnect" href="https://media.vondiego.com" />
+    <Adelanto sinArmar={['/']} />
 
-    {precargar && (
+    {precargaAvif ? (
+      <link
+        rel="preload"
+        as="image"
+        type="image/avif"
+        imagesrcset={precargaAvif}
+        imagesizes={precargarSizes}
+        fetchpriority="high"
+      />
+    ) : precargar && (
       <link
         rel="preload"
         as="image"
         href={media(precargar)}
-        imagesrcset={precargarSrcset}
+        imagesrcset={precargaRespaldo}
         imagesizes={precargarSizes}
         fetchpriority="high"
       />
@@ -115,6 +138,9 @@ const nav = [
   </head>
 
   <body>
+    {/* la piel de un rollo: antes que nada de la página, para que nada se pinte sin ella */}
+    <slot name="estilo" />
+
     {!desnudo && <a class="saltar edge" href="#hoja"><span data-nosnippet>Saltar a la hoja</span></a>}
 
     {!desnudo && (
