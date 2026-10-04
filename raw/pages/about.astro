@@ -1,0 +1,20 @@
+---
+import Raw from '../layouts/Raw.astro';
+import { Content as Manifiesto } from '../../von/textos/README.md';
+---
+
+<Raw
+  title="Fotógrafo y videasta en Monterrey"
+  description="Von Diego es fotógrafo y videasta en Monterrey. Conoce su trabajo en retrato, documentación, obra personal, video y montaje."
+>
+  <main id="hoja">
+    <Manifiesto />
+
+    <nav aria-label="Salida">
+      <ul>
+        <li>archivo: <a href="/obra/">los rollos completos</a></li>
+        <li>contacto: <a href="/contact/">escribir</a></li>
+      </ul>
+    </nav>
+  </main>
+</Raw>

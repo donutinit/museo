@@ -1,0 +1,57 @@
+---
+import Raw from '../../layouts/Raw.astro';
+import Foto from '../../../src/components/Foto.astro';
+import { archivo, type Cuadro } from '../../../src/lib/archivo';
+import { ajustar, sizesDe, MINIATURA } from '../../lib/medida';
+
+const { foto, cinta, piezas } = await archivo();
+const descripcion = `Portafolio de Von Diego: ${foto.length} series fotográficas y ${cinta.length} videos de retrato, eventos, obra personal y trabajo comercial en Monterrey.`;
+
+const miniatura = (c: Cuadro) => {
+  const [w, h] = ajustar(c.w, c.h, MINIATURA);
+  return { w, h, sizes: sizesDe(w) };
+};
+---
+
+<Raw title="Portafolio de fotografía y video en Monterrey" description={descripcion}>
+  <main id="hoja">
+    <h1>archivo</h1>
+    <p>Cada rollo entero, del más nuevo al más viejo.</p>
+
+    <dl>
+      <dt>foto</dt> <dd>{foto.length} rollos</dd>
+      <dt>piezas</dt> <dd>{piezas}</dd>
+      <dt>cinta</dt> <dd>{cinta.length} rollos</dd>
+    </dl>
+
+    {[
+      { nombre: 'foto', id: undefined, dato: `${foto.length} rollos, ${piezas} piezas`, cuadros: foto },
+      { nombre: 'cinta', id: 'cintas', dato: `${cinta.length} rollos`, cuadros: cinta },
+    ].map((banda) => (
+      <>
+        <h2 id={banda.id}>{banda.nombre}</h2>
+        <p>{banda.dato}</p>
+        <ol>
+          {banda.cuadros.map((c, i) => {
+            const m = miniatura(c);
+            return (
+              <li><p>
+                <a href={c.href}>
+                  <Foto
+                    ruta={c.src}
+                    sizes={m.sizes}
+                    alt=""
+                    width={m.w}
+                    height={m.h}
+                    loading={i < 4 ? 'eager' : 'lazy'}
+                    decoding="async"
+                  /><br />{c.titulo}</a><br />
+                {c.clase} | {c.dato}
+              </p></li>
+            );
+          })}
+        </ol>
+      </>
+    ))}
+  </main>
+</Raw>

@@ -1,0 +1,89 @@
+---
+import Raw from '../../layouts/Raw.astro';
+import Foto from '../../../src/components/Foto.astro';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { media, medidaDe, altDe } from '../../../src/lib/media';
+import { oficio } from '../../../src/lib/archivo';
+import { ajustar, sizesDe } from '../../lib/medida';
+
+export async function getStaticPaths() {
+  // el mismo orden que www: lo último que entró va primero
+  const proyectos = (await getCollection('projects')).sort(
+    (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
+  );
+  return proyectos.map((proyecto, i) => ({
+    params: { slug: proyecto.id },
+    props: {
+      proyecto,
+      anterior: proyectos[i - 1] ?? null,
+      siguiente: proyectos[i + 1] ?? null,
+    },
+  }));
+}
+
+interface Props {
+  proyecto: CollectionEntry<'projects'>;
+  anterior: CollectionEntry<'projects'> | null;
+  siguiente: CollectionEntry<'projects'> | null;
+}
+
+const { proyecto, anterior, siguiente }: Props = Astro.props;
+const { data } = proyecto;
+const { Content } = await render(proyecto);
+
+const piezas = Array.from({ length: data.photoCount }, (_, i) => {
+  const nn = String(i + 1).padStart(2, '0');
+  const ruta = `${data.photosDir}${data.photosPrefix}-${nn}.jpg`;
+  const medida = medidaDe(ruta);
+  const [w, h] = medida ? ajustar(...medida) : [undefined, undefined];
+  return {
+    ruta,
+    src: media(ruta),
+    w,
+    h,
+    alt: altDe(ruta, `${data.title}, pieza ${i + 1}`),
+  };
+});
+
+const descripcion = `${data.title}: rollo de ${oficio[data.type]}${data.location ? ` en ${data.location}` : ''}, ${data.year}. ${data.photoCount} piezas del archivo de Von Diego.`;
+---
+
+<Raw title={data.title} description={descripcion} image={data.poster}>
+  <main id="hoja">
+    <h1>{data.title}</h1>
+    <Content />
+
+    <dl>
+      <dt>rollo</dt> <dd>{data.photosPrefix}</dd>
+      <dt>oficio</dt> <dd>{oficio[data.type]}</dd>
+      <dt>año</dt> <dd>{data.year}</dd>
+      {data.location && <><dt>lugar</dt> <dd>{data.location.toLowerCase()}</dd></>}
+      {data.client && <><dt>cliente</dt> <dd>{data.client.toLowerCase()}</dd></>}
+      <dt>piezas</dt> <dd>{data.photoCount}</dd>
+    </dl>
+
+    <p>
+      {piezas.map((pieza, i) => (
+        <><a href={pieza.src}>
+          <Foto
+            ruta={pieza.ruta}
+            sizes={pieza.w ? sizesDe(pieza.w) : undefined}
+            alt={pieza.alt}
+            width={pieza.w}
+            height={pieza.h}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchpriority={i === 0 ? 'high' : undefined}
+          />
+        </a>{' '}</>
+      ))}
+    </p>
+
+    <nav aria-label="Rollos vecinos">
+      <ul>
+        {anterior && <li>rollo anterior: <a href={`/obra/${anterior.id}/`}>{anterior.data.title.toLowerCase()}</a></li>}
+        {siguiente && <li>rollo siguiente: <a href={`/obra/${siguiente.id}/`}>{siguiente.data.title.toLowerCase()}</a></li>}
+      </ul>
+    </nav>
+  </main>
+</Raw>

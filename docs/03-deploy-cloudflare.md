@@ -11,6 +11,7 @@ el sitio se sirve desde Workers Static Assets; la media desde un bucket R2.
 | worker | `museo-dev` | `dev.vondiego.com` |
 | worker | `museo-tube` | `tube.vondiego.com` |
 | worker | `museo-ig` | `ig.vondiego.com` |
+| worker | `museo-raw` | `raw.vondiego.com` |
 | bucket r2 | `museo` | `media.vondiego.com` |
 
 ## von
@@ -33,7 +34,7 @@ npm run build:von
 npx wrangler@4.129.0 deploy --config wrangler.von.jsonc
 ```
 
-El push a `main` despliega los cinco: `museo`, `museo-von`, `museo-dev`, `museo-tube` y `museo-ig`.
+El push a `main` despliega los seis: `museo`, `museo-von`, `museo-dev`, `museo-tube`, `museo-ig` y `museo-raw`.
 
 El dominio ya está conectado (sept 2026). No lo hace el deploy: si algún día
 hay que rehacerlo, es una sola vez, a mano, en el dashboard → Workers & Pages →
@@ -155,6 +156,48 @@ toca (`localStorage`) y no sale de ahí.
 Igual que dev y tube, lee el manifiesto y el contacto de `von/textos/` y los
 subtítulos a través de `von/lib/subtitulos.ts`. Sin sitemap; el canónico de
 cada página apunta a `www.vondiego.com`.
+
+## raw
+
+`raw.vondiego.com` es el mismo archivo sin piel. No se disfraza de nada: son
+las mismas rutas y los mismos textos que www, en HTML pelón, con la letra, el
+color y los márgenes que trae el navegador. Sin hoja de estilos, sin fuente y
+sin JavaScript propio. La única regla de CSS es la que no deja que una foto o
+una cinta se salga de la pantalla.
+
+Cada pieza sale a una medida que cabe en 800 × 600, y en el índice en
+240 × 240 (`raw/lib/medida.ts`); en una ventana más angosta se encoge. Las fotos
+de un rollo se acomodan solas, una tras otra como palabras.
+
+La portada es el reel de www leído de arriba abajo. Sin JavaScript no hay gate
+ni arranque con sonido: cada cinta espera con sus controles a que alguien le dé
+play.
+
+| | raw |
+|---|---|
+| config de astro | `astro.raw.config.mjs` |
+| páginas | `raw/pages` |
+| `public/` | `raw/public/` |
+| salida | `dist-raw/` |
+| config de wrangler | `wrangler.raw.jsonc` |
+
+```bash
+npm run dev:raw
+npm run build:raw
+npx wrangler@4.129.0 deploy --config wrangler.raw.jsonc
+```
+
+El push a `main` lo despliega al final, después de los otros cinco.
+
+El dominio ya está conectado (oct 2026). No lo hace el deploy: si algún día hay
+que rehacerlo, es una sola vez, a mano, en el dashboard → Workers & Pages →
+`museo-raw` → Settings → Domains & Routes → Add → Custom domain →
+`raw.vondiego.com`.
+
+Igual que dev, tube e ig, lee el manifiesto y el contacto de `von/textos/` y los
+subtítulos a través de `von/lib/subtitulos.ts`. Como tiene las rutas de www,
+también trae sus mismos `_redirects`. Sin sitemap; el canónico de cada página
+apunta a `www.vondiego.com`.
 
 ## deploy manual (desde local)
 

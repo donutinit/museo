@@ -21,6 +21,8 @@
     "build:tube": "astro build --config astro.tube.config.mjs",
     "dev:ig": "astro dev --config astro.ig.config.mjs",
     "build:ig": "astro build --config astro.ig.config.mjs",
+    "dev:raw": "astro dev --config astro.raw.config.mjs",
+    "build:raw": "astro build --config astro.raw.config.mjs",
     "derivados": "node scripts/derivados.mjs",
     "revisar-derivados": "node scripts/revisar-derivados.mjs"
   },

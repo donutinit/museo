@@ -1,0 +1,14 @@
+{
+  // raw.vondiego.com: el mismo archivo sin piel.
+  // Igual que `museo`: `assets` sin `main` = solo archivos.
+  // El dominio se agrega una sola vez (ver docs/03).
+  "name": "museo-raw",
+  "compatibility_date": "2026-09-06",
+  "assets": {
+    "directory": "./dist-raw",
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

@@ -1,0 +1,72 @@
+---
+import Raw from '../../layouts/Raw.astro';
+import { cintasPorFecha, kindLabel, subtitulosDe } from '../../../src/data/videos';
+import { media, medidaDe } from '../../../src/lib/media';
+import { medidaCinta } from '../../../src/lib/archivo';
+import { descripcionCinta, tipoCintaSeo } from '../../../src/lib/seo';
+import { tieneSubtitulos } from '../../../von/lib/subtitulos';
+import { ajustar } from '../../lib/medida';
+
+export function getStaticPaths() {
+  // el mismo orden que la lista de cintas en /obra/#cintas
+  return cintasPorFecha.map((cinta, i) => ({
+    params: { slug: cinta.slug },
+    props: {
+      cinta,
+      anterior: cintasPorFecha[i - 1] ?? null,
+      siguiente: cintasPorFecha[i + 1] ?? null,
+    },
+  }));
+}
+
+const { cinta, anterior, siguiente } = Astro.props;
+const [w, h] = ajustar(...(medidaDe(cinta.poster) ?? medidaCinta(cinta.aspect)));
+
+/** `Yolanda — el zorro` → `yolanda`, como lo nombra www entre vecinas. */
+const corto = (t: string) => t.toLowerCase().split(/\s+—\s+/)[0];
+---
+
+<Raw title={`${cinta.title} | ${tipoCintaSeo[cinta.kind]}`} description={descripcionCinta(cinta)} image={cinta.poster}>
+  <main id="hoja">
+    <h1>{cinta.title.toLowerCase()}</h1>
+
+    <video
+      controls
+      preload="none"
+      poster={media(cinta.poster)}
+      width={w}
+      height={h}
+      aria-label={`Cinta: ${cinta.title}`}
+    >
+      <source src={media(cinta.src)} type="video/mp4" />
+      {tieneSubtitulos(cinta.slug) && (
+        <track
+          kind="captions"
+          src={subtitulosDe(cinta.slug)}
+          srclang="es"
+          label="Español"
+          default={!cinta.captionsBurned}
+        />
+      )}
+      Tu navegador no puede reproducir esta cinta.
+    </video>
+
+    {cinta.caption && <blockquote><p>{cinta.caption}</p></blockquote>}
+
+    <dl>
+      <dt>cinta</dt> <dd>{cinta.slug}</dd>
+      <dt>oficio</dt> <dd>{kindLabel[cinta.kind].toLowerCase()}</dd>
+      <dt>año</dt> <dd>{cinta.year}</dd>
+      <dt>corre</dt> <dd>{cinta.durationLabel}</dd>
+      <dt>cuadro</dt> <dd>{cinta.aspect}</dd>
+      <dt>formato</dt> <dd>h.264 aac</dd>
+    </dl>
+
+    <nav aria-label="Cintas vecinas">
+      <ul>
+        {anterior && <li>cinta anterior: <a href={`/video/${anterior.slug}/`}>{corto(anterior.title)}</a></li>}
+        {siguiente && <li>cinta siguiente: <a href={`/video/${siguiente.slug}/`}>{corto(siguiente.title)}</a></li>}
+      </ul>
+    </nav>
+  </main>
+</Raw>

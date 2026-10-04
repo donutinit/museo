@@ -1,0 +1,97 @@
+---
+/**
+ * El reel de www, leído de arriba abajo. Sin JavaScript no hay gate ni
+ * arranque con sonido: cada cinta espera con sus controles a que alguien le dé
+ * play.
+ */
+import Raw from '../layouts/Raw.astro';
+import Foto from '../../src/components/Foto.astro';
+import { placas } from '../../src/data/reel';
+import { cintaPorSlug, subtitulosDe } from '../../src/data/videos';
+import { media, medidaDe, altDe } from '../../src/lib/media';
+import { medidaCinta } from '../../src/lib/archivo';
+import { tieneSubtitulos } from '../../von/lib/subtitulos';
+import { ajustar, sizesDe } from '../lib/medida';
+
+/** `ii / 10` → `ii`: el ancla de cada placa. */
+const ancla = (code: string) => code.split(' ')[0];
+---
+
+<Raw
+  desnudo
+  description="Portafolio de Von Diego, fotógrafo y videasta en Monterrey: retrato, documentación, eventos, obra personal y producción de video."
+>
+  <p>von diego / archivo</p>
+  <p><a href={`#${ancla(placas[0].code)}`}>¿estás listo?</a></p>
+  <p><a href="/obra/">saltar al archivo</a></p>
+
+  <main>
+    <h1>Von Diego — archivo de foto y video, Monterrey</h1>
+
+    {placas.map((placa) => {
+      if (placa.kind === 'final') {
+        return (
+          <section id={ancla(placa.code)}>
+            <hr />
+            <p>{placa.code}</p>
+            <h2><em>{placa.line}</em> {placa.lineEm}.</h2>
+            <p><a href="/obra/">revisar la obra completa</a></p>
+            <p><a href="/contact/">contacto@vondiego.com</a></p>
+          </section>
+        );
+      }
+
+      if (placa.kind === 'grid') {
+        return (
+          <section id={ancla(placa.code)}>
+            <hr />
+            <p>{placa.code} | {placa.caption} | {placa.photos.length} piezas</p>
+            <h2>{placa.title} <em>{placa.titleEm}</em>.</h2>
+            <p>
+              {placa.photos.map((foto) => {
+                const [w, h] = ajustar(foto.width, foto.height);
+                // el espacio entre fotos es el de entre dos palabras
+                return (
+                  <><a href={media(foto.src)}>
+                    <Foto
+                      ruta={foto.src}
+                      sizes={sizesDe(w)}
+                      alt={altDe(foto.src, foto.alt)}
+                      width={w}
+                      height={h}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>{' '}</>
+                );
+              })}
+            </p>
+          </section>
+        );
+      }
+
+      const cinta = cintaPorSlug(placa.slug);
+      const [w, h] = ajustar(...(medidaDe(cinta.poster) ?? medidaCinta(cinta.aspect)));
+      return (
+        <section id={ancla(placa.code)}>
+          <hr />
+          <p>{placa.code} | {placa.where} | vd / {String(cinta.year).slice(-2)} | cinta {cinta.aspect}</p>
+          <h2>{placa.line} <em>{placa.lineEm}</em>.</h2>
+          <video controls preload="none" poster={media(cinta.poster)} width={w} height={h}>
+            <source src={media(cinta.src)} type="video/mp4" />
+            {tieneSubtitulos(cinta.slug) && (
+              <track
+                kind="captions"
+                src={subtitulosDe(cinta.slug)}
+                srclang="es"
+                label="Español"
+                default={!cinta.captionsBurned}
+              />
+            )}
+          </video>
+          <p><a href={`/video/${cinta.slug}/`}>ver la cinta</a></p>
+        </section>
+      );
+    })}
+  </main>
+</Raw>

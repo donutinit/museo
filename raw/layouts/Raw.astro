@@ -1,0 +1,108 @@
+---
+/**
+ * El archivo sin piel: las mismas rutas y los mismos textos que www, con lo
+ * que el navegador trae de fábrica. Sin hoja de estilos, sin fuente, sin
+ * JavaScript. La única regla es la que impide que una foto o una cinta se
+ * salgan de la pantalla.
+ */
+import Adelanto from '../../src/components/Adelanto.astro';
+import { media } from '../../src/lib/media';
+import { SITIO, CORREO, PERFILES } from '../../src/lib/seo';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+  /** La portada va sin navegación ni colofón, como en www. */
+  desnudo?: boolean;
+}
+
+const {
+  title,
+  description = 'Portafolio de Von Diego, fotógrafo y videasta en Monterrey: retrato, documentación, eventos, obra personal y producción de video.',
+  image = '/media/video-posters/entrevista-yolanda.jpg',
+  noindex = false,
+  desnudo = false,
+} = Astro.props;
+
+const fullTitle = title ? `${title} | Von Diego` : 'Von Diego | Fotografía y video en Monterrey';
+const ruta = Astro.url.pathname === '/' ? '/' : `${Astro.url.pathname.replace(/\/$/, '')}/`;
+const canonical = new URL(ruta, SITIO);
+const propia = new URL(ruta, Astro.site);
+
+const base = ruta.replace(/\/$/, '') || '/';
+const enRuta = (r: string) => base === r || base.startsWith(`${r}/`);
+
+const nav = [
+  { href: '/obra/', label: 'archivo', activa: enRuta('/obra') || enRuta('/video') },
+  { href: '/about/', label: 'manifiesto', activa: enRuta('/about') },
+  { href: '/contact/', label: 'contacto', activa: enRuta('/contact') },
+];
+
+const red = (dominio: string) => PERFILES.find((p) => p.includes(dominio));
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="Von Diego" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+    {!noindex && <link rel="canonical" href={canonical} />}
+    {/* sin ícono: la pestaña lleva el de fábrica del navegador */}
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://media.vondiego.com" />
+    <Adelanto />
+    <style is:inline>img,video{max-width:100%;height:auto}</style>
+
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={propia} />
+    <meta property="og:site_name" content="Von Diego" />
+    <meta property="og:image" content={media(image)} />
+    <meta property="og:locale" content="es_MX" />
+  </head>
+
+  <body>
+    {!desnudo && (
+      <header>
+        <p><a href="#hoja">Saltar a la hoja</a></p>
+        <p><a href="/obra/">von diego</a></p>
+        <nav aria-label="Secciones">
+          <ul>
+            {nav.map((i) => (
+              <li><a href={i.href} aria-current={i.activa ? 'page' : undefined}>{i.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+        <hr />
+      </header>
+    )}
+
+    <slot />
+
+    {!desnudo && (
+      <footer>
+        <hr />
+        <p>
+          von diego — archivo de foto y video<br />
+          monterrey, mx<br />
+          <a href={`mailto:${CORREO}`}>{CORREO}</a>
+        </p>
+        <nav aria-label="Perfiles">
+          <ul>
+            <li><a rel="me noopener" href={red('youtube.com')}>youtube</a></li>
+            <li><a rel="me noopener" href={red('instagram.com')}>instagram</a></li>
+            <li><a rel="me noopener" href={red('github.com')}>github</a></li>
+            <li><a rel="noopener" href="https://github.com/donutinit/museo">el código de este sitio</a></li>
+          </ul>
+        </nav>
+      </footer>
+    )}
+  </body>
+</html>
