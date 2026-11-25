@@ -254,3 +254,43 @@ Si hay conflicto: 1) la petición más reciente de Diego, 2) este archivo, 3) `d
 4) lo que se infiere del código.
 
 `CLAUDE.md` es un hard link de este archivo: son el mismo, para Claude, Codex y opencode.
+
+## Cloudflare y media en lizeth (consolidado el 2026-11-25)
+
+- **Credenciales.** En lizeth están en `~/dev/cloudflare.env` (chmod 600) con `EMAIL` y
+  `CLOUDFLARE_GLOBAL`. Es la Global API Key, no un token: se manda con las cabeceras `X-Auth-Email` y
+  `X-Auth-Key`, no con `Authorization: Bearer`. El `~/.config/cloudflare/portfolio.env` que mencionan
+  los docs no existe aquí. La llave tiene alcance total sobre la cuenta (también los Workers `sdlv`,
+  `sdlv-admin` y `html-productions`): úsala solo para lo que Diego pida y sin imprimir valores. Va a
+  curl por `-H @archivo`, nunca dentro del sandbox de npm.
+- **Para qué sirve** (lo que CI no hace): conectar un dominio a un Worker con `PUT
+  /accounts/<cuenta>/workers/domains` (`hostname`, `service`, `environment: production`, `zone_id`).
+  Así se conectaron `von.vondiego.com` a `museo-von` (2026-09-30), `dev.vondiego.com` a `museo-dev`,
+  `tube.vondiego.com` a `museo-tube` e `ig.vondiego.com` a `museo-ig` (2026-10-02) y
+  `raw.vondiego.com` a `museo-raw` (2026-10-04). El deploy normal lo hace GitHub Actions en cada push
+  a `main`.
+- **R2.** En lizeth no hay rclone ni llaves S3. Se sube con la API y la misma llave: `PUT
+  /accounts/<cuenta>/r2/buckets/museo/objects/<key codificada con %2F>` con el archivo como cuerpo;
+  `Content-Type` y `Cache-Control` de esa petición quedan como metadata del objeto (comprobado el
+  2026-10-03). Listar: `GET …/objects?prefix=…&per_page=1000&cursor=…`.
+- **Verificar un subdominio recién conectado.** Hay un comodín público `*.vondiego.com` que manda
+  cualquier subdominio sin registro a `tailnet.vondiego.com` (100.77.220.24), y el resolvedor local de
+  lizeth guarda esa respuesta un rato: `curl` da 000 aunque el sitio ya esté arriba. Saca la IP
+  pública de `https://cloudflare-dns.com/dns-query?name=<host>&type=A` y usa `curl --resolve
+  <host>:443:<ip>`.
+- **Solo plan gratis** (2026-10-03: "no te vayas a pasar de verga con mi freetear de cloudflare no
+  quiero pagar"). La zona `vondiego.com` es Free y R2 cobra si se pasa de 10 GB, 1 M escrituras o 10
+  M lecturas al mes. Antes de activar algo en la cuenta o de cambiar cómo se sirve la media, revisa
+  que sea gratis en Free y calcula cuánto mueve los medidores de R2; dale los números. Nada de Argo
+  Smart Routing, Cloudflare Images/Image Resizing (cobra tras 5,000 transformaciones), Workers con
+  script delante de la media (cuenta invocaciones) ni Cache Reserve. Preferir archivos pregenerados y
+  servidos estáticos.
+- **Derivados AVIF** (2026-10-03). Se subieron a R2 1,453 AVIF bajo `avif/w<N>/…` (4:2:0, q66, 181
+  MB) con `scripts/derivados.mjs`; las páginas los piden vía `<Foto>`/`<picture>`. Los originales de
+  `.cache/media` y los derivados de `.cache/derivados` se quedaron en lizeth para que la próxima
+  corrida solo procese fotos nuevas. 4:2:0 y no 4:4:4 porque 4:4:4 exige el perfil alto de AV1,
+  opcional en AVIF y sin confirmar en Safari viejo; sin WebP porque aplanaba textura. Si una foto
+  nueva sale rota, revisa que sus `avif/` estén en R2 (`npm run revisar-derivados`, que CI corre antes
+  de desplegar). Cambios de zona hechos ese día por API (no están en el repo): Tiered Cache con Smart
+  Topology y Early Hints encendidos; 0-RTT apagado a propósito porque afecta toda la zona, que
+  también sirve plane, review y soli.
